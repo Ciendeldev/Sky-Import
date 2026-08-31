@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { supabaseServer, supabaseAdmin, hasSupabase } from '@/lib/supabase/server'
+import { supabaseServer, hasSupabase } from '@/lib/supabase/server'
 import { emailForUsername, requireAdmin } from '@/lib/admin/auth'
 import { PRODUCTS } from '@/lib/catalog/products'
 import { CATEGORY_META, CATEGORY_ORDER } from '@/lib/catalog/categories'
@@ -344,7 +344,11 @@ export async function setOrderNote(id: string, note: string): Promise<ActionResu
  */
 export async function importStaticCatalog(overwriteStock = false): Promise<ActionResult> {
   await requireAdmin()
-  const supabase = supabaseAdmin()
+  // Con la sesión del operador, NO con la clave de servicio: las políticas RLS
+  // ya le permiten escribir en `products` y `categories`, así que saltárselas
+  // sería un privilegio que esta tarea no necesita. Además deja el panel
+  // funcionando aunque el despliegue no tenga configurada la clave de servicio.
+  const supabase = await supabaseServer()
 
   const categorias = CATEGORY_ORDER.map((slug, i) => {
     const meta = CATEGORY_META[slug]

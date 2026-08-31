@@ -96,7 +96,10 @@ cp .env.example .env.local
 
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — pública por diseño; lo que protege los datos
   son las políticas RLS, no el secreto de esta clave.
-- `SUPABASE_SERVICE_ROLE_KEY` — **salta todas las políticas**. Solo servidor.
+- `SUPABASE_SERVICE_ROLE_KEY` — la «secret key». **Salta todas las políticas.**
+  Solo servidor, y **solo hace falta para crear la cuenta de administración**:
+  todo lo demás pasa por RLS con la sesión del operador. Una vez creada la
+  cuenta, se puede quitar del despliegue.
 
 ### 2 · El esquema
 
@@ -342,7 +345,7 @@ en un solo idioma sin que se note.
    |---|---|
    | `NEXT_PUBLIC_SUPABASE_URL` | Todos los entornos |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Todos los entornos |
-   | `SUPABASE_SERVICE_ROLE_KEY` | **Solo servidor.** Nunca con prefijo `NEXT_PUBLIC_` |
+   | `SUPABASE_SERVICE_ROLE_KEY` | **Opcional y solo servidor.** Nunca con prefijo `NEXT_PUBLIC_` |
    | `ADMIN_USERNAME` · `ADMIN_EMAIL` | Todos los entornos |
 
    `ADMIN_PASSWORD` **no va a Vercel**: solo se usa una vez, en local, para
