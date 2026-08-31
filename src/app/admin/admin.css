@@ -1,0 +1,376 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   PANEL — densidad de herramienta
+
+   Hereda los tokens de la tienda (`globals.css`) y no inventa ni un color
+   nuevo: mismo carbón, mismo cian de instrumento, misma monoespaciada tabular.
+   Lo que cambia es la densidad. La tienda respira; el panel cabe en pantalla.
+
+   Regla que se respeta: el ámbar avisa, el herrumbre bloquea, el cian señala.
+   Igual que en el configurador. Un stock bajo es ámbar porque es un aviso; un
+   agotado es herrumbre porque frena la venta.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.admin-body {
+  min-height: 100dvh;
+  background: var(--color-carbon);
+  color: var(--fg-hi);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─────────────────────────────────────────────────────────────── armazón */
+
+.a-shell {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100dvh;
+}
+
+@media (min-width: 1024px) {
+  .a-shell {
+    grid-template-columns: 232px 1fr;
+  }
+}
+
+.a-side {
+  border-bottom: 1px solid var(--rule);
+  background: var(--color-carbon-sunk);
+  padding: 1.25rem 1rem;
+}
+
+@media (min-width: 1024px) {
+  .a-side {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    border-right: 1px solid var(--rule);
+    border-bottom: 0;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.a-main {
+  min-width: 0;
+  padding: 1.5rem 1rem 5rem;
+}
+
+@media (min-width: 768px) {
+  .a-main {
+    padding: 2rem 2rem 6rem;
+  }
+}
+
+/* ────────────────────────────────────────────────────────── navegación */
+
+.a-nav {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.a-nav::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .a-nav {
+    flex-direction: column;
+    overflow: visible;
+  }
+}
+
+.a-nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-part);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--fg-mid);
+  white-space: nowrap;
+  transition: background-color 220ms var(--ease-rail), color 220ms var(--ease-rail);
+}
+
+.a-nav a:hover {
+  background: color-mix(in oklab, var(--color-steel) 14%, transparent);
+  color: var(--fg-hi);
+}
+
+.a-nav a[aria-current='page'] {
+  background: color-mix(in oklab, var(--color-sky) 16%, transparent);
+  color: var(--fg-hi);
+}
+
+/* El filete que marca la sección activa: el mismo trazado del configurador. */
+.a-nav a[aria-current='page']::before {
+  content: '';
+  width: 2px;
+  height: 14px;
+  background: var(--accent);
+}
+
+.a-nav a:not([aria-current='page'])::before {
+  content: '';
+  width: 2px;
+  height: 14px;
+  background: transparent;
+}
+
+/* ────────────────────────────────────────────────────────── encabezados */
+
+.a-title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.a-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-low);
+}
+
+/* ──────────────────────────────────────────────────────────── superficies */
+
+.a-panel {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-part);
+  background: var(--color-carbon-lift);
+}
+
+.a-panel--pad {
+  padding: 1.25rem;
+}
+
+/* ─────────────────────────────────────────────────────────────── tablas */
+
+.a-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.a-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-carbon-sunk);
+  border-bottom: 1px solid var(--rule);
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-low);
+  white-space: nowrap;
+}
+
+.a-table td {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.75rem;
+  vertical-align: middle;
+}
+
+.a-table tbody tr:hover {
+  background: color-mix(in oklab, var(--color-steel) 8%, transparent);
+}
+
+.a-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ───────────────────────────────────────────────────────────── formularios */
+
+.a-field {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-part);
+  background: var(--color-carbon-sunk);
+  color: var(--fg-hi);
+  font-size: 0.875rem;
+  transition: border-color 200ms var(--ease-rail);
+}
+
+.a-field:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.a-field::placeholder {
+  color: var(--fg-low);
+}
+
+textarea.a-field {
+  min-height: 88px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.a-label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-mid);
+}
+
+.a-hint {
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--fg-low);
+}
+
+.a-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .a-grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .a-grid--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────── botones */
+
+.a-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 1rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-part);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-hi);
+  cursor: pointer;
+  transition:
+    background-color 200ms var(--ease-rail),
+    border-color 200ms var(--ease-rail),
+    color 200ms var(--ease-rail);
+}
+
+.a-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.a-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.a-btn--solid {
+  background: var(--fg-hi);
+  border-color: var(--fg-hi);
+  color: var(--color-carbon);
+}
+
+.a-btn--solid:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--color-carbon);
+}
+
+.a-btn--danger:hover:not(:disabled) {
+  border-color: var(--color-rust);
+  color: var(--color-rust);
+}
+
+.a-btn--sm {
+  min-height: 36px;
+  padding: 0 0.625rem;
+  font-size: 0.625rem;
+}
+
+/* ──────────────────────────────────────────────────────── estado y avisos */
+
+.a-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.1875rem 0.5rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-hair);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.a-tag--ok    { color: var(--fg-low); }
+.a-tag--warn  { color: var(--color-amber); }
+.a-tag--stop  { color: var(--color-rust); }
+.a-tag--info  { color: var(--accent); }
+
+.a-note {
+  padding: 0.75rem 1rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-part);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+
+.a-note--error { color: var(--color-rust); }
+.a-note--ok    { color: var(--accent); }
+.a-note--warn  { color: var(--color-amber); }
+
+/* Cifras siempre comparables. */
+.a-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ────────────────────────────────────────────── tarjetas de cifra del tablero */
+
+.a-stat {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-part);
+  background: var(--color-carbon-lift);
+  padding: 1rem;
+}
+
+.a-stat__value {
+  margin-top: 0.375rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+/* ───────────────────────────────────────────────── movimiento reducido */
+
+@media (prefers-reduced-motion: reduce) {
+  .a-nav a,
+  .a-btn,
+  .a-field {
+    transition: none;
+  }
+}
