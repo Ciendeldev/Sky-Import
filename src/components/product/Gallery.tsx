@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { ComponentDims, ComponentRender } from '@/components/render/ComponentRender'
+import { ComponentDims } from '@/components/render/ComponentRender'
+import { ProductPhoto } from '@/components/product/ProductPhoto'
 import { renderDims } from '@/lib/catalog/derive'
 import { useI18n } from '@/lib/i18n/context'
 import type { Product } from '@/lib/catalog/types'
@@ -41,25 +42,26 @@ export function Gallery({
         onMouseEnter={() => setView('annotated')}
         onMouseLeave={() => setView('front')}
       >
-        <div className="absolute inset-0 grid place-items-center p-6">
+        <div className="absolute inset-0 p-6">
           {imageUrl ? (
-            // Deliberadamente `<img>` y no `next/image`: la URL la carga el
-            // operador desde el panel y puede apuntar a cualquier origen, que
-            // es justo lo que el optimizador de Next no acepta sin declarar el
-            // dominio en `next.config.ts`.
+            // La imagen propia de una variante gana sobre la del producto: es
+            // la razón de ser del selector. Va como `<img>` y no `next/image`
+            // porque su URL la carga el operador y puede ser de cualquier
+            // origen, que es lo que el optimizador no acepta sin declararlo en
+            // `next.config.ts`.
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={imageUrl}
               alt={imageAlt ?? product.name}
               loading="lazy"
               decoding="async"
-              className="max-h-full w-full max-w-[680px] object-contain"
+              className="h-full w-full object-contain"
             />
           ) : (
-            <ComponentRender
-              {...product.render}
-              className="w-full max-w-[680px]"
-              title={`${product.name} — ${t('product.gallery.front')}`}
+            <ProductPhoto
+              product={product}
+              priority
+              sizes="(min-width: 1024px) 56vw, 92vw"
             />
           )}
         </div>

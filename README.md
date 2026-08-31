@@ -399,10 +399,24 @@ buscador.
 
 ## Licencias y recursos de terceros
 
-Todo el material gráfico del proyecto es **autoral**: los renders de componentes
-son SVG dibujados a mano, la pieza 3D es geometría generada en código y el motivo
-de las pistas de circuito se genera a partir de una semilla. No se reproduce
-ninguna marca, logotipo ni fotografía de terceros.
+**El material de interfaz es autoral**: la pieza 3D es geometría generada en
+código, el motivo de las pistas de circuito se genera a partir de una semilla, y
+los renders vectoriales de componentes son SVG dibujados a mano —siguen siendo
+el respaldo de cualquier pieza que no tenga fotografía—.
+
+**Las fotografías de producto NO son autorales.** Son imágenes de prensa de los
+fabricantes, recortadas sobre fondo transparente. La procedencia de cada una de
+las 37 está en [`public/products/SOURCES.md`](public/products/SOURCES.md), con la
+página oficial y el archivo original; varias llevan además el SHA-256 del
+archivo de origen.
+
+> **Esto hay que revisarlo antes de facturar con el sitio.** Las imágenes de
+> prensa de un fabricante suelen permitirse para vender ese mismo producto, pero
+> **cada marca tiene sus condiciones** y algunas de las fuentes del listado no
+> son el fabricante sino una tienda o un fotógrafo. Dos del listado están bajo
+> licencia libre (Wikimedia, CC0) y no tienen problema. Es un riesgo bajo y
+> habitual en el comercio de componentes, pero es un riesgo real y conviene que
+> lo conozcas en vez de descubrirlo por una carta.
 
 Las tipografías (Archivo y Azeret Mono) son de licencia SIL Open Font License 1.1
 y se sirven desde el propio dominio a través de `next/font`. El detalle completo

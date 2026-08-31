@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ComponentRender } from '@/components/render/ComponentRender'
+import { ProductPhoto } from '@/components/product/ProductPhoto'
 import { Price } from '@/components/ui/Price'
 import { useCart, resolveLines, totalsOf, lineKey } from '@/lib/cart'
 import { useUi } from '@/lib/ui'
@@ -114,7 +114,9 @@ export function CartContents({
                 data-cursor-label={t('cta.view')}
                 className="block w-20 shrink-0 self-start bg-surface-sunk rounded-part"
               >
-                <ComponentRender {...line.product.render} className="w-full" />
+                <span className="relative block aspect-square w-full">
+                  <ProductPhoto product={line.product} sizes="80px" />
+                </span>
               </Link>
 
               <div className="min-w-0 flex-1">

@@ -1995,3 +1995,40 @@ html[data-pointer='hidden'] [contenteditable='true'] {
     display: none;
   }
 }
+
+/* ═══════════════════════════════════════════ FOTOGRAFÍA DE PRODUCTO
+   La foto llega recortada, con canal alfa y sin fondo. No se le pone sombra ni
+   marco: el recorte tiene que apoyarse sobre la superficie de la ficha, no
+   flotar sobre un rectángulo propio.                                        */
+
+.u-product-photo {
+  position: relative;
+  display: block;
+  isolation: isolate;
+  /* `next/image` con `fill` necesita que el contenedor tenga tamaño. Quien lo
+     usa le da la caja; acá solo se garantiza que la ocupe entera. */
+  width: 100%;
+  height: 100%;
+}
+
+.u-product-photo__asset {
+  object-fit: contain;
+  user-select: none;
+  transform: translate3d(0, 0, 0);
+  transition: transform 520ms var(--ease-rail);
+  will-change: transform;
+}
+
+/* El acercamiento al pasar el puntero es el mismo gesto que ya tenía el
+   dibujo: la pieza se agranda un punto dentro de su pozo. */
+.group:hover .u-product-photo__asset {
+  transform: translate3d(0, 0, 0) scale(1.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .u-product-photo__asset,
+  .group:hover .u-product-photo__asset {
+    transition: none;
+    transform: none;
+  }
+}

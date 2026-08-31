@@ -1,0 +1,257 @@
+[
+  {
+    "slug": "geforce-rtx-5090-founders-edition-32gb",
+    "imageUrl": "https://assets.nvidia.partners/images/png/RTX5090-3QTR-Back-Left.png",
+    "sourcePage": "https://marketplace.nvidia.com/en-us/consumer/graphics-cards/geforce-rtx-5090-founders-edition/",
+    "credit": "NVIDIA"
+  },
+  {
+    "slug": "geforce-rtx-5080-16gb",
+    "imageUrl": "https://assets.nvidia.partners/images/png/RTX5080-3QTR-Back-Left.png",
+    "sourcePage": "https://marketplace.nvidia.com/en-us/consumer/graphics-cards/geforce-rtx-5080-founders-edition/",
+    "credit": "NVIDIA"
+  },
+  {
+    "slug": "geforce-rtx-5070-ti-16gb",
+    "imageUrl": "https://storage-asset.msi.com/global/picture/image/feature/vga/NVIDIA/new-gen/GB203-300-VENTUS-3X-OC/kv/msi-70ventus-ti-3x-oc.png",
+    "sourcePage": "https://www.msi.com/Graphics-Card/GeForce-RTX-5070-Ti-16G-VENTUS-3X-OC/Overview",
+    "credit": "MSI"
+  },
+  {
+    "slug": "geforce-rtx-5070-12gb",
+    "imageUrl": "https://assets.nvidia.partners/images/png/RTX5070-3QTR-Back-Left.png",
+    "sourcePage": "https://marketplace.nvidia.com/en-us/consumer/graphics-cards/geforce-rtx-5070-founders-edition/",
+    "credit": "NVIDIA"
+  },
+  {
+    "slug": "radeon-rx-9070-xt-16gb",
+    "imageUrl": "https://dlcdnwebimgs.asus.com/files/media/56d6fef8-8294-4b6b-b1e5-50ae6c6e7584/v1/img/kv/pd.png",
+    "sourcePage": "https://www.asus.com/br/motherboards-components/graphics-cards/tuf-gaming/tuf-rx9070xt-o16g-gaming/",
+    "credit": "ASUS"
+  },
+  {
+    "slug": "geforce-rtx-4060-8gb",
+    "imageUrl": "https://storage-asset.msi.com/global/picture/product/product_1689918265abde816554e825065034ba0b77b50c2c.webp",
+    "sourcePage": "https://www.msi.com/Graphics-Card/GeForce-RTX-4060-VENTUS-3X-8G/Gallery",
+    "credit": "MSI"
+  },
+  {
+    "slug": "arc-b580-12gb",
+    "imageUrl": "https://newsroom.intel.com/wp-content/uploads/2024/12/newsroom-intel-arc-b580-2.jpg",
+    "sourcePage": "https://newsroom.intel.com/client-computing/intel-launches-arc-b-series-graphics-cards",
+    "credit": "Intel"
+  },
+  {
+    "slug": "ryzen-7-9800x3d",
+    "imageUrl": "https://production-rdj-web-asset.s3.ap-east-1.amazonaws.com/products/cpu/ecomm/4894/images/amd-ryzen-7-9800x3d-am5-without-cooler-tray-type-1771834093699C0AED0EFCD.png",
+    "sourcePage": "https://www.pcworth.com/product/ad36d3fe9a9b?slug=amd-ryzen-7-9800x3d-am5-without-cooler-tray-type",
+    "credit": "PC Worth product photography"
+  },
+  {
+    "slug": "ryzen-7-7800x3d",
+    "imageUrl": "https://www.techspot.com/articles-info/2657/images/2023-04-05-image-6.jpg",
+    "sourcePage": "https://www.techspot.com/photos/article/2657-amd-ryzen-7800x3d/",
+    "credit": "TechSpot product photography"
+  },
+  {
+    "slug": "ryzen-5-9600x",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ac/AMD%404nmCCD%286nmIOD%29%40Zen5%40Granite_Ridge%40Ryzen_5_9600X%40100-000001405_BY_2429SUY_9AEQ579S40073_DSCx01.jpg",
+    "sourcePage": "https://commons.wikimedia.org/wiki/File:AMD%404nmCCD%286nmIOD%29%40Zen5%40Granite_Ridge%40Ryzen_5_9600X%40100-000001405_BY_2429SUY_9AEQ579S40073_DSCx01.jpg",
+    "credit": "FritzchensFritz photograph via Wikimedia Commons (CC0)"
+  },
+  {
+    "slug": "core-ultra-7-265k",
+    "imageUrl": "https://tm-prd-cdn.themarket.co.nz/resizer/view?b=productimages&h=1080&key=a93a369a16414563279a01df0898b139&w=1080",
+    "sourceSha256": "4569BAA98C6C50D8C2FAF66933143C85307B4C3ACC71FFBF31501DB051C6CD3B",
+    "sourcePage": "https://www.thewarehouse.co.nz/p/intel-core-ultra-7-265k-lga-1851-unlocked-cpu-processor-oem-package-without-cooler/M36750185.html",
+    "credit": "The Warehouse marketplace product photography"
+  },
+  {
+    "slug": "core-i5-14600k",
+    "imageUrl": "https://xstore.md/images/product/2025/05/procesor-intel-core-i5-14600k-tray-xstore-md-41.webp",
+    "sourcePage": "https://xstore.md/ru/komplektuyushhie-pk/processory/intel-core-i5-14600k",
+    "credit": "Xstore product photography"
+  },
+  {
+    "slug": "msi-mag-b850-tomahawk-wifi",
+    "imageUrl": "https://storage-asset.msi.com/global/picture/product/product_1736159752859b0d59d04f539fee0f53b5742d9275.webp",
+    "sourcePage": "https://www.msi.com/Motherboard/MAG-B850-TOMAHAWK-MAX-WIFI/Gallery",
+    "credit": "MSI"
+  },
+  {
+    "slug": "asus-tuf-gaming-b650-plus-wifi",
+    "imageUrl": "https://dlcdnwebimgs.asus.com/files/media/7f358aac-d2d6-4dd0-8fba-dea85469a22e/V1/img/kv-main.png",
+    "sourcePage": "https://www.asus.com/motherboards-components/motherboards/tuf-gaming/tuf-gaming-b650-plus-wifi/",
+    "credit": "ASUS"
+  },
+  {
+    "slug": "msi-pro-b650m-a-wifi",
+    "imageUrl": "https://storage-asset.msi.com/global/picture/product/product_1664782103bd0750526bf08cc98f5d01ef1436f9fa.webp",
+    "sourcePage": "https://www.msi.com/Motherboard/PRO-B650M-A-WIFI/Gallery",
+    "credit": "MSI"
+  },
+  {
+    "slug": "asrock-z890-pro-rs",
+    "imageUrl": "https://www.asrock.com/mb/features/heroMB-Z890%20Pro%20RS.png",
+    "sourcePage": "https://www.asrock.com/mb/Intel/Z890%20Pro%20RS/index.asp",
+    "credit": "ASRock"
+  },
+  {
+    "slug": "gigabyte-b760m-ds3h",
+    "imageUrl": "https://static.gigabyte.com/StaticFile/Image/Global/546e241a08dd427a14a81db8355181e9/Product/33482/png/1000",
+    "sourcePage": "https://www.gigabyte.com/Motherboard/B760M-DS3H-rev-10/gallery",
+    "credit": "Gigabyte"
+  },
+  {
+    "slug": "corsair-vengeance-ddr5-32gb-6000",
+    "imageUrl": "https://res.cloudinary.com/corsair-pwa/image/upload/c_scale,q_auto,w_1600/products/Memory/vengeance-ddr5-blk-config/Gallery/Vengeance-DDR5-2UP-16GB-BLACK_01.png",
+    "sourcePage": "https://www.corsair.com/us/en/p/memory/cmk32gx5m2b6000c36/vengeance-32gb-2x16gb-ddr5-dram-6000mhz-c36-memory-kit-black-cmk32gx5m2b6000c36",
+    "credit": "Corsair"
+  },
+  {
+    "slug": "gskill-trident-z5-neo-32gb-6000",
+    "imageUrl": "https://www.gskill.com/_upload/images/2208251638537.png",
+    "sourcePage": "https://www.gskill.com/product/165/393/1661410171/F5-6000J3038F16GX2-TZ5N",
+    "credit": "G.Skill"
+  },
+  {
+    "slug": "kingston-fury-beast-ddr5-16gb-5600",
+    "imageUrl": "https://media.kingston.com/kingston/product/FURY_Beast_Black_EXPO_DDR5_2-zm-lg.jpg",
+    "sourcePage": "https://www.kingston.com/en/memory/search?partid=KF556C36BBEK2-16",
+    "credit": "Kingston",
+    "sourceMediaType": "image/jpeg",
+    "sourceSha256": "9E80FD2E86807ED125FEA34842DEDD2A43555F44CB41F5EC1D579BBE70BD238A"
+  },
+  {
+    "slug": "corsair-vengeance-lpx-ddr4-16gb-3200",
+    "imageUrl": "https://res.cloudinary.com/corsair-pwa/image/upload/c_scale,q_auto,w_1600/products/Memory/CMK16GX4M2B3200C16/Gallery/VENG_LPX_BLK_00.png",
+    "sourcePage": "https://www.corsair.com/us/en/p/memory/cmk16gx4m2b3200c16/vengeance-lpx-16gb-2-x-8gb-ddr4-dram-3200mhz-c16-memory-kit-black-cmk16gx4m2b3200c16",
+    "credit": "Corsair"
+  },
+  {
+    "slug": "samsung-990-pro-2tb",
+    "imageUrl": "https://images.samsung.com/is/image/samsung/p6pim/es/mz-v9p2t0bw/gallery/es-990pro-nvme-m2-ssd-mz-v9p2t0bw-534283429?$1164_776_PNG$",
+    "sourcePage": "https://www.samsung.com/es/memory-storage/nvme-ssd/990-pro-2tb-nvme-pcie-gen-4-mz-v9p2t0bw/",
+    "credit": "Samsung",
+    "sourceMediaType": "image/png",
+    "sourceSha256": "264B4CBAF015AB7F6F7881E48EA35888050C34CC070DE23A70BFD5896685497F"
+  },
+  {
+    "slug": "wd-black-sn850x-1tb",
+    "imageUrl": "https://www.sandisk.com/content/dam/sandisk/en-us/assets/products/internal-storage/wd-black-sn850x-nvme-ssd/gallery/wd-black-sn850x-nvme-ssd-front.png",
+    "sourcePage": "https://www.sandisk.com/products/ssd/internal-ssd/wd-black-sn850x-nvme-ssd",
+    "credit": "SanDisk / Western Digital"
+  },
+  {
+    "slug": "crucial-p3-plus-1tb",
+    "imageUrl": "https://c1.neweggimages.com/ProductImageCompressAll1280/20-156-299-01.jpg",
+    "sourcePage": "https://www.crucial.com/ssd/p3-plus/ct1000p3pssd8",
+    "credit": "Crucial product image via Newegg",
+    "sourceMediaType": "image/jpeg",
+    "sourceSha256": "336EA4453CB15BAFF2C3D31CB338A1503EFCC3FB58E3F2931E8D00DE3817ECA0"
+  },
+  {
+    "slug": "samsung-870-evo-1tb",
+    "imageUrl": "https://images.samsung.com/is/image/samsung/p6pim/es/mz-77e1t0b-eu/gallery/es-870-evo-sata-3-2-5-ssd-mz-77e1t0b-eu-372776334?$1164_776_PNG$",
+    "sourcePage": "https://www.samsung.com/es/memory-storage/sata-ssd/870-evo-1tb-sata-3-2-5-ssd-mz-77e1t0b-eu/",
+    "credit": "Samsung",
+    "sourceMediaType": "image/png",
+    "sourceSha256": "A04175482969BC50E034048912433245A44FD6656E6889D88E9F61C1F349486C"
+  },
+  {
+    "slug": "corsair-rm750e",
+    "imageUrl": "https://res.cloudinary.com/corsair-pwa/image/upload/c_scale,q_auto,w_1600/v1680126577/products/Power-Supply-Units/base-rme-series-2023-psu-config/Gallery/750W/RM750e_01.png",
+    "sourcePage": "https://www.corsair.com/us/en/p/psu/cp-9020262-na/rme-series-rm750e-fully-modular-low-noise-atx-power-supply-cp-9020262-na",
+    "credit": "Corsair"
+  },
+  {
+    "slug": "seasonic-focus-gx-850",
+    "imageUrl": "https://c1.neweggimages.com/ProductImageCompressAll1280/17-151-188-V09.jpg",
+    "sourcePage": "https://www.newegg.com/seasonic-usa-atx12v-eps12v-850-w-80-plus-gold-certified-power-supply-focus-gx-850/p/N82E16817151188",
+    "credit": "Seasonic FOCUS GX-850 product image via Newegg",
+    "sourceMediaType": "image/jpeg",
+    "sourceSha256": "CE5FFC9D0E7BC86E3E40168D7DBDD91FA2502B1973BB607D5E6E95316D8A11C9",
+    "identityEvidenceUrl": "https://c1.neweggimages.com/ProductImageCompressAll1280/17-151-188-V10.jpg",
+    "identityEvidenceSha256": "F6B5D5F19E871D8646E252E4B39C3D2CBE8C497ACD81A862B144FE49FDA3275A"
+  },
+  {
+    "slug": "corsair-rm1000x",
+    "imageUrl": "https://assets.corsair.com/image/upload/c_scale,q_auto,w_1600/products/Power-Supply-Units/base-rmx-2024-config/gallery/black/1000/RM1000x_2024_01.png",
+    "sourcePage": "https://www.corsair.com/us/en/p/psu/cp-9020271-na/rmx-series-rm1000x-fully-modular-power-supply-cp-9020271-na",
+    "credit": "Corsair"
+  },
+  {
+    "slug": "msi-mag-a650bn",
+    "imageUrl": "https://storage-asset.msi.com/global/picture/product/product_16264026911b468295cf2cd594cc57b1ceb5ab5d63.webp",
+    "sourcePage": "https://www.msi.com/Power-Supply/MAG-A650BN",
+    "credit": "MSI"
+  },
+  {
+    "slug": "noctua-nh-d15",
+    "imageUrl": "https://cdn.noctua.at/media/nh_d15_1.jpg",
+    "sourcePage": "https://noctua.at/en/nh-d15",
+    "credit": "Noctua",
+    "sourceMediaType": "image/jpeg",
+    "sourceSha256": "0293ACA1B0CBA40E204D8CB34EEF1D80F17423B4C098E34CBD80004C0A795068"
+  },
+  {
+    "slug": "thermalright-peerless-assassin-120-se",
+    "imageUrl": "https://www.thermalright.com/wp-content/uploads/2021/10/PA120-SE-%E4%B8%BB%E5%9B%BE-3.jpg",
+    "sourcePage": "https://www.thermalright.com/product/peerless-assassin-120-se/",
+    "credit": "Thermalright",
+    "sourceMediaType": "image/jpeg",
+    "sourceSha256": "B1084B27D34F736D8CB4443E77852355D8D58C43AA46F7F161FFA2B6DB53B411"
+  },
+  {
+    "slug": "arctic-liquid-freezer-iii-360",
+    "imageUrl": "https://www.arctic.de/media/e0/ab/b6/1707469622/Liquid_Freezer_III_360_Black_G02_2.jpg",
+    "sourcePage": "https://www.arctic.de/us/Liquid-Freezer-III-360/ACFRE00136A",
+    "credit": "ARCTIC",
+    "sourceMediaType": "image/jpeg",
+    "sourceSha256": "BD98DF5C938824AD3492C168C30C8417ACD7EF32B65A9D04D1B19D382DF70ACE"
+  },
+  {
+    "slug": "lian-li-lancool-216",
+    "imageUrl": "https://lian-li.com/wp-content/uploads/2022/11/216_1031-035.png",
+    "sourcePage": "https://lian-li.com/product/lancool-216/",
+    "credit": "Lian Li",
+    "sourceMediaType": "image/png",
+    "sourceSha256": "1124E866B9C697AC22DD6342DCD68860760AA9EE7498E8F68D4A5BC796455D59"
+  },
+  {
+    "slug": "nzxt-h5-flow",
+    "imageUrl": "https://nzxt.com/cdn/shop/files/h5-flow-left-side-empty-black_b05c6087-ed77-4dd8-b227-d6ecef3dff6a.png?v=1744863006",
+    "sourcePage": "https://nzxt.com/products/h5-flow-2022",
+    "credit": "NZXT",
+    "sourceMediaType": "image/png",
+    "sourceSha256": "29B9151B2717A5C5B1D25797948400F315BB14BFFE2A0E2221C4BC249E8C4B5C"
+  },
+  {
+    "slug": "cooler-master-masterbox-q300l",
+    "imageUrl": "https://www.coolermaster.com/on/demandware.static/-/Sites-cooler-master-main/default/dwf7ababb2/Assets/masterbox-q300l/large/gallery-1-min.png",
+    "sourcePage": "https://www.coolermaster.com/en-global/products/masterbox-q300l/",
+    "credit": "Cooler Master"
+  },
+  {
+    "slug": "cooler-master-nr200p",
+    "imageUrl": "https://www.coolermaster.com/on/demandware.static/-/Sites-cooler-master-main/default/dwb92ce232/Assets/masterbox-nr200p/large/nr200p-gallery-10.png",
+    "sourcePage": "https://www.coolermaster.com/en-global/products/masterbox-nr200p/",
+    "credit": "Cooler Master",
+    "sourceMediaType": "image/png",
+    "sourceSha256": "1B64481C0A7CF7F3E8645FD73C0C64A3CC65E74299EFD33A652DFFFD63F8335A"
+  },
+  {
+    "slug": "thermal-grizzly-kryonaut-1g",
+    "imageUrl": "https://www.thermal-grizzly.com/media/81/b8/1a/1763537943/1-s-tg-k-001-rs-webp.webp?ts=1777538245",
+    "sourcePage": "https://www.thermal-grizzly.com/en/kryonaut/s-tg-k-001-rs",
+    "credit": "Thermal Grizzly"
+  },
+  {
+    "slug": "arctic-p12-pwm-pst-5-pack",
+    "imageUrl": "https://www.arctic.de/media/51/49/e8/1583760048/P12_PWM_PST_Black_01.jpg",
+    "sourcePage": "https://www.arctic.de/P12-PWM-PST/ACFAN00137A",
+    "credit": "ARCTIC",
+    "sourceMediaType": "image/jpeg",
+    "sourceSha256": "4349D68E69267CA9E446D826E8923BE8B7AE5EA42E493A7D77AFA4C6E5D08EE8"
+  }
+]

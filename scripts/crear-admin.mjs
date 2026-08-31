@@ -22,12 +22,12 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { createInterface } from 'node:readline'
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY
 const USERNAME = process.env.ADMIN_USERNAME || 'Cielo'
 const EMAIL = process.env.ADMIN_EMAIL || 'cielo@skyimport.local'
-const PASSWORD = process.env.ADMIN_PASSWORD
 
 function fallar(mensaje) {
   console.error(`\n  ✗ ${mensaje}\n`)
@@ -36,8 +36,45 @@ function fallar(mensaje) {
 
 if (!URL) fallar('Falta NEXT_PUBLIC_SUPABASE_URL.')
 if (!SERVICE) fallar('Falta SUPABASE_SERVICE_ROLE_KEY (panel de Supabase → Settings → API).')
-if (!PASSWORD) fallar('Falta ADMIN_PASSWORD. Ponela en .env.local y borrala después de correr esto.')
-if (PASSWORD.length < 8) fallar('La contraseña tiene que tener al menos 8 caracteres.')
+
+/**
+ * Pide la contraseña por teclado, sin eco.
+ *
+ * Es mejor que leerla de una variable de entorno: así no queda escrita en
+ * `.env.local` esperando a que alguien se acuerde de borrarla, ni en el
+ * historial del shell. `ADMIN_PASSWORD` se sigue aceptando para poder
+ * automatizar esto en un entorno sin teclado.
+ */
+async function pedirContraseña(prompt) {
+  if (!process.stdin.isTTY) {
+    fallar('No hay terminal para pedir la contraseña. Definí ADMIN_PASSWORD y volvé a intentar.')
+  }
+
+  const rl = createInterface({ input: process.stdin, output: process.stdout, terminal: true })
+
+  // `readline` no trae entrada oculta: se silencia la salida mientras se
+  // escribe, para que la contraseña no quede a la vista de nadie que mire.
+  const escribir = rl._writeToOutput?.bind(rl)
+  rl._writeToOutput = (texto) => {
+    if (texto.includes(prompt)) escribir(texto)
+  }
+
+  const valor = await new Promise((resolve) => rl.question(prompt, resolve))
+  rl.close()
+  process.stdout.write('\n')
+  return valor
+}
+
+let PASSWORD = process.env.ADMIN_PASSWORD
+if (!PASSWORD) {
+  PASSWORD = await pedirContraseña(`  Contraseña para «${USERNAME}»: `)
+  const repetida = await pedirContraseña('  Repetila: ')
+  if (PASSWORD !== repetida) fallar('Las dos contraseñas no coinciden.')
+}
+
+if (!PASSWORD || PASSWORD.length < 8) {
+  fallar('La contraseña tiene que tener al menos 8 caracteres.')
+}
 
 const supabase = createClient(URL, SERVICE, {
   auth: { persistSession: false, autoRefreshToken: false },

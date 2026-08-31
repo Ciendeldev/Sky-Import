@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
-import { ComponentRender } from '@/components/render/ComponentRender'
+import { ProductPhoto } from '@/components/product/ProductPhoto'
 import { Price } from '@/components/ui/Price'
 import { CtaBody } from '@/components/ui/Cta'
 import { useCart, resolveLines, lineKey } from '@/lib/cart'
@@ -205,8 +205,8 @@ export function CheckoutFlow() {
       <ul className="mt-4">
         {resolved.map((line) => (
           <li key={lineKey(line)} className="flex items-center gap-3 border-b border-rule py-3">
-            <span className="w-12 shrink-0">
-              <ComponentRender {...line.product.render} className="w-full" />
+            <span className="relative block aspect-square w-12 shrink-0">
+              <ProductPhoto product={line.product} sizes="48px" />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[0.875rem] text-fg">{line.product.name}</span>

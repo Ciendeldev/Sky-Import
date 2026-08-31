@@ -5,7 +5,8 @@ import dynamic from 'next/dynamic'
 import { useRef } from 'react'
 
 import { FieldPatch } from '@/components/background/FieldPatch'
-import { ComponentRender } from '@/components/render/ComponentRender'
+import { ComponentDims, ComponentRender } from '@/components/render/ComponentRender'
+import { ProductPhoto } from '@/components/product/ProductPhoto'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { AssemblySection } from '@/components/home/AssemblySection'
 import { Trace } from '@/components/motif/Trace'
@@ -126,20 +127,26 @@ export function HomeView() {
             </Reveal>
           </div>
 
-          {/* El render desborda el margen: la pieza no está encajonada. */}
+          {/* La pieza desborda el margen: no está encajonada. La foto es lo
+              primero que se ve de la tienda, así que carga con prioridad y sus
+              cotas se superponen encima en vez de sustituirla. */}
           <div className="relative lg:col-span-6 xl:col-span-7 lg:-mr-[6vw]">
-            <div ref={heroArt} className="relative rounded-part">
-              <ComponentRender
-                {...HERO_GPU.render}
-                view="annotated"
-                dims={[
-                  HERO_GPU.compat.kind === 'gpu' ? `${HERO_GPU.compat.lengthMm} mm` : '',
-                  HERO_GPU.compat.kind === 'gpu' ? `${HERO_GPU.compat.tgpW} W` : '',
-                  HERO_GPU.compat.kind === 'gpu' ? HERO_GPU.compat.bus : '',
-                ].filter(Boolean)}
-                className="w-full"
-                title={t('home.hero.figureAlt')}
+            <div ref={heroArt} className="relative aspect-[4/3] rounded-part">
+              <ProductPhoto
+                product={HERO_GPU}
+                priority
+                sizes="(min-width: 1280px) 58vw, (min-width: 1024px) 50vw, 92vw"
               />
+              <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+                <ComponentDims
+                  dims={[
+                    HERO_GPU.compat.kind === 'gpu' ? `${HERO_GPU.compat.lengthMm} mm` : '',
+                    HERO_GPU.compat.kind === 'gpu' ? `${HERO_GPU.compat.tgpW} W` : '',
+                    HERO_GPU.compat.kind === 'gpu' ? HERO_GPU.compat.bus : '',
+                  ].filter(Boolean)}
+                  className="h-full w-full"
+                />
+              </div>
               <span className="u-sweep" aria-hidden="true" />
             </div>
           </div>

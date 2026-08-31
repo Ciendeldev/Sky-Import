@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { ComponentDims, ComponentRender } from '@/components/render/ComponentRender'
+import { ComponentDims } from '@/components/render/ComponentRender'
+import { ProductPhoto } from '@/components/product/ProductPhoto'
 import { Price } from '@/components/ui/Price'
 import { AddToCart } from '@/components/product/AddToCart'
 import { Tilt } from '@/components/motion/Motion'
@@ -43,11 +44,13 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           <div className="relative aspect-[4/3] overflow-hidden rounded-part bg-surface-sunk">
             <div className="u-plate absolute inset-0 opacity-60" aria-hidden="true" />
 
-            <div className="absolute inset-0 flex items-center justify-center p-2 transition-transform duration-[520ms] ease-rail group-hover:scale-[1.06]">
-              <ComponentRender
-                {...product.render}
-                className="w-[112%] max-w-none"
-                title={`${product.name} — ${t('product.gallery.front')}`}
+            {/* La foto real de la pieza; si no tiene, su dibujo. El acercamiento
+                lo hace la propia imagen, no un envoltorio que escale también
+                las cotas. */}
+            <div className="absolute inset-0 p-4">
+              <ProductPhoto
+                product={product}
+                sizes="(min-width: 1280px) 24vw, (min-width: 640px) 40vw, 88vw"
               />
             </div>
 
