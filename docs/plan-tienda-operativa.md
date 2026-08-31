@@ -39,11 +39,18 @@ Estado del trabajo. Se marca sobre la marcha; sobrevive a un reinicio de sesión
       cierre por WhatsApp. Sin métodos de pago.
 - [x] **8 · Producción.** Quitar todo aviso de demostración y la revelación del
       checkout simulado.
-- [ ] **9 · Verificación y entrega.** lint + typecheck + tests + build + e2e +
-      axe, y publicación en GitHub.
+- [x] **9 · Verificación.** typecheck ✓ · lint ✓ · 66 unitarias ✓ · build ✓ ·
+      69 end-to-end ✓ · axe 10/10 rutas sin infracciones WCAG 2.1 AA ✓.
+      Publicación en GitHub: en curso.
 
 ## Pendiente del usuario
 
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY` del panel de
   Supabase → van a `.env.local` y a las variables de entorno de Vercel.
 - Confirmar el destino en GitHub: hoy el remoto es `Bryan-dev074/Sky-Import`.
+
+## Publicación
+
+`origin` apunta a `Ciendeldev/Sky-Import`; el remoto anterior quedó guardado
+como `origin-anterior`. Los tres commits están hechos y el árbol limpio: falta
+solo autenticar GitHub en esta máquina y empujar.
