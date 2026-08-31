@@ -10,7 +10,12 @@ const config = [
       'out/**',
       'playwright-report/**',
       'test-results/**',
+      'coverage/**',
       'next-env.d.ts',
+      // Los worktrees aislados llevan una copia entera del proyecto, con su
+      // propio `node_modules`. Sin esta línea, `npm run lint` los recorre y
+      // devuelve miles de problemas que no son de este árbol.
+      '.worktrees/**',
     ],
   },
   ...coreWebVitals,

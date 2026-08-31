@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Portada — el primer viewport completo",
+    "path": ".next/static/chunks/**/*.js",
+    "limit": "420 kB",
+    "gzip": true
+  }
+]

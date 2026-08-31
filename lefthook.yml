@@ -1,0 +1,27 @@
+# Ganchos de git.
+#
+# lefthook y no husky: es un binario de Go, no depende de un shell POSIX y por
+# tanto no falla en silencio con clientes Git gráficos en Windows — que es
+# exactamente el entorno de esta máquina.
+#
+# Lo que corre acá es lo BARATO. Las pruebas end-to-end y el build viven en CI:
+# un gancho que tarda dos minutos es un gancho que la gente termina saltándose.
+
+pre-commit:
+  parallel: true
+  commands:
+    tipos:
+      run: npm run typecheck
+    lint:
+      glob: '*.{ts,tsx,mjs}'
+      run: npx eslint {staged_files}
+    # gitleaks es un binario, no un paquete de npm: se instala aparte
+    # (`winget install gitleaks` / `brew install gitleaks`). Si no está, el
+    # commit no se bloquea — en CI sí corre siempre, con la acción oficial.
+    secretos:
+      run: command -v gitleaks >/dev/null 2>&1 && gitleaks protect --staged --redact --no-banner || echo "gitleaks no instalado — se comprueba en CI"
+
+pre-push:
+  commands:
+    pruebas:
+      run: npm test

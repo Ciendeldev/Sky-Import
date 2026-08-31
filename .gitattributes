@@ -1,0 +1,18 @@
+# Finales de línea: LF en el repositorio, siempre. Sin esto, el primer commit
+# desde otra máquina reescribe archivos enteros y los diffs se vuelven ilegibles.
+* text=auto eol=lf
+
+# Los binarios no se tocan.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.pdf binary
+
+# Los lockfiles no aportan nada al revisar un diff.
+package-lock.json linguist-generated=true -diff

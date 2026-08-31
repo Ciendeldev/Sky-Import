@@ -18,10 +18,11 @@ next-env.d.ts
 /blob-report/
 /.playwright/
 
-# entorno — nunca subir valores reales
-.env
-.env.local
-.env.*.local
+# entorno — nunca subir valores reales.
+# Se ignora TODO `.env*` y se rescata solo la plantilla sin valores: así un
+# `.env.production` creado a las apuradas no acaba en el repositorio.
+.env*
+!.env.example
 
 # vercel
 .vercel
@@ -38,3 +39,6 @@ npm-debug.log*
 # configuración local de herramientas de edición
 .claude/
 .worktrees/
+
+# notas de trabajo locales — no forman parte del proyecto
+llave.txt
