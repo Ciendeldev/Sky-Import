@@ -329,16 +329,23 @@ puntero grueso.
 
 ## 5 · Lo que este proyecto NO tiene, a propósito
 
-- **Sin backend, base de datos ni autenticación.** El catálogo funciona
-  estáticamente; añadir persistencia habría sido complejidad sin usuario.
-- **Sin pasarela de pago simulada con formularios de tarjeta.** Se evaluó y se
-  descartó: la forma más creíble de prometer que no se transmiten datos sensibles
-  es **no tener ni un campo donde escribirlos**. Hay una prueba end-to-end que
-  verifica que no existe ningún `input` de contraseña, ningún `autocomplete="cc-*"`
-  y ninguna petición de escritura en todo el recorrido.
-- **Sin datos estructurados de producto (JSON-LD).** Presentarían la tienda como
-  un comercio operativo con precios y disponibilidad reales ante los buscadores.
-  Cuando lo sea, se derivan de los mismos datos del catálogo.
+> **Actualizado el 2026-08-31.** Los dos primeros puntos de esta lista dejaron de
+> ser ciertos cuando la tienda pasó a ser un comercio operativo: hay backend
+> (Supabase) y hay panel de administración. El razonamiento de por qué cambió
+> está en [`adr/ADR-001`](adr/ADR-001-supabase-como-backend.md) y
+> [`adr/ADR-002`](adr/ADR-002-whatsapp-como-unico-cierre.md). Se dejan escritos
+> porque explican de dónde viene la forma del proyecto.
+
+- ~~**Sin backend, base de datos ni autenticación.**~~ Ahora hay Supabase. La
+  premisa original —«añadir persistencia habría sido complejidad sin usuario»—
+  se cayó en cuanto apareció el usuario: el operador que carga stock y precios.
+- **Sigue sin haber pasarela de pago.** Y por el mismo motivo de siempre: la
+  forma más creíble de prometer que no se transmiten datos de tarjeta es **no
+  tener ni un campo donde escribirlos**. La venta se cierra por WhatsApp. La
+  prueba end-to-end verifica que no existe ningún `input` de contraseña ni
+  ningún `autocomplete="cc-*"` en todo el recorrido.
+- **Sin datos estructurados de producto (JSON-LD).** Pendiente: ahora que la
+  tienda se indexa, tiene sentido añadirlos derivándolos del mismo catálogo.
 - **Sin biblioteca de iconos.** Los pocos iconos de interfaz están dibujados en el
   mismo peso de trazo y la misma gramática que el resto del sistema.
 - **Sin scroll suave por JavaScript.** El `scroll-behavior: smooth` nativo alcanza

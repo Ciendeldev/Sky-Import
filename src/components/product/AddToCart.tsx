@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { CtaBody } from '@/components/ui/Cta'
-import { useCart } from '@/lib/cart'
+import { useCart, type CartLine } from '@/lib/cart'
 import { useUi } from '@/lib/ui'
 import { useI18n } from '@/lib/i18n/context'
 import { hasWhatsapp, whatsappLink } from '@/config/site'
@@ -37,6 +37,7 @@ export function AddToCart({
   qty = 1,
   disabled = false,
   variant = 'solid',
+  cartVariant,
   className,
   testId,
 }: {
@@ -45,6 +46,8 @@ export function AddToCart({
   disabled?: boolean
   /** `solid` es la acción protagonista de la vista; `line`, la de una tarjeta. */
   variant?: 'solid' | 'line'
+  /** Variante elegida en la ficha. Sin ella, se agrega la pieza a secas. */
+  cartVariant?: CartLine['variant']
   className?: string
   /** Marca el botón principal de la ficha para poder apuntarle en las pruebas. */
   testId?: string
@@ -84,7 +87,7 @@ export function AddToCart({
       data-lead={lead ? '' : undefined}
       className={`u-cta u-cta--block ${lead ? '' : 'u-cta--sm'} ${className ?? ''}`}
       onClick={() => {
-        add(product.slug, qty)
+        add(product.slug, qty, cartVariant)
         setConfirmed(true)
         window.setTimeout(() => setConfirmed(false), 1600)
         toast(`${product.name} ${t('product.addedToCart')}`)

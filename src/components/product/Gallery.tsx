@@ -14,7 +14,20 @@ import type { Product } from '@/lib/catalog/types'
  * En escritorio basta con acercar el puntero. En teléfono hay dos pestañas
  * reales, porque el hover no existe.
  */
-export function Gallery({ product }: { product: Product }) {
+export function Gallery({
+  product,
+  /**
+   * Imagen propia de la variante elegida. Cuando existe, sustituye al dibujo:
+   * es el punto del selector de variantes —cambiar de versión cambia lo que se
+   * ve, no solo el código—.
+   */
+  imageUrl,
+  imageAlt,
+}: {
+  product: Product
+  imageUrl?: string | null
+  imageAlt?: string
+}) {
   const { t, locale } = useI18n()
   const [view, setView] = useState<'front' | 'annotated'>('front')
   const dims = renderDims(product, locale)
@@ -29,11 +42,26 @@ export function Gallery({ product }: { product: Product }) {
         onMouseLeave={() => setView('front')}
       >
         <div className="absolute inset-0 grid place-items-center p-6">
-          <ComponentRender
-            {...product.render}
-            className="w-full max-w-[680px]"
-            title={`${product.name} — ${t('product.gallery.front')}`}
-          />
+          {imageUrl ? (
+            // Deliberadamente `<img>` y no `next/image`: la URL la carga el
+            // operador desde el panel y puede apuntar a cualquier origen, que
+            // es justo lo que el optimizador de Next no acepta sin declarar el
+            // dominio en `next.config.ts`.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imageUrl}
+              alt={imageAlt ?? product.name}
+              loading="lazy"
+              decoding="async"
+              className="max-h-full w-full max-w-[680px] object-contain"
+            />
+          ) : (
+            <ComponentRender
+              {...product.render}
+              className="w-full max-w-[680px]"
+              title={`${product.name} — ${t('product.gallery.front')}`}
+            />
+          )}
         </div>
         {/* Las cotas se superponen sobre el mismo dibujo, no lo repiten. */}
         <div

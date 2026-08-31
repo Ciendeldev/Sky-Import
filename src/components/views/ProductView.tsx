@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
 import { Gallery } from '@/components/product/Gallery'
 import { BuyBox } from '@/components/product/BuyBox'
 import { ProductCard } from '@/components/catalog/ProductCard'
@@ -13,15 +14,30 @@ import { constraintsOf } from '@/lib/catalog/derive'
 import { useI18n } from '@/lib/i18n/context'
 import { discountPercent } from '@/lib/money'
 import { RULES } from '@/config/site'
+import {
+  defaultSelection,
+  matchVariant,
+  priceOf,
+  unitsOf,
+  type Variant,
+} from '@/lib/variants'
 
-export function ProductView({ slug }: { slug: string }) {
+export function ProductView({ slug, variants = [] }: { slug: string; variants?: Variant[] }) {
   const { t, l, locale, path } = useI18n()
+  // La variante elegida vive acá y no dentro del bloque de compra: la galería
+  // también la necesita, y dos copias del mismo estado se desincronizan.
+  const [variant, setVariant] = useState<Variant | null>(
+    () => (variants.length > 0 ? matchVariant(variants, defaultSelection(variants)) : null),
+  )
+
   const product = PRODUCT_BY_SLUG.get(slug)
   if (!product) return null
 
   const category = CATEGORY_META[product.category]
-  const availability = availabilityOf(product, RULES.lowStockAt)
-  const off = discountPercent(product.priceUsd, product.listPriceUsd)
+  const units = unitsOf(variant, product.units)
+  const price = priceOf(variant, product.priceUsd)
+  const availability = availabilityOf({ ...product, units }, RULES.lowStockAt)
+  const off = discountPercent(price, product.listPriceUsd)
   const constraints = constraintsOf(product, locale)
   const related = PRODUCTS.filter(
     (item) => item.category === product.category && item.slug !== product.slug,
@@ -46,7 +62,11 @@ export function ProductView({ slug }: { slug: string }) {
 
       <article className="u-page grid gap-12 py-10 lg:grid-cols-12 lg:gap-14 lg:py-14">
         <Reveal from="left" className="lg:col-span-7">
-          <Gallery product={product} />
+          <Gallery
+            product={product}
+            imageUrl={variant?.imageUrl}
+            imageAlt={variant ? `${product.name} — ${variant.label[locale]}` : product.name}
+          />
         </Reveal>
 
         <div className="lg:col-span-5">
@@ -62,8 +82,8 @@ export function ProductView({ slug }: { slug: string }) {
           />
 
           <Reveal delayIndex={2}>
-            <p className="u-label mt-3 tabular-nums">
-              {t('product.ref')} {product.ref}
+            <p className="u-label mt-3 tabular-nums" aria-live="polite">
+              {t('product.ref')} {variant?.sku ?? product.ref}
             </p>
 
             <p className="u-measure mt-6 text-[1rem] leading-relaxed text-fg-mid">
@@ -84,7 +104,7 @@ export function ProductView({ slug }: { slug: string }) {
                 </>
               ) : null}
               <Price
-                usd={product.priceUsd}
+                usd={price}
                 className="w-full font-mono text-[clamp(1.5rem,4vw,2rem)] font-medium text-fg"
               />
               <span
@@ -100,7 +120,7 @@ export function ProductView({ slug }: { slug: string }) {
               </span>
             </div>
 
-            <BuyBox product={product} />
+            <BuyBox product={product} variants={variants} onVariantChange={setVariant} />
 
             <p className="u-label mt-5 leading-relaxed normal-case tracking-normal">
               {t('product.priceNote')} {t('currency.note')}

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { ComponentRender } from '@/components/render/ComponentRender'
 import { Price } from '@/components/ui/Price'
-import { useCart, resolveLines, totalsOf } from '@/lib/cart'
+import { useCart, resolveLines, totalsOf, lineKey } from '@/lib/cart'
 import { useUi } from '@/lib/ui'
 import { useI18n } from '@/lib/i18n/context'
 import { formatMoney } from '@/lib/money'
@@ -63,7 +63,7 @@ export function CartContents({
   onNavigate?: () => void
   compact?: boolean
 }) {
-  const { t, path } = useI18n()
+  const { t, path, locale } = useI18n()
   const lines = useCart((s) => s.lines)
   const hydrated = useCart((s) => s.hydrated)
   const setQty = useCart((s) => s.setQty)
@@ -105,7 +105,7 @@ export function CartContents({
     <>
       <ul className="flex-1 overflow-y-auto overscroll-contain">
         {resolved.map((line) => (
-          <li key={line.slug} className="border-b border-rule">
+          <li key={lineKey(line)} className="border-b border-rule">
             <div className="flex gap-4 px-5 py-5">
               <Link
                 href={path(`/producto/${line.slug}`)}
@@ -127,10 +127,15 @@ export function CartContents({
                 >
                   {line.product.name}
                 </Link>
-                <p className="u-label mt-1 tabular-nums">{line.product.ref}</p>
+                {line.variant ? (
+                  <p className="mt-1 text-[0.8125rem] text-fg-mid">{line.variant.label[locale]}</p>
+                ) : null}
+                <p className="u-label mt-1 tabular-nums">
+                  {line.variant?.sku ?? line.product.ref}
+                </p>
 
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                  <Stepper qty={line.qty} max={line.max} onChange={(next) => setQty(line.slug, next)} />
+                  <Stepper qty={line.qty} max={line.max} onChange={(next) => setQty(lineKey(line), next)} />
                   <Price usd={line.lineTotalUsd} className="font-mono text-[0.9375rem] font-medium" />
                 </div>
 
@@ -138,7 +143,7 @@ export function CartContents({
                   type="button"
                   data-cursor="link"
                   onClick={() => {
-                    remove(line.slug)
+                    remove(lineKey(line))
                     toast(`${line.product.name} ${t('cart.removed')}`, {
                       label: t('cta.undo'),
                       run: undoRemove,

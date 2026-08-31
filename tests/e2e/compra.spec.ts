@@ -1,28 +1,25 @@
-import { expect, test, type Request } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 /**
  * Recorrido completo de compra, de punta a punta, como lo haría un cliente.
  *
- * La prueba clave no es que el flujo avance: es que al pulsar «Procesar pago»
- * aparezca la advertencia de experiencia demostrativa Y que no haya salido del
- * navegador ninguna petición que pudiera parecerse a un cobro.
+ * La tienda cierra la venta por WhatsApp. Lo que estas pruebas fijan es que el
+ * recorrido llegue entero hasta ese punto, que el mensaje que se genera lleve
+ * el pedido completo y el número correcto, y que en ninguna pantalla se pida un
+ * dato de tarjeta.
  */
 
-const MENSAJE_DEMO =
-  'Esta es una experiencia demostrativa. No se procesó ningún pago ni se almacenaron datos.'
+const WHATSAPP = '595994222542'
 
-test('el recorrido completo termina en la advertencia y sin ninguna solicitud de pago', async ({
+test('el recorrido completo termina en un mensaje de WhatsApp con el pedido armado', async ({
   page,
+  context,
 }) => {
-  // ── vigilancia de red durante todo el recorrido ──
-  const escrituras: Request[] = []
-  const externas: Request[] = []
-  page.on('request', (request) => {
-    const method = request.method()
-    if (method !== 'GET' && method !== 'HEAD') escrituras.push(request)
-    const url = new URL(request.url())
-    if (url.hostname !== '127.0.0.1' && url.hostname !== 'localhost') externas.push(request)
-  })
+  // Cualquier excepción no capturada durante el recorrido se convierte en un
+  // fallo con su mensaje. Sin esto, un error de cliente se ve como «el botón no
+  // apareció» y hay que adivinar la causa.
+  const fallos: string[] = []
+  page.on('pageerror', (error) => fallos.push(error.message))
 
   // 1 · abrir el catálogo
   await page.goto('/es/catalogo')
@@ -37,12 +34,24 @@ test('el recorrido completo termina en la advertencia y sin ninguna solicitud de
   await expect(page.getByRole('heading', { level: 1 })).toContainText('RTX 5070')
   await expect(page.getByText('SI-VGA-0124')).toBeVisible()
 
-  // 4 · agregar al carrito
+  // 4 · la acción principal de la ficha es comprar por WhatsApp
+  const comprar = page.getByTestId('comprar-whatsapp')
+  await expect(comprar).toBeVisible()
+  const enlaceDirecto = await comprar.getAttribute('href')
+  expect(enlaceDirecto).toContain(`https://wa.me/${WHATSAPP}`)
+
+  const mensajeDirecto = decodeURIComponent(new URL(enlaceDirecto!).searchParams.get('text') ?? '')
+  expect(mensajeDirecto).toContain('🛍️ *PRODUCTO*')
+  expect(mensajeDirecto).toContain('SI-VGA-0124')
+  expect(mensajeDirecto).toContain('/es/producto/geforce-rtx-5070-12gb')
+  expect(mensajeDirecto).toContain('💰 *TOTAL: Gs.')
+
+  // 5 · agregar al carrito con la acción secundaria
   await page.getByTestId('agregar').click()
   await expect(page.getByTestId('agregar')).toContainText('Agregado')
   await expect(page.getByRole('button', { name: 'Abrir carrito' })).toContainText('01')
 
-  // 5 · modificar la cantidad desde el carrito
+  // 6 · modificar la cantidad desde el carrito
   await page.getByRole('button', { name: 'Abrir carrito' }).click()
   const panel = page.getByRole('dialog', { name: 'Carrito' })
   await expect(panel).toBeVisible()
@@ -50,50 +59,75 @@ test('el recorrido completo termina en la advertencia y sin ninguna solicitud de
   await expect(panel.getByTestId('cantidad').first()).toHaveText('2')
   await expect(page.getByRole('button', { name: 'Abrir carrito' })).toContainText('02')
 
-  // 6 · avanzar por el checkout
+  // 7 · checkout
   await panel.getByRole('link', { name: 'Finalizar compra' }).click()
   await expect(page).toHaveURL(/\/es\/checkout$/)
 
-  await expect(page.getByRole('heading', { level: 2, name: 'Resumen del pedido' })).toBeVisible()
-  await page.getByRole('button', { name: 'Continuar' }).click()
+  expect(fallos, 'ninguna excepción de cliente hasta el checkout').toEqual([])
+  await expect(page.getByRole('heading', { level: 2, name: 'Tus datos' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 2, name: 'Entrega' })).toBeVisible()
 
-  await expect(page.getByRole('heading', { level: 2, name: 'Entrega y pago' })).toBeVisible()
-  // Los radios son `sr-only` y se operan por su etiqueta, igual que lo haría
-  // cualquier visitante: se pulsa el texto, no el control invisible.
-  await page.getByText('Envío dentro de Paraguay', { exact: true }).click()
-  await expect(page.getByRole('radio', { name: 'Envío dentro de Paraguay', exact: false })).toBeChecked()
-  await page.getByText('Transferencia bancaria', { exact: true }).click()
-  await expect(page.getByRole('radio', { name: 'Transferencia bancaria', exact: false })).toBeChecked()
-  await page.getByRole('button', { name: 'Continuar' }).click()
-
-  await expect(page.getByRole('heading', { level: 2, name: 'Confirmación' })).toBeVisible()
-
-  // Hasta acá, en ninguna pantalla se pidió un dato sensible.
-  await expect(page.locator('input[type="password"]')).toHaveCount(0)
+  // No hay selector de pasarelas ni campo de tarjeta en ninguna parte.
   await expect(page.locator('input[autocomplete*="cc-"]')).toHaveCount(0)
-  await expect(page.locator('form[action]')).toHaveCount(0)
+  await expect(page.locator('input[type="password"]')).toHaveCount(0)
+  await expect(page.getByText('Transferencia bancaria')).toHaveCount(0)
+  await expect(page.getByText('Tarjeta en el local')).toHaveCount(0)
 
-  // 7 · pulsar finalizar
-  await page.getByTestId('finalizar').click()
+  // 8 · faltan datos: el pedido no sale
+  await page.getByTestId('enviar-pedido').click()
+  await expect(page.getByTestId('error-checkout')).toContainText(
+    'Completá nombre, apellido y teléfono',
+  )
 
-  // 8 · la advertencia aparece, con el texto exacto
-  const revelacion = page.getByTestId('revelacion')
-  await expect(revelacion).toBeVisible()
-  await expect(revelacion).toContainText(MENSAJE_DEMO)
-  await expect(revelacion.getByRole('link', { name: 'Volver a la tienda' })).toBeVisible()
-  await expect(revelacion.getByRole('link', { name: 'Revisar el carrito' })).toBeVisible()
-  await expect(revelacion.getByRole('button', { name: 'Empezar de nuevo' })).toBeVisible()
+  // 9 · completar los datos de entrega
+  await page.getByLabel('Nombre', { exact: true }).fill('Ana')
+  await page.getByLabel('Apellido').fill('Giménez')
+  await page.getByLabel('Teléfono de contacto').fill('+595 981 111 222')
 
-  // 9 · no se produjo NINGUNA solicitud de pago
-  expect(escrituras, 'el proyecto no hace peticiones de escritura en ningún momento').toHaveLength(0)
-  expect(externas, 'el proyecto no llama a ningún servicio externo').toHaveLength(0)
+  await page.getByRole('radio', { name: 'Gran Asunción', exact: false }).check()
+  await page.getByLabel('Dirección exacta').fill('Av. España 1234')
+  await page.getByLabel('Notas del pedido', { exact: false }).fill('Tocar timbre')
 
-  // 10 · el carrito sigue intacto tras la revelación
-  await revelacion.getByRole('link', { name: 'Revisar el carrito' }).click()
-  await expect(page.getByRole('button', { name: 'Abrir carrito' })).toContainText('02')
+  // 10 · enviar abre WhatsApp con el pedido entero escrito.
+  //
+  // La petición a wa.me se corta antes de salir: la prueba comprueba QUÉ se
+  // manda, no que WhatsApp esté en pie. Sin esto, el resultado dependería de la
+  // red del que corre las pruebas.
+  await context.route('https://wa.me/**', (route) =>
+    route.fulfill({ status: 200, contentType: 'text/html', body: 'ok' }),
+  )
+
+  const pestañaPromesa = context.waitForEvent('page')
+  await page.getByTestId('enviar-pedido').click()
+  const pestaña = await pestañaPromesa
+  // La pestaña nace en `about:blank` y navega un instante después.
+  await pestaña.waitForURL(/wa\.me/, { timeout: 10_000 })
+
+  const url = new URL(pestaña.url())
+  expect(url.hostname).toBe('wa.me')
+  expect(url.pathname).toBe(`/${WHATSAPP}`)
+
+  const mensaje = decodeURIComponent(url.searchParams.get('text') ?? '')
+  expect(mensaje).toContain('🛍️ *MI PEDIDO*')
+  expect(mensaje).toContain('1️⃣')
+  expect(mensaje).toContain('✖️ 2 u.')
+  expect(mensaje).toContain('👤 *DATOS DE ENTREGA*')
+  expect(mensaje).toContain('• Nombre: Ana Giménez')
+  expect(mensaje).toContain('• Teléfono: +595 981 111 222')
+  expect(mensaje).toContain('Av. España 1234')
+  expect(mensaje).toContain('• Notas: Tocar timbre')
+  expect(mensaje).toContain('🚚 Envío (Gran Asunción)')
+  expect(mensaje).toContain('💰 *TOTAL: Gs.')
+  // Sin cupón aplicado, esa línea no se imprime.
+  expect(mensaje).not.toContain('🎟️')
+
+  await pestaña.close()
+
+  // 11 · el carrito queda vacío después de enviar el pedido
+  await expect(page.getByRole('button', { name: 'Abrir carrito' })).not.toContainText('02')
 })
 
-test('la revelación es lo único que declara el carácter demostrativo', async ({ page }) => {
+test('ninguna pantalla se declara una demostración', async ({ page }) => {
   const rutas = [
     '/es',
     '/es/catalogo',
@@ -107,7 +141,15 @@ test('la revelación es lo único que declara el carácter demostrativo', async 
   for (const ruta of rutas) {
     await page.goto(ruta)
     const texto = (await page.locator('body').innerText()).toLowerCase()
-    for (const palabra of ['demostrativ', 'prototipo', 'ficticio', 'portafolio', 'portfólio']) {
+    for (const palabra of [
+      'demostrativ',
+      'prototipo',
+      'ficticio',
+      'portafolio',
+      'portfólio',
+      'modo desarrollo',
+      'página de prueba',
+    ]) {
       expect(texto, `«${palabra}» no debe aparecer en ${ruta}`).not.toContain(palabra)
     }
     expect((await page.title()).toLowerCase()).not.toContain('demo')
@@ -123,11 +165,24 @@ test('el carrito sobrevive a una recarga completa', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Abrir carrito' })).toContainText('01')
 })
 
-test('la tienda pide no ser indexada mientras no sea un comercio operativo', async ({ page }) => {
+test('la tienda se indexa y el panel no', async ({ page }) => {
   const response = await page.goto('/es')
-  expect(response?.headers()['x-robots-tag']).toContain('noindex')
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/)
+  expect(response?.headers()['x-robots-tag'] ?? '').not.toContain('noindex')
+  await expect(page.locator('meta[name="robots"][content*="noindex"]')).toHaveCount(0)
 
   const robots = await page.request.get('/robots.txt')
-  expect(await robots.text()).toContain('Disallow: /')
+  const texto = await robots.text()
+  expect(texto).toContain('Allow: /')
+  expect(texto).toContain('/admin')
+
+  // El panel sí queda fuera de los buscadores, por cabecera.
+  const panel = await page.request.get('/admin/acceso')
+  expect(panel.headers()['x-robots-tag']).toContain('noindex')
+})
+
+test('el panel exige sesión', async ({ page }) => {
+  await page.goto('/admin')
+  // Sin sesión, cualquier ruta del panel lleva a la pantalla de acceso.
+  await expect(page).toHaveURL(/\/admin\/acceso$/)
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Panel de administración')
 })

@@ -24,8 +24,8 @@ export const SITE = {
  * oculta por completo todo CTA de WhatsApp en lugar de publicar un enlace falso.
  */
 export const CONTACT = {
-  whatsapp: '595982064334',
-  whatsappDisplay: '+595 982 064 334',
+  whatsapp: '595994222542',
+  whatsappDisplay: '+595 994 222 542',
   email: '',
 } as const
 

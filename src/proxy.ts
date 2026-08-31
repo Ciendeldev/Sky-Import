@@ -26,6 +26,10 @@ export function proxy(request: NextRequest) {
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
+    // El panel de administración no lleva idioma en la ruta: no es bilingüe,
+    // no se comparte y no se indexa. Sin esta línea, `/admin` acabaría
+    // redirigido a `/es/admin`, que no existe.
+    pathname.startsWith('/admin') ||
     PUBLIC_FILE.test(pathname)
   ) {
     return NextResponse.next()

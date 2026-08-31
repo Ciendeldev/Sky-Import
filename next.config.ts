@@ -19,10 +19,18 @@ const nextConfig: NextConfig = {
       {
         source: '/:path*',
         headers: [
-          // La tienda no es un comercio operativo todavía: no debe indexarse.
-          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+        ],
+      },
+      {
+        // El panel NUNCA se indexa ni se guarda en caché intermedia, aunque la
+        // tienda ya sea pública. Es la única ruta con `noindex` del proyecto.
+        source: '/admin/:path*',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
+          { key: 'Cache-Control', value: 'no-store, max-age=0' },
         ],
       },
     ]

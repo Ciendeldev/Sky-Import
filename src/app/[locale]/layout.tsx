@@ -79,8 +79,6 @@ export async function generateMetadata({
     title: { default: title, template: `%s · ${SITE.name}` },
     description,
     applicationName: SITE.name,
-    // Mientras la tienda no sea un comercio operativo, no debe indexarse.
-    robots: { index: false, follow: false, nocache: true },
     alternates: {
       canonical: `/${locale}`,
       languages: { es: '/es', 'pt-BR': '/pt' },

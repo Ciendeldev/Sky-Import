@@ -38,11 +38,9 @@ const es = {
   'cta.view': 'Ver',
   'cta.viewAll': 'Ver todo el catálogo',
   'cta.whatsapp': 'Consultar por WhatsApp',
+  'cta.buyWhatsapp': 'Comprar por WhatsApp',
   'cta.backToStore': 'Volver a la tienda',
   'cta.reviewCart': 'Revisar el carrito',
-  'cta.restart': 'Empezar de nuevo',
-  'cta.continue': 'Continuar',
-  'cta.back': 'Atrás',
   'cta.close': 'Cerrar',
   'cta.undo': 'Deshacer',
 
@@ -172,6 +170,8 @@ const es = {
   'product.notFoundBody': 'Puede que haya cambiado de código. Buscala en el catálogo completo.',
   'product.addedToCart': 'agregado al carrito',
   'product.soldOut': 'Sin stock — consultá por WhatsApp',
+  'product.soldOutNote':
+    'Esta pieza no tiene unidades ahora mismo. Escribinos y te avisamos apenas entre.',
 
   // ────────────────────────────────────────────────────────────── configurador
   'build.title': 'Arma tu PC',
@@ -232,46 +232,46 @@ const es = {
 
   // ────────────────────────────────────────────────────────────────── checkout
   'checkout.title': 'Finalizar compra',
-  'checkout.step': 'Paso',
-  'checkout.of': 'de',
-  'checkout.step1': 'Resumen del pedido',
-  'checkout.step2': 'Entrega y pago',
-  'checkout.step3': 'Confirmación',
-  'checkout.step1.lede': 'Revisá que estén las piezas correctas antes de seguir.',
-  'checkout.step2.lede':
-    'Elegí cómo querés recibirlo y con qué método vas a pagar. No pedimos ningún dato de tarjeta.',
-  'checkout.step3.lede': 'Este es el resumen final. Al confirmar se cierra el pedido.',
-  'checkout.delivery': 'Entrega',
-  'checkout.delivery.pickup': 'Retiro en Ciudad del Este',
-  'checkout.delivery.pickup.note': 'Coordinamos el punto y el horario por WhatsApp.',
-  'checkout.delivery.national': 'Envío dentro de Paraguay',
-  'checkout.delivery.national.note': 'Encomienda a la terminal o dirección que indiques.',
-  'checkout.delivery.border': 'Entrega en zona de frontera',
-  'checkout.delivery.border.note': 'Para compradores que cruzan desde Foz do Iguaçu.',
-  'checkout.payment': 'Método de pago',
-  'checkout.payment.transfer': 'Transferencia bancaria',
-  'checkout.payment.transfer.note': 'Se coordinan los datos por WhatsApp al confirmar.',
-  'checkout.payment.cash': 'Efectivo al retirar',
-  'checkout.payment.cash.note': 'Dólares o guaraníes en el punto de entrega.',
-  'checkout.payment.card': 'Tarjeta en el local',
-  'checkout.payment.card.note': 'La tarjeta se pasa presencialmente. Acá no pedimos números.',
-  'checkout.noDataNote':
-    'No pedimos número de tarjeta, documento ni dirección en esta pantalla. Nada de lo que elegís acá sale de tu navegador.',
-  'checkout.orderSummary': 'Resumen',
-  'checkout.finalize': 'Procesar pago',
-  'checkout.processing': 'Procesando',
+  'checkout.lede':
+    'Completá tus datos y enviamos el pedido armado por WhatsApp. Ahí confirmamos disponibilidad y coordinamos el pago y la entrega.',
+  'checkout.orderSummary': 'Tu pedido',
+
+  'checkout.section.contact': 'Tus datos',
+  'checkout.firstName': 'Nombre',
+  'checkout.lastName': 'Apellido',
+  'checkout.phone': 'Teléfono de contacto',
+  'checkout.phoneHint': 'Con el que te escribimos por WhatsApp.',
+
+  'checkout.section.delivery': 'Entrega',
+  'checkout.zone': 'Ciudad o zona',
+  'checkout.address': 'Dirección exacta',
+  'checkout.addressPlaceholder': 'Calle, número, barrio y una referencia',
+  'checkout.notes': 'Notas del pedido',
+  'checkout.notesPlaceholder': 'Horario en el que estás, referencias para llegar, lo que sea útil.',
+  'checkout.notesOptional': 'Opcional',
+
+  'checkout.section.coupon': 'Cupón de descuento',
+  'checkout.couponPlaceholder': 'Código',
+  'checkout.couponApply': 'Aplicar',
+  'checkout.couponApplied': 'Cupón aplicado',
+  'checkout.couponRemove': 'Quitar',
+  'checkout.coupon.not_found': 'Ese código no existe.',
+  'checkout.coupon.inactive': 'Ese cupón ya no está activo.',
+  'checkout.coupon.expired': 'Ese cupón venció.',
+  'checkout.coupon.not_started': 'Ese cupón todavía no empezó a regir.',
+  'checkout.coupon.exhausted': 'Ese cupón ya llegó a su límite de usos.',
+  'checkout.coupon.below_minimum': 'Tu pedido no llega al mínimo que pide ese cupón.',
+  'checkout.coupon.offline': 'No pudimos comprobar el cupón. Probá de nuevo en un momento.',
+
+  'checkout.send': 'Enviar pedido por WhatsApp',
+  'checkout.sending': 'Preparando el pedido',
+  'checkout.required': 'Completá nombre, apellido y teléfono para continuar.',
+  'checkout.addressRequired': 'Para esta zona necesitamos la dirección exacta.',
+  'checkout.failed': 'No pudimos registrar el pedido. Probá de nuevo o escribinos directamente.',
+  'checkout.howItWorks':
+    'El pedido se cierra por WhatsApp: no se piden datos de tarjeta en esta pantalla. Al enviarlo, se abre la conversación con todo el detalle ya escrito.',
   'checkout.emptyTitle': 'No hay nada para finalizar',
   'checkout.emptyBody': 'Agregá al menos una pieza al carrito para continuar.',
-
-  // La única aparición pública del carácter demostrativo del proyecto.
-  'reveal.title': 'Alto ahí',
-  'reveal.message':
-    'Esta es una experiencia demostrativa. No se procesó ningún pago ni se almacenaron datos.',
-  'reveal.detail':
-    'Sky Import es una pieza de portafolio: el catálogo, los precios y la disponibilidad son datos de ejemplo. En ningún momento se solicitaron ni se enviaron datos de pago, y tu carrito sigue intacto.',
-  'reveal.backToStore': 'Volver a la tienda',
-  'reveal.reviewCart': 'Revisar el carrito',
-  'reveal.restart': 'Empezar de nuevo',
 
   // ────────────────────────────────────────────────────────────────────── guías
   'guides.title': 'Guías',
@@ -337,11 +337,9 @@ const pt: Record<DictKey, string> = {
   'cta.view': 'Ver',
   'cta.viewAll': 'Ver todo o catálogo',
   'cta.whatsapp': 'Falar no WhatsApp',
+  'cta.buyWhatsapp': 'Comprar pelo WhatsApp',
   'cta.backToStore': 'Voltar à loja',
   'cta.reviewCart': 'Revisar o carrinho',
-  'cta.restart': 'Começar de novo',
-  'cta.continue': 'Continuar',
-  'cta.back': 'Voltar',
   'cta.close': 'Fechar',
   'cta.undo': 'Desfazer',
 
@@ -466,6 +464,8 @@ const pt: Record<DictKey, string> = {
   'product.notFoundBody': 'Pode ter mudado de código. Procure no catálogo completo.',
   'product.addedToCart': 'adicionado ao carrinho',
   'product.soldOut': 'Sem estoque — fale no WhatsApp',
+  'product.soldOutNote':
+    'Esta peça está sem unidades no momento. Fale conosco e avisamos assim que chegar.',
 
   'build.title': 'Monte seu PC',
   'build.eyebrow': 'Painel de compatibilidade',
@@ -523,45 +523,46 @@ const pt: Record<DictKey, string> = {
   'cart.loading': 'Carregando o carrinho',
 
   'checkout.title': 'Finalizar compra',
-  'checkout.step': 'Passo',
-  'checkout.of': 'de',
-  'checkout.step1': 'Resumo do pedido',
-  'checkout.step2': 'Entrega e pagamento',
-  'checkout.step3': 'Confirmação',
-  'checkout.step1.lede': 'Confira se as peças estão certas antes de seguir.',
-  'checkout.step2.lede':
-    'Escolha como quer receber e com que método vai pagar. Não pedimos nenhum dado de cartão.',
-  'checkout.step3.lede': 'Este é o resumo final. Ao confirmar, o pedido é fechado.',
-  'checkout.delivery': 'Entrega',
-  'checkout.delivery.pickup': 'Retirada em Ciudad del Este',
-  'checkout.delivery.pickup.note': 'Combinamos o ponto e o horário pelo WhatsApp.',
-  'checkout.delivery.national': 'Envio dentro do Paraguai',
-  'checkout.delivery.national.note': 'Encomenda ao terminal ou endereço que você indicar.',
-  'checkout.delivery.border': 'Entrega na zona de fronteira',
-  'checkout.delivery.border.note': 'Para compradores que cruzam de Foz do Iguaçu.',
-  'checkout.payment': 'Forma de pagamento',
-  'checkout.payment.transfer': 'Transferência bancária',
-  'checkout.payment.transfer.note': 'Os dados são combinados pelo WhatsApp ao confirmar.',
-  'checkout.payment.cash': 'Dinheiro na retirada',
-  'checkout.payment.cash.note': 'Dólares ou guaranis no ponto de entrega.',
-  'checkout.payment.card': 'Cartão na loja',
-  'checkout.payment.card.note': 'O cartão é passado presencialmente. Aqui não pedimos números.',
-  'checkout.noDataNote':
-    'Não pedimos número de cartão, documento nem endereço nesta tela. Nada do que você escolhe aqui sai do seu navegador.',
-  'checkout.orderSummary': 'Resumo',
-  'checkout.finalize': 'Processar pagamento',
-  'checkout.processing': 'Processando',
+  'checkout.lede':
+    'Preencha seus dados e enviamos o pedido montado pelo WhatsApp. Lá confirmamos a disponibilidade e combinamos o pagamento e a entrega.',
+  'checkout.orderSummary': 'Seu pedido',
+
+  'checkout.section.contact': 'Seus dados',
+  'checkout.firstName': 'Nome',
+  'checkout.lastName': 'Sobrenome',
+  'checkout.phone': 'Telefone de contato',
+  'checkout.phoneHint': 'É o número pelo qual falamos com você no WhatsApp.',
+
+  'checkout.section.delivery': 'Entrega',
+  'checkout.zone': 'Cidade ou região',
+  'checkout.address': 'Endereço exato',
+  'checkout.addressPlaceholder': 'Rua, número, bairro e um ponto de referência',
+  'checkout.notes': 'Observações do pedido',
+  'checkout.notesPlaceholder': 'Horário em que você está, referências para chegar, o que for útil.',
+  'checkout.notesOptional': 'Opcional',
+
+  'checkout.section.coupon': 'Cupom de desconto',
+  'checkout.couponPlaceholder': 'Código',
+  'checkout.couponApply': 'Aplicar',
+  'checkout.couponApplied': 'Cupom aplicado',
+  'checkout.couponRemove': 'Remover',
+  'checkout.coupon.not_found': 'Esse código não existe.',
+  'checkout.coupon.inactive': 'Esse cupom não está mais ativo.',
+  'checkout.coupon.expired': 'Esse cupom venceu.',
+  'checkout.coupon.not_started': 'Esse cupom ainda não começou a valer.',
+  'checkout.coupon.exhausted': 'Esse cupom já chegou ao limite de usos.',
+  'checkout.coupon.below_minimum': 'Seu pedido não atinge o mínimo exigido por esse cupom.',
+  'checkout.coupon.offline': 'Não conseguimos verificar o cupom. Tente de novo em instantes.',
+
+  'checkout.send': 'Enviar pedido pelo WhatsApp',
+  'checkout.sending': 'Preparando o pedido',
+  'checkout.required': 'Preencha nome, sobrenome e telefone para continuar.',
+  'checkout.addressRequired': 'Para esta região precisamos do endereço exato.',
+  'checkout.failed': 'Não conseguimos registrar o pedido. Tente de novo ou fale direto conosco.',
+  'checkout.howItWorks':
+    'O pedido é fechado pelo WhatsApp: não pedimos dados de cartão nesta tela. Ao enviar, a conversa abre com todo o detalhe já escrito.',
   'checkout.emptyTitle': 'Não há nada para finalizar',
   'checkout.emptyBody': 'Adicione pelo menos uma peça ao carrinho para continuar.',
-
-  'reveal.title': 'Um momento',
-  'reveal.message':
-    'Esta é uma experiência demonstrativa. Nenhum pagamento foi processado e nenhum dado foi armazenado.',
-  'reveal.detail':
-    'Sky Import é uma peça de portfólio: o catálogo, os preços e a disponibilidade são dados de exemplo. Em nenhum momento foram solicitados ou enviados dados de pagamento, e seu carrinho continua intacto.',
-  'reveal.backToStore': 'Voltar à loja',
-  'reveal.reviewCart': 'Revisar o carrinho',
-  'reveal.restart': 'Começar de novo',
 
   'guides.title': 'Guias',
   'guides.eyebrow': 'Como escolher',
