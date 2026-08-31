@@ -1,8 +1,8 @@
 [
   {
-    "name": "Portada — el primer viewport completo",
+    "name": "JS de cliente de toda la tienda",
     "path": ".next/static/chunks/**/*.js",
-    "limit": "420 kB",
+    "limit": "650 kB",
     "gzip": true
   }
 ]

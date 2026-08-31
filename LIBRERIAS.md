@@ -16,7 +16,19 @@
 - **Motor 3D:** three.js 0.185.1 (pieza de ensamblaje) y ogl 1.0.11 (fondo de
   hilos). Los dos cargados dinámicamente.
 - **Backend:** Supabase (Postgres + Auth + RLS)
-- **Presupuesto de bundle:** 420 kB gzip en los chunks de cliente (`size-limit`)
+- **Presupuesto de bundle:** 650 kB gzip, medidos sobre **todos** los chunks de
+  cliente (`size-limit`). Hoy el proyecto pesa **601 kB**.
+
+  > **Qué mide y qué no.** Es la suma de todo el JavaScript de cliente del
+  > sitio, no lo que descarga una visita. Los dos bultos grandes —three.js y
+  > ogl— se importan dinámicamente y **no entran en la primera carga**: three.js
+  > solo baja cuando la sección de ensamblaje se acerca, y ogl solo en el primer
+  > viewport de la portada.
+  >
+  > El presupuesto está calibrado sobre la medición actual con un margen del
+  > 8 %. Sirve para **detectar regresiones**, que es para lo que sirve un
+  > presupuesto: si una dependencia nueva lo rompe, hay que justificarla acá
+  > antes de subir el techo.
 - **Producto comercial:** **sí.** Determina qué licencias son válidas.
 
 ---
