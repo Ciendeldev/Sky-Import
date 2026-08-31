@@ -159,24 +159,63 @@ export interface PlaceOrderInput {
   couponCode?: string | null
 }
 
+export type PlaceOrderOutcome =
+  /** Quedó registrado. `number` es el que va en el mensaje. */
+  | { status: 'registrado'; number: string }
+  /**
+   * No se pudo registrar, pero la venta SIGUE. Pasa cuando no hay base
+   * conectada, cuando el catálogo todavía no se importó o cuando el servicio
+   * no responde. El vendedor confirma por WhatsApp, como haría igual.
+   */
+  | { status: 'sin-registro'; reason: string }
+  /**
+   * La venta NO puede seguir. Un solo caso: no hay unidades suficientes.
+   * Mandar por WhatsApp un pedido que no se puede cumplir es peor que
+   * detenerlo acá.
+   */
+  | { status: 'bloqueado'; message: string }
+
 /**
  * Registra el pedido antes de abrir WhatsApp.
  *
  * El cliente manda QUÉ pide, no cuánto cuesta: la función de la base relee los
- * precios y descuenta el stock en la misma transacción. Devuelve el número de
- * pedido, o `null` si todavía no hay base conectada —en cuyo caso la venta
- * sigue su curso por WhatsApp igual, sin registro interno—.
+ * precios y descuenta el stock en la misma transacción.
+ *
+ * **El registro nunca puede costar una venta.** Es una ayuda de seguimiento
+ * comercial, no un requisito para vender: la tienda vendía por WhatsApp antes
+ * de tener base y tiene que poder seguir haciéndolo si la base falla. Por eso
+ * el único fallo que detiene el pedido es el de stock, que es un hecho del
+ * negocio y no de la infraestructura.
  */
-export async function placeOrder(input: PlaceOrderInput): Promise<string | null> {
-  if (!hasSupabaseBrowser) return null
+export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderOutcome> {
+  if (!hasSupabaseBrowser) {
+    return { status: 'sin-registro', reason: 'sin base configurada' }
+  }
 
-  const { data, error } = await supabaseBrowser().rpc('place_order', {
-    p_items: input.items,
-    p_customer: input.customer,
-    p_zone_slug: input.zoneSlug,
-    p_coupon_code: input.couponCode ?? null,
-  })
+  try {
+    const { data, error } = await supabaseBrowser().rpc('place_order', {
+      p_items: input.items,
+      p_customer: input.customer,
+      p_zone_slug: input.zoneSlug,
+      p_coupon_code: input.couponCode ?? null,
+    })
 
-  if (error) throw new Error(error.message)
-  return (data as { order_number?: string } | null)?.order_number ?? null
+    if (error) {
+      // El mensaje de la excepción de Postgres viaja en `message`. El de stock
+      // es el único que el cliente necesita ver y el único que detiene todo.
+      if (/sin stock suficiente/i.test(error.message)) {
+        return { status: 'bloqueado', message: error.message }
+      }
+      return { status: 'sin-registro', reason: error.message }
+    }
+
+    const number = (data as { order_number?: string } | null)?.order_number
+    return number
+      ? { status: 'registrado', number }
+      : { status: 'sin-registro', reason: 'la base no devolvió número de pedido' }
+  } catch (e) {
+    // Red caída, servicio reiniciando, CORS… nada de esto es asunto del
+    // cliente que está intentando comprar.
+    return { status: 'sin-registro', reason: e instanceof Error ? e.message : 'error de red' }
+  }
 }

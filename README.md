@@ -131,6 +131,17 @@ Entrá en `/admin` y pulsá **Importar el catálogo del proyecto**. Vuelca las 3
 piezas con su ficha técnica y sus datos de compatibilidad. A partir de ahí el
 catálogo se edita desde el panel.
 
+**Si todavía no tenés cuenta de administración**, hay un camino que no necesita
+ninguna credencial:
+
+```bash
+node scripts/generar-seed.mjs
+```
+
+Genera `supabase/seed-catalogo.sql` desde el mismo catálogo tipado que usa el
+panel, y se pega en el SQL Editor. Es idempotente y **no toca las unidades en
+stock**: esas las lleva el operador y no las pisa un archivo.
+
 ---
 
 ## Comandos disponibles

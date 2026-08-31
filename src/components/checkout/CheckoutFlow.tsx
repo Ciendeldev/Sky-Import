@@ -131,32 +131,41 @@ export function CheckoutFlow() {
 
     setSending(true)
 
-    let orderNumber: string | null = null
-    try {
-      // Se registra ANTES de abrir la conversación: así queda constancia del
-      // pedido aunque el cliente no llegue a mandar el mensaje.
-      orderNumber = await placeOrder({
-        items: resolved.map((l) => ({
-          slug: l.slug,
-          variant_sku: l.variantSku ?? null,
-          qty: l.qty,
-        })),
-        customer: {
-          first_name: firstName.trim(),
-          last_name: lastName.trim(),
-          phone: phone.trim(),
-          address: address.trim(),
-          notes: notes.trim(),
-          locale,
-        },
-        zoneSlug,
-        couponCode: coupon?.code ?? null,
-      })
-    } catch (e) {
+    // Se registra ANTES de abrir la conversación: así queda constancia del
+    // pedido aunque el cliente no llegue a mandar el mensaje.
+    const outcome = await placeOrder({
+      items: resolved.map((l) => ({
+        slug: l.slug,
+        variant_sku: l.variantSku ?? null,
+        qty: l.qty,
+      })),
+      customer: {
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        phone: phone.trim(),
+        address: address.trim(),
+        notes: notes.trim(),
+        locale,
+      },
+      zoneSlug,
+      couponCode: coupon?.code ?? null,
+    })
+
+    // Falta de stock es lo único que detiene la venta: mandar por WhatsApp un
+    // pedido que no se puede cumplir es peor que pararlo acá.
+    if (outcome.status === 'bloqueado') {
       setSending(false)
-      setError(e instanceof Error ? e.message : t('checkout.failed'))
+      setError(outcome.message)
       return
     }
+
+    // Cualquier otro fallo del registro se anota en consola para el operador y
+    // la venta sigue. El seguimiento interno no vale una venta perdida.
+    if (outcome.status === 'sin-registro') {
+      console.warn('[sky-import] el pedido no quedó registrado:', outcome.reason)
+    }
+
+    const orderNumber = outcome.status === 'registrado' ? outcome.number : null
 
     const mensaje = orderMessage({
       lines: resolved.map((l) => ({
