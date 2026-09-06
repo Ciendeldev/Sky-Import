@@ -6,7 +6,7 @@ WhatsApp**, con panel de administración sobre Supabase.
 
 ## Stack
 
-- Next.js 16.2.12 (App Router) · React 19.2.8 · TypeScript 5.9.3 en `strict`
+- Next.js 16.3.4 (App Router) · React 19.2.8 · TypeScript 5.9.3 en `strict`
   con `noUncheckedIndexedAccess`
 - Tailwind CSS 4.3.3, tokens en `@theme` dentro de `src/app/globals.css`
 - Zustand 5 para carrito y armado · three.js y ogl para las piezas visuales

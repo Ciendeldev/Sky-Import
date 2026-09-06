@@ -6,7 +6,7 @@
 
 ## Contexto de este proyecto
 
-- **Framework:** Next.js 16.2.12 (App Router, React 19.2.8)
+- **Framework:** Next.js 16.3.4 (App Router, React 19.2.8)
 - **Estilos:** Tailwind CSS 4.3.3 con los tokens en `@theme` (`src/app/globals.css`)
 - **Base de componentes:** ninguna. Todo el sistema visual es propio y está
   documentado en `DESIGN.md`.
@@ -17,7 +17,7 @@
   hilos). Los dos cargados dinámicamente.
 - **Backend:** Supabase (Postgres + Auth + RLS)
 - **Presupuesto de bundle:** 650 kB gzip, medidos sobre **todos** los chunks de
-  cliente (`size-limit`). Hoy el proyecto pesa **601 kB**.
+  cliente (`size-limit`). Hoy el proyecto pesa **621 kB**.
 
   > **Qué mide y qué no.** Es la suma de todo el JavaScript de cliente del
   > sitio, no lo que descarga una visita. Los dos bultos grandes —three.js y

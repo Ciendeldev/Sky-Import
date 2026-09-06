@@ -38,7 +38,7 @@ scroll, el carrito y el armado donde estaban.
 
 | Herramienta | Versión | Rol |
 |---|---|---|
-| [Next.js](https://nextjs.org) (App Router) | 16.2.12 | Marco, generación estática de las dos versiones de idioma |
+| [Next.js](https://nextjs.org) (App Router) | 16.3.4 | Marco, generación estática de las dos versiones de idioma |
 | [React](https://react.dev) | 19.2.8 | Interfaz |
 | [TypeScript](https://www.typescriptlang.org) | 5.9.3 | Modo estricto, con `noUncheckedIndexedAccess` |
 | [Tailwind CSS](https://tailwindcss.com) | 4.3.3 | Sistema de estilos con los tokens en `@theme` |

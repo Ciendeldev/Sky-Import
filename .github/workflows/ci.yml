@@ -57,7 +57,16 @@ jobs:
       # librería del proyecto: por eso `npx playwright`, que resuelve al local.
       - run: npx playwright install --with-deps chromium
 
-      - run: npm run e2e
+      # Las pruebas levantan la COMPILACIÓN DE PRODUCCIÓN en el puerto 3100, así
+      # que hay que compilar aquí. El build del otro trabajo no sirve: cada
+      # trabajo de GitHub corre en su propia máquina y arranca con el repositorio
+      # recién clonado. Sin este paso, Playwright intenta `next start`, no
+      # encuentra `.next` y el trabajo muere antes de la primera prueba.
+      - name: Compilación de producción
+        run: npm run build
+
+      - name: Recorrido completo
+        run: npm run e2e
 
       - uses: actions/upload-artifact@v4
         if: failure()
