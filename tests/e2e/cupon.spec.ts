@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { CON_BASE } from '../../playwright.config'
 
 /**
  * EL CUPÓN, DE PUNTA A PUNTA
@@ -11,6 +12,12 @@ import { expect, test } from '@playwright/test'
  * La respuesta de la base se simula. Igual que en `compra.spec.ts`, una prueba
  * no puede depender de que exista un cupón concreto en la tienda real ni gastar
  * uno de sus usos.
+ *
+ * **Dos modos, dos comportamientos.** Sin claves de Supabase —como en la
+ * integración continua— la tienda no consulta cupones: lo dice y sigue
+ * vendiendo. Eso también es correcto y también se comprueba, en el último caso
+ * de este archivo. Las tres primeras necesitan base y se saltan sin ella, en
+ * lugar de fallar informando de un problema que no existe.
  */
 
 const CUPON = 'PRUEBA10'
@@ -24,6 +31,8 @@ async function prepararCarrito(page: import('@playwright/test').Page) {
 }
 
 test('un cupón válido descuenta del total', async ({ page, context }) => {
+  test.skip(!CON_BASE, 'Sin claves de Supabase la tienda no consulta cupones: ver el último caso.')
+
   await context.route('**/rest/v1/rpc/validate_coupon', (route) =>
     route.fulfill({
       status: 200,
@@ -93,6 +102,8 @@ test('un cupón válido descuenta del total', async ({ page, context }) => {
 })
 
 test('un cupón inexistente lo dice y no toca el total', async ({ page, context }) => {
+  test.skip(!CON_BASE, 'Sin claves de Supabase la tienda no consulta cupones: ver el último caso.')
+
   await context.route('**/rest/v1/rpc/validate_coupon', (route) =>
     route.fulfill({
       status: 200,
@@ -114,6 +125,8 @@ test('un cupón inexistente lo dice y no toca el total', async ({ page, context 
 })
 
 test('un cupón por debajo del mínimo explica el motivo', async ({ page, context }) => {
+  test.skip(!CON_BASE, 'Sin claves de Supabase la tienda no consulta cupones: ver el último caso.')
+
   await context.route('**/rest/v1/rpc/validate_coupon', (route) =>
     route.fulfill({
       status: 200,
@@ -134,4 +147,25 @@ test('el botón de aplicar no hace nada con el campo vacío', async ({ page }) =
   await prepararCarrito(page)
   // Sin texto, el botón está deshabilitado: no se puede consultar la nada.
   await expect(page.getByRole('button', { name: 'Aplicar' })).toBeDisabled()
+})
+
+test('sin base configurada lo dice, y la venta sigue igual', async ({ page }) => {
+  test.skip(CON_BASE, 'Este caso describe la tienda SIN Supabase; acá sí lo tiene.')
+
+  /**
+   * Es el modo en que arranca cualquier despliegue nuevo, y el que corre en la
+   * integración continua. Lo que importa no es que el cupón funcione —no puede—
+   * sino que la tienda lo diga con claridad y **no bloquee la compra por eso**.
+   */
+  await prepararCarrito(page)
+
+  await page.getByLabel('Código del cupón').fill(CUPON)
+  await page.getByRole('button', { name: 'Aplicar' }).click()
+
+  await expect(page.getByTestId('error-cupon')).toContainText('No pudimos comprobar el cupón')
+
+  // El total no se toca y el botón de enviar sigue disponible: sin cupón se
+  // vende igual.
+  await expect(page.locator('aside')).toContainText('US$ 619')
+  await expect(page.getByTestId('enviar-pedido')).toBeEnabled()
 })
