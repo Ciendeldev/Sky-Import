@@ -209,20 +209,68 @@ test.describe('configurador', () => {
     await expect(page.getByText('Hay algo que conviene revisar')).toBeVisible()
   })
 
+  /** Las ocho ranuras: la prueba de encendido solo existe con el equipo entero. */
+  const armadoCompleto = async (page: Page, psu: RegExp) => {
+    await elegir(page, 'cpu', /Ryzen 7 9800X3D/)
+    await elegir(page, 'motherboard', /MAG B850 TOMAHAWK/)
+    await elegir(page, 'ram', /Vengeance DDR5 32 GB/)
+    await elegir(page, 'gpu', /GeForce RTX 5080/)
+    await elegir(page, 'storage', /990 PRO 2 TB/)
+    await elegir(page, 'psu', psu)
+    await elegir(page, 'cooling', /NH-D15/)
+    await elegir(page, 'case', /LANCOOL 216/)
+  }
+
   /**
-   * La prueba de encendido NO se automatiza acá.
+   * Pulsa el botón y devuelve el control cuando la comprobación TERMINÓ.
    *
-   * Se intentó: llenar las ocho ranuras, pulsar «Encender PC» y comprobar el
-   * resultado. En escritorio pasa siempre; en el navegador móvil emulado falla
-   * una vez de cada tres porque la pulsación se pierde mientras la escena 3D
-   * termina de montarse, y ni esperar al estado «Listo para probar» ni
-   * reintentar el clic lo estabilizan. Una prueba que falla una de cada tres no
-   * protege nada: enseña a ignorar los rojos.
+   * El plazo largo no es capricho. Al llenar la octava ranura, three.js está
+   * compilando shaders y construyendo la geometría, y eso bloquea el hilo
+   * principal: midiendo con el evento instrumentado, la pulsación llegó a
+   * tardar ocho segundos en entregarse en el navegador móvil emulado. El clic
+   * nunca se pierde —siempre llega, siempre avanza el estado—, pero con cinco
+   * segundos de margen esta prueba fallaba una de cada tres veces.
    *
-   * La lógica que decide si el equipo arranca vive en `diagnosePcBoot` y está
-   * cubierta en `tests/unit/arranque.test.ts`, donde es determinista. Lo que
-   * queda sin automatizar es el gesto de pulsar el botón, comprobado a mano.
+   * Tampoco se comprueba el estado intermedio «Comprobando»: dura dos segundos
+   * y puede consumirse entero mientras el clic todavía se está entregando.
+   * Afirmar que se vio sería afirmar algo que no siempre es cierto.
    */
+  const PLAZO_ARRANQUE = { timeout: 25_000 }
+
+  test('la prueba de encendido arranca un armado sano', async ({ page }) => {
+    // Ocho elecciones más el arranque, con la escena 3D compitiendo por el hilo
+    // principal: acá midió 36 s, y el runner de CI es más lento que esta
+    // máquina. `slow` triplica el plazo de la prueba en lugar de subírselo a
+    // todas las demás, que no lo necesitan.
+    test.slow()
+    await page.goto('/es/armar')
+    await armadoCompleto(page, /RM1000x/)
+
+    await expect(page.getByText('Listo para probar').first()).toBeVisible()
+    await page.getByRole('button', { name: 'Encender PC' }).click()
+
+    await expect(page.getByText('Sistema encendido').first()).toBeVisible(PLAZO_ARRANQUE)
+    // Encendida, la única salida es apagarla: el botón cambia de función.
+    await expect(page.getByRole('button', { name: 'Apagar PC' })).toBeVisible(PLAZO_ARRANQUE)
+  })
+
+  test('la prueba de encendido falla con la fuente corta y dice por qué', async ({ page }) => {
+    test.slow()
+    await page.goto('/es/armar')
+    await armadoCompleto(page, /MAG A650BN/)
+
+    await expect(page.getByText('Listo para probar').first()).toBeVisible()
+    await page.getByRole('button', { name: 'Encender PC' }).click()
+
+    // Una fuente por debajo de lo recomendado no es una incompatibilidad
+    // física —el tablero la deja en aviso— pero sí impide declarar que el
+    // equipo arranca. El diagnóstico tiene que nombrar la pieza culpable.
+    await expect(page.getByText('No pudo encender').first()).toBeVisible(PLAZO_ARRANQUE)
+    await expect(
+      page.getByRole('heading', { name: 'La fuente está por debajo de lo recomendado' }),
+    ).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Probar de nuevo' })).toBeVisible()
+  })
 
   test('un armado coherente no levanta advertencias y pasa entero al carrito', async ({ page }) => {
     await page.goto('/es/armar')
