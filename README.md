@@ -363,9 +363,19 @@ en un solo idioma sin que se note.
    crear la cuenta.
 4. Desplegá.
 
-Si más adelante se le pone un dominio propio, conviene actualizar `SITE.origin`
-en `src/config/site.ts` para que las URLs absolutas de la metadata, el sitemap y
-el enlace que viaja en los mensajes de WhatsApp apunten al dominio real.
+La tienda está publicada en <https://sky-import-jet.vercel.app>.
+
+### El dominio importa más de lo que parece
+
+De `SITE.origin` salen la URL canónica, el sitemap, las etiquetas Open Graph y
+**el enlace a la ficha que viaja dentro de cada mensaje de WhatsApp**. Un origen
+equivocado no rompe ninguna compilación: manda a los clientes a otra parte, y
+nadie se entera.
+
+El día que haya dominio propio, **no hace falta tocar el código**: se define
+`NEXT_PUBLIC_SITE_ORIGIN` en Vercel —sin barra final— y todo lo anterior se
+recalcula solo. El valor escrito en `src/config/site.ts` es únicamente el
+respaldo para cuando esa variable no está.
 
 ### Sobre la indexación
 

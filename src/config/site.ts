@@ -6,6 +6,26 @@
  * componentes.
  */
 
+/**
+ * Dominio público de la tienda.
+ *
+ * De acá salen la URL canónica, el sitemap, las etiquetas Open Graph y —lo que
+ * más duele si se equivoca— el enlace a la ficha que viaja dentro de cada
+ * mensaje de WhatsApp. Un origen mal escrito no rompe ninguna compilación:
+ * simplemente manda a los clientes a otra parte.
+ *
+ * Estuvo apuntando a `sky-import.vercel.app`, que es de otra empresa. El
+ * despliegue real es `sky-import-jet.vercel.app`. Para que no vuelva a pasar,
+ * el día que haya dominio propio basta con definir `NEXT_PUBLIC_SITE_ORIGIN`
+ * en Vercel: no hace falta tocar el código ni volver a acordarse de este
+ * archivo.
+ */
+function resolveOrigin(): string {
+  const declarado = process.env.NEXT_PUBLIC_SITE_ORIGIN?.trim()
+  if (declarado) return declarado.replace(/\/+$/, '')
+  return 'https://sky-import-jet.vercel.app'
+}
+
 export const SITE = {
   name: 'Sky Import',
   /** Marca denominativa partida — se compone en el sello. */
@@ -13,8 +33,8 @@ export const SITE = {
   city: 'Ciudad del Este',
   region: 'Alto Paraná',
   country: 'Paraguay',
-  /** Sin dominio propio todavía; se usa para URLs absolutas de metadata. */
-  origin: 'https://sky-import.vercel.app',
+  /** Sin dominio propio todavía: el subdominio del despliegue. */
+  origin: resolveOrigin(),
 } as const
 
 /**

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { orderMessage, productMessage, pyg, waPhone, whatsappUrl } from '@/lib/whatsapp'
-import { CONTACT } from '@/config/site'
+import { orderMessage, productMessage, productUrl, pyg, waPhone, whatsappUrl } from '@/lib/whatsapp'
+import { CONTACT, SITE } from '@/config/site'
 
 /**
  * El mensaje de WhatsApp es el único cierre de venta de la tienda: si sale mal
@@ -55,7 +55,7 @@ describe('productMessage', () => {
 
   it('pega el enlace real de la ficha, no un marcador', () => {
     const message = productMessage(base)
-    expect(message).toContain('🔗 Link: https://sky-import.vercel.app/es/producto/geforce-rtx-5080-16gb')
+    expect(message).toContain(`🔗 Link: ${SITE.origin}/es/producto/geforce-rtx-5080-16gb`)
     expect(message).not.toContain('concepto.de')
   })
 
@@ -178,5 +178,26 @@ describe('waPhone', () => {
 
   it('completa un nacional escrito sin el cero', () => {
     expect(waPhone('994222542')).toBe('595994222542')
+  })
+})
+
+describe('productUrl', () => {
+  /**
+   * El enlace de la ficha viaja dentro de cada mensaje de WhatsApp. Si el
+   * origen apunta a otro sitio nadie se entera al compilar: el cliente
+   * simplemente aterriza en la página de otra empresa. Esta prueba fija la
+   * forma del origen para que un error así no pase inadvertido.
+   */
+  it('cuelga de un origen https absoluto y sin barra final', () => {
+    expect(SITE.origin).toMatch(/^https:\/\/[^/]+$/)
+  })
+
+  it('arma la dirección pública de la ficha', () => {
+    expect(productUrl('geforce-rtx-5080-16gb')).toBe(
+      `${SITE.origin}/es/producto/geforce-rtx-5080-16gb`,
+    )
+    expect(productUrl('geforce-rtx-5080-16gb', 'pt')).toBe(
+      `${SITE.origin}/pt/producto/geforce-rtx-5080-16gb`,
+    )
   })
 })

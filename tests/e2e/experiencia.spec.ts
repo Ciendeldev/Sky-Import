@@ -209,6 +209,47 @@ test.describe('configurador', () => {
     await expect(page.getByText('Hay algo que conviene revisar')).toBeVisible()
   })
 
+  /**
+   * Las ocho ranuras de un equipo entero. La prueba de encendido solo existe
+   * con el armado completo, así que no hay atajo: hay que elegirlas todas.
+   */
+  const armadoCompleto = async (page: Page, psu: RegExp) => {
+    await elegir(page, 'cpu', /Ryzen 7 9800X3D/)
+    await elegir(page, 'motherboard', /MAG B850 TOMAHAWK/)
+    await elegir(page, 'ram', /Vengeance DDR5 32 GB/)
+    await elegir(page, 'gpu', /GeForce RTX 5080/)
+    await elegir(page, 'storage', /990 PRO 2 TB/)
+    await elegir(page, 'psu', psu)
+    await elegir(page, 'cooling', /NH-D15/)
+    await elegir(page, 'case', /LANCOOL 216/)
+  }
+
+  test('la prueba de encendido arranca un armado sano', async ({ page }) => {
+    await page.goto('/es/armar')
+    await armadoCompleto(page, /RM1000x/)
+
+    await page.getByRole('button', { name: 'Encender PC' }).click()
+    await expect(page.getByText('Sistema encendido').first()).toBeVisible()
+    // Encendida, la única salida es apagarla: el botón cambia de función.
+    await expect(page.getByRole('button', { name: 'Apagar PC' })).toBeVisible()
+  })
+
+  test('la prueba de encendido falla con la fuente corta y dice por qué', async ({ page }) => {
+    await page.goto('/es/armar')
+    await armadoCompleto(page, /MAG A650BN/)
+
+    await page.getByRole('button', { name: 'Encender PC' }).click()
+
+    // Una fuente por debajo de lo recomendado no es una incompatibilidad
+    // física —el resumen la deja en aviso— pero sí impide declarar que el
+    // equipo arranca. El diagnóstico tiene que nombrar la pieza culpable.
+    await expect(page.getByText('No pudo encender').first()).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'La fuente está por debajo de lo recomendado' }),
+    ).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Probar de nuevo' })).toBeVisible()
+  })
+
   test('un armado coherente no levanta advertencias y pasa entero al carrito', async ({ page }) => {
     await page.goto('/es/armar')
     await elegir(page, 'cpu', /Ryzen 7 9800X3D/)
