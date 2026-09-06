@@ -22,6 +22,7 @@
     "size": "size-limit",
     "admin:crear": "node --env-file=.env.local scripts/crear-admin.mjs",
     "hooks": "lefthook install",
+    "docs:srs": "node scripts/render-diagramas.mjs && node scripts/generar-srs.mjs",
     "verify": "npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
@@ -45,10 +46,11 @@
     "@types/react-dom": "^19.2.0",
     "@types/three": "^0.185.0",
     "axe-core": "^4.12.1",
+    "docx": "^9.7.1",
     "eslint": "^9.39.0",
     "eslint-config-next": "^16.3.4",
     "lefthook": "^2.1.12",
-    "sharp": "^0.35.3",
+    "sharp": "^0.35.4",
     "size-limit": "^13.0.3",
     "tailwindcss": "4.3.3",
     "typescript": "5.9.3",

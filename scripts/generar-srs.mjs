@@ -4,7 +4,11 @@
  * Sigue la plantilla de la cátedra (UNISAL — Taller de Lenguaje 135) e inserta
  * los dos diagramas rasterizados desde SVG.
  *
- *   node generar-srs.mjs
+ *   npm run docs:srs
+ *
+ * `docx` y `sharp` viven en devDependencies y no llegan al navegador: este
+ * script corre una vez, escribe un archivo y no forma parte de la compilación,
+ * así que no toca el presupuesto de `size-limit`.
  */
 
 import { fileURLToPath } from 'node:url'
@@ -566,10 +570,10 @@ const doc = new Document({
           ['Campo', 'Detalle'],
           [
             ['Proyecto', 'Sky Import — Componentes para PC, Ciudad del Este'],
-            ['Autor / Estudiante', '[COMPLETE CON SU NOMBRE Y APELLIDO]'],
+            ['Autor / Estudiante', 'Cielo Medina'],
             ['Cátedra / Semestre', 'Taller de Lenguaje (Asignatura 135) | Décimo Semestre'],
-            ['Fecha de Entrega', '31 de agosto de 2026'],
-            ['Docente Evaluador', '[COMPLETE CON EL NOMBRE DEL DOCENTE]'],
+            ['Fecha de Entrega', '6 de septiembre de 2026'],
+            ['Docente Evaluador', 'Adrian Lopez'],
             ['Versión del Documento', '1.0 — Versión Final Hito 1'],
           ],
           [2800, 6226],
@@ -585,7 +589,7 @@ const doc = new Document({
             ['24/08/2026', '0.1', 'Analista de Requisitos', 'Borrador inicial de Introducción y Descripción General.'],
             ['28/08/2026', '0.5', 'Analista de Requisitos', 'Inclusión de Requisitos Funcionales y No Funcionales.'],
             ['30/08/2026', '0.8', 'Analista de Requisitos', 'Incorporación de diagrama de bloques y diagrama de flujo del proceso de venta.'],
-            ['31/08/2026', '1.0', 'Equipo de SQA', 'Validación completa de consistencia, completitud y trazabilidad. Versión Final Hito 1.'],
+            ['06/09/2026', '1.0', 'Equipo de SQA', 'Validación completa de consistencia, completitud y trazabilidad. Versión Final Hito 1.'],
           ],
           [1300, 1100, 2200, 4426],
         ),
@@ -594,9 +598,9 @@ const doc = new Document({
         tabla(
           ['Rol / Entidad', 'Firma / Aprobación', 'Fecha'],
           [
-            ['Por el Proveedor (Estudiante / Desarrollador)', '', '31/08/2026'],
-            ['Por el Cliente (Sky Import)', '', '31/08/2026'],
-            ['Equipo de SQA (Docente de Cátedra)', '', '31/08/2026'],
+            ['Por el Proveedor (Estudiante / Desarrollador)', '', '06/09/2026'],
+            ['Por el Cliente (Sky Import)', '', '06/09/2026'],
+            ['Equipo de SQA (Docente de Cátedra)', '', '06/09/2026'],
           ],
           [3600, 3626, 1800],
         ),
@@ -650,8 +654,8 @@ const doc = new Document({
         tabla(
           ['Nombre', 'Rol en el Proyecto', 'Responsabilidad Principal', 'Contacto'],
           [
-            ['[COMPLETE SU NOMBRE]', 'Analista, Diseñador y Programador', 'Análisis de requisitos, modelado UML, diseño e implementación de la base de datos y codificación del sistema.', '[Correo electrónico]'],
-            ['[NOMBRE DEL DOCENTE]', 'Docente de Cátedra / Cliente', 'Supervisión del proceso de software, validación de las condiciones de salida y evaluación final del prototipo.', '[Correo electrónico]'],
+            ['Cielo Medina', 'Analista, Diseñador y Programador', 'Análisis de requisitos, modelado UML, diseño e implementación de la base de datos y codificación del sistema.', 'ciendel.dev@gmail.com'],
+            ['Adrian Lopez', 'Docente de Cátedra / Cliente', 'Supervisión del proceso de software, validación de las condiciones de salida y evaluación final del prototipo.', 'Cátedra Taller de Lenguaje 135'],
             ['Titular de Sky Import', 'Cliente / Usuario Administrador', 'Definición de las reglas de negocio, provisión de datos de catálogo y validación funcional del panel.', '+595 994 222 542'],
           ],
           [1900, 1900, 3826, 1400],
