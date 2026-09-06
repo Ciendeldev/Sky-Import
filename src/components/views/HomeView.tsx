@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic'
 import { useRef } from 'react'
 
 import { FieldPatch } from '@/components/background/FieldPatch'
-import { ComponentDims, ComponentRender } from '@/components/render/ComponentRender'
+import { ComponentDims } from '@/components/render/ComponentRender'
 import { ProductPhoto } from '@/components/product/ProductPhoto'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { AssemblySection } from '@/components/home/AssemblySection'
@@ -31,6 +31,18 @@ for (const product of PRODUCTS) {
   COUNT_BY_CATEGORY.set(product.category, (COUNT_BY_CATEGORY.get(product.category) ?? 0) + 1)
 }
 const HERO_GPU = PRODUCTS.find((product) => product.slug === 'geforce-rtx-5080-16gb') ?? PRODUCTS[0]!
+
+/**
+ * Cada categoría se representa con la fotografía de una pieza real suya, no con
+ * un icono. Un dibujo genérico de «gabinete» no dice nada que la foto de un
+ * gabinete concreto no diga mejor.
+ */
+const CATEGORY_PRODUCT = new Map(
+  CATEGORY_ORDER.map((category) => [
+    category,
+    PRODUCTS.find((product) => product.category === category) ?? PRODUCTS[0]!,
+  ]),
+)
 
 /** Celdas que ocupan más de una posición: rompen la monotonía de la retícula. */
 const WIDE = new Set(['tarjetas-graficas', 'gabinetes'])
@@ -193,6 +205,7 @@ export function HomeView() {
         <CellGrid className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {CATEGORY_ORDER.map((slug, i) => {
             const meta = CATEGORY_META[slug]
+            const representante = CATEGORY_PRODUCT.get(slug)!
             const wide = WIDE.has(slug)
             return (
               <Reveal
@@ -210,14 +223,8 @@ export function HomeView() {
                     <span className="font-mono text-[0.6875rem] tabular-nums text-accent">
                       {String(i + 1).padStart(2, '0')}
                     </span>
-                    <span className="w-20 shrink-0 opacity-70 transition-all duration-500 ease-rail group-hover:-translate-y-1 group-hover:opacity-100">
-                      <ComponentRender
-                        shape={meta.shape}
-                        accent="#6E7A85"
-                        seed={i * 7 + 3}
-                        variant={i % 3}
-                        className="w-full"
-                      />
+                    <span className="relative block aspect-square w-24 shrink-0 opacity-85 transition-all duration-500 ease-rail group-hover:-translate-y-1 group-hover:opacity-100">
+                      <ProductPhoto product={representante} sizes="96px" />
                     </span>
                   </div>
 

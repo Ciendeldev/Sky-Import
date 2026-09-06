@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1250" height="1720" viewBox="0 0 1250 1720" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="1250" height="1720" fill="#ffffff"/>
+
+  <text x="625" y="44" text-anchor="middle" font-size="26" font-weight="700" fill="#12181f">
+    Diagrama de flujo — Proceso de compra y cierre por WhatsApp
+  </text>
+  <text x="625" y="72" text-anchor="middle" font-size="15" fill="#5b6875">
+    RF05 · RF06 · RF09 · RF10 · RF11 — desde la ficha de producto hasta el registro del pedido
+  </text>
+
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <polygon points="0 0, 10 4, 0 8" fill="#3d4d5c"/>
+    </marker>
+  </defs>
+  <g stroke="#3d4d5c" stroke-width="1.9" fill="none" marker-end="url(#a)"></g>
+
+  <!-- INICIO -->
+  <ellipse cx="430" cy="128" rx="106" ry="30" fill="#dfe8f2" stroke="#3a6ea5" stroke-width="2"/>
+  <text x="430" y="135" text-anchor="middle" font-size="16" font-weight="700" fill="#1d3a5c">INICIO</text>
+  <line x1="430" y1="158" x2="430" y2="186" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
+
+  <!-- Ficha -->
+  <rect x="290" y="188" width="280" height="62" rx="4" fill="#f4f7fa" stroke="#3d4d5c" stroke-width="1.8"/>
+  <text x="430" y="214" text-anchor="middle" font-size="15" fill="#1a232c">El cliente abre la ficha</text>
+  <text x="430" y="235" text-anchor="middle" font-size="15" fill="#1a232c">de un producto</text>
+  <line x1="430" y1="250" x2="430" y2="278" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
+
+  <!-- Decisión variantes -->
+  <polygon points="430,280 588,346 430,412 272,346" fill="#fdf6e8" stroke="#b5762f" stroke-width="1.9"/>
+  <text x="430" y="340" text-anchor="middle" font-size="14" fill="#5e4520">¿La pieza tiene</text>
+  <text x="430" y="359" text-anchor="middle" font-size="14" fill="#5e4520">variantes?</text>
+
+  <!-- Sí variantes -->
+  <line x1="588" y1="346" x2="700" y2="346" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
+  <text x="638" y="337" text-anchor="middle" font-size="13" font-weight="700" fill="#2f7d5f">Sí</text>
+  <rect x="702" y="308" width="266" height="76" rx="4" fill="#f4f7fa" stroke="#3d4d5c" stroke-width="1.8"/>
+  <text x="835" y="332" text-anchor="middle" font-size="14" fill="#1a232c">Selecciona variante:</text>
+  <text x="835" y="352" text-anchor="middle" font-size="13" fill="#40546b">se actualizan foto, SKU,</text>
+  <text x="835" y="371" text-anchor="middle" font-size="13" fill="#40546b">precio y stock disponible</text>
+  <path d="M835 384 L 835 440 L 434 440" stroke="#3d4d5c" stroke-width="1.9" fill="none" marker-end="url(#a)"/>
+
+  <!-- No variantes -->
+  <line x1="430" y1="412" x2="430" y2="452" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
+  <text x="410" y="432" text-anchor="end" font-size="13" font-weight="700" fill="#a03d2c">No</text>
+
+  <!-- Decisión camino -->
+  <polygon points="430,454 610,522 430,590 250,522" fill="#fdf6e8" stroke="#b5762f" stroke-width="1.9"/>
+  <text x="430" y="514" text-anchor="middle" font-size="14" fill="#5e4520">¿Compra directa o</text>
+  <text x="430" y="533" text-anchor="middle" font-size="14" fill="#5e4520">sigue comprando?</text>
+
+  <!-- RAMA A: compra directa -->
+  <line x1="250" y1="522" x2="150" y2="522" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
+  <text x="200" y="512" text-anchor="middle" font-size="13" font-weight="700" fill="#12603a">Directa</text>
+  <rect x="20" y="562" width="262" height="98" rx="4" fill="#e6f6ec" stroke="#1f8a4c" stroke-width="1.8"/>
+  <text x="151" y="588" text-anchor="middle" font-size="14" font-weight="700" fill="#12603a">FORMATO 1</text>
+  <text x="151" y="610" text-anchor="middle" font-size="13" fill="#25543c">Se genera el mensaje con</text>
+  <text x="151" y="629" text-anchor="middle" font-size="13" fill="#25543c">nombre, SKU, cantidad,</text>
+  <text x="151" y="648" text-anchor="middle" font-size="13" fill="#25543c">precio en Gs. y enlace</text>
+  <path d="M151 522 L 151 560" stroke="#3d4d5c" stroke-width="1.9" fill="none" marker-end="url(#a)"/>
+  <path d="M151 660 L 151 1476 L 470 1476" stroke="#3d4d5c" stroke-width="1.9" fill="none" marker-end="url(#a)"/>
+
+  <!-- RAMA B: carrito -->
+  <line x1="430" y1="590" x2="430" y2="628" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
+  <text x="446" y="614" font-size="13" font-weight="700" fill="#1d3a5c">Sigue comprando</text>
+
+  <rect x="290" y="630" width="280" height="58" rx="4" fill="#f4f7fa" stroke="#3d4d5c" stroke-width="1.8"/>
+  <text x="430" y="656" text-anchor="middle" font-size="15" fill="#1a232c">Agrega al carrito</text>
+  <text x="430" y="676" text-anchor="middle" font-size="13" fill="#40546b">Persistido en localStorage</text>
+  <line x1="430" y1="688" x2="430" y2="716" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
+
+  <rect x="290" y="718" width="280" height="58" rx="4" fill="#f4f7fa" stroke="#3d4d5c" stroke-width="1.8"/>
+  <text x="430" y="744" text-anchor="middle" font-size="15" fill="#1a232c">Abre el checkout</text>
+  <text x="430" y="764" text-anchor="middle" font-size="13" fill="#40546b">Una sola pantalla</text>
+  <line x1="430" y1="776" x2="430" y2="804" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
+
+  <rect x="270" y="806" width="320" height="82" rx="4" fill="#f4f7fa" stroke="#3d4d5c" stroke-width="1.8"/>
+  <text x="430" y="830" text-anchor="middle" font-size="14" fill="#1a232c">Completa datos de entrega:</text>
+  <text x="430" y="850" text-anchor="middle" font-size="13" fill="#40546b">nombre, apellido, teléfono,</text>
+  <text x="430" y="869" text-anchor="middle" font-size="13" fill="#40546b">zona, dirección y notas</text>
+  <line x1="430" y1="888" x2="430" y2="916" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
+
+  <!-- Cupón -->
+  <polygon points="430,918 570,972 430,1026 290,972" fill="#fdf6e8" stroke="#b5762f" stroke-width="1.9"/>
+  <text x="430" y="978" text-anchor="middle" font-size="14" fill="#5e4520">¿Aplica cupón?</text>
+
+  <line x1="570" y1="972" x2="672" y2="972" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
+  <text x="618" y="963" text-anchor="middle" font-size="13" font-weight="700" fill="#2f7d5f">Sí</text>
+  <rect x="674" y="932" width="290" height="80" rx="4" fill="#e8f4ee" stroke="#2f7d5f" stroke-width="1.8"/>
+  <text x="819" y="956" text-anchor="middle" font-size="14" font-weight="700" fill="#1d5340">validate_coupon()</text>
+  <text x="819" y="976" text-anchor="middle" font-size="12.5" fill="#2c4f42">La base devuelve el descuento</text>
+  <text x="819" y="995" text-anchor="middle" font-size="12.5" fill="#2c4f42">ya calculado, nunca la lista</text>
+  <path d="M819 1012 L 819 1052 L 434 1052" stroke="#3d4d5c" stroke-width="1.9" fill="none" marker-end="url(#a)"/>
+
+  <line x1="430" y1="1026" x2="430" y2="1064" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
+  <text x="410" y="1046" text-anchor="end" font-size="13" font-weight="700" fill="#a03d2c">No</text>
+
+  <!-- Validación -->
+  <polygon points="430,1066 590,1128 430,1190 270,1128" fill="#fdf6e8" stroke="#b5762f" stroke-width="1.9"/>
+  <text x="430" y="1120" text-anchor="middle" font-size="14" fill="#5e4520">¿Datos obligatorios</text>
+  <text x="430" y="1139" text-anchor="middle" font-size="14" fill="#5e4520">completos?</text>
+
+  <path d="M270 1128 L 180 1128 L 180 858 L 268 858" stroke="#a03d2c" stroke-width="1.9" fill="none" marker-end="url(#a)"/>
+  <text x="222" y="1118" text-anchor="middle" font-size="13" font-weight="700" fill="#a03d2c">No</text>
+  <text x="196" y="1000" font-size="12" fill="#a03d2c" transform="rotate(-90 196 1000)">Muestra el error y vuelve al formulario</text>
+
+  <line x1="430" y1="1190" x2="430" y2="1224" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
+  <text x="446" y="1212" font-size="13" font-weight="700" fill="#2f7d5f">Sí</text>
+
+  <!-- place_order -->
+  <rect x="256" y="1226" width="348" height="92" rx="4" fill="#e8f4ee" stroke="#2f7d5f" stroke-width="2"/>
+  <text x="430" y="1250" text-anchor="middle" font-size="14" font-weight="700" fill="#1d5340">place_order()  ·  transacción SQL</text>
+  <text x="430" y="1270" text-anchor="middle" font-size="12.5" fill="#2c4f42">Relee precios del catálogo · aplica cupón</text>
+  <text x="430" y="1288" text-anchor="middle" font-size="12.5" fill="#2c4f42">Descuenta stock · INSERT en orders y order_items</text>
+  <text x="430" y="1307" text-anchor="middle" font-size="12.5" fill="#2c4f42">Estado inicial: «iniciado_whatsapp»</text>
+  <line x1="430" y1="1318" x2="430" y2="1346" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
+
+  <!-- Decisión registro -->
+  <polygon points="430,1348 600,1404 430,1460 260,1404" fill="#fdf6e8" stroke="#b5762f" stroke-width="1.9"/>
+  <text x="430" y="1398" text-anchor="middle" font-size="13.5" fill="#5e4520">¿Hay stock</text>
+  <text x="430" y="1417" text-anchor="middle" font-size="13.5" fill="#5e4520">suficiente?</text>
+
+  <!-- No hay stock -->
+  <line x1="600" y1="1404" x2="700" y2="1404" stroke="#a03d2c" stroke-width="1.9" marker-end="url(#a)"/>
+  <text x="650" y="1395" text-anchor="middle" font-size="13" font-weight="700" fill="#a03d2c">No</text>
+  <rect x="702" y="1364" width="290" height="80" rx="4" fill="#fbeae7" stroke="#a03d2c" stroke-width="1.8"/>
+  <text x="847" y="1390" text-anchor="middle" font-size="14" font-weight="700" fill="#7d2f21">Se detiene el pedido</text>
+  <text x="847" y="1410" text-anchor="middle" font-size="12.5" fill="#7d2f21">Único caso que bloquea la venta:</text>
+  <text x="847" y="1429" text-anchor="middle" font-size="12.5" fill="#7d2f21">no se promete lo que no se puede cumplir</text>
+
+  <!-- Sí -->
+  <line x1="430" y1="1460" x2="430" y2="1474" stroke="#3d4d5c" stroke-width="1.9"/>
+  <text x="446" y="1472" font-size="13" font-weight="700" fill="#2f7d5f">Sí</text>
+
+  <!-- Formato 2 -->
+  <rect x="472" y="1448" width="300" height="56" rx="4" fill="#e6f6ec" stroke="#1f8a4c" stroke-width="1.8"/>
+  <text x="622" y="1472" text-anchor="middle" font-size="14" font-weight="700" fill="#12603a">FORMATO 2 — pedido completo</text>
+  <text x="622" y="1492" text-anchor="middle" font-size="12.5" fill="#25543c">Líneas, cupón, envío, total y datos de entrega</text>
+
+  <path d="M622 1504 L 622 1542 L 434 1542" stroke="#3d4d5c" stroke-width="1.9" fill="none" marker-end="url(#a)"/>
+
+  <!-- Apertura -->
+  <rect x="272" y="1544" width="320" height="58" rx="4" fill="#e6f6ec" stroke="#1f8a4c" stroke-width="1.8"/>
+  <text x="432" y="1568" text-anchor="middle" font-size="14" fill="#12603a">Se abre wa.me con el mensaje</text>
+  <text x="432" y="1588" text-anchor="middle" font-size="13" fill="#25543c">codificado con encodeURIComponent</text>
+  <line x1="432" y1="1602" x2="432" y2="1626" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
+
+  <!-- FIN -->
+  <ellipse cx="432" cy="1660" rx="150" ry="32" fill="#dfe8f2" stroke="#3a6ea5" stroke-width="2.5"/>
+  <text x="432" y="1656" text-anchor="middle" font-size="15" font-weight="700" fill="#1d3a5c">FIN — el vendedor</text>
+  <text x="432" y="1676" text-anchor="middle" font-size="13" fill="#1d3a5c">confirma por WhatsApp</text>
+
+  <!-- Nota de resiliencia -->
+  <rect x="700" y="1560" width="530" height="130" rx="6" fill="#fbfbfc" stroke="#c9d2da"/>
+  <text x="720" y="1586" font-size="14" font-weight="700" fill="#12181f">Nota de diseño — degradación controlada</text>
+  <text x="720" y="1610" font-size="12.5" fill="#40546b">Si «place_order» falla por una causa de infraestructura (base no</text>
+  <text x="720" y="1629" font-size="12.5" fill="#40546b">disponible, catálogo no importado, red caída), el pedido NO se detiene:</text>
+  <text x="720" y="1648" font-size="12.5" fill="#40546b">se registra el fallo para el operador y el flujo continúa hasta WhatsApp.</text>
+  <text x="720" y="1672" font-size="12.5" fill="#40546b">El registro es seguimiento comercial, no condición para vender.</text>
+
+  <!-- Leyenda -->
+  <rect x="20" y="1120" width="150" height="196" rx="6" fill="#fbfbfc" stroke="#c9d2da"/>
+  <text x="95" y="1146" text-anchor="middle" font-size="13" font-weight="700" fill="#12181f">Simbología</text>
+  <ellipse cx="52" cy="1176" rx="26" ry="13" fill="#dfe8f2" stroke="#3a6ea5" stroke-width="1.5"/>
+  <text x="88" y="1180" font-size="12" fill="#40546b">Inicio / Fin</text>
+  <rect x="28" y="1206" width="50" height="26" rx="3" fill="#f4f7fa" stroke="#3d4d5c" stroke-width="1.5"/>
+  <text x="88" y="1223" font-size="12" fill="#40546b">Proceso</text>
+  <polygon points="53,1250 82,1268 53,1286 24,1268" fill="#fdf6e8" stroke="#b5762f" stroke-width="1.5"/>
+  <text x="90" y="1272" font-size="12" fill="#40546b">Decisión</text>
+  <rect x="28" y="1296" width="50" height="14" rx="3" fill="#e8f4ee" stroke="#2f7d5f" stroke-width="1.5"/>
+  <text x="88" y="1307" font-size="12" fill="#40546b">Base de datos</text>
+</svg>

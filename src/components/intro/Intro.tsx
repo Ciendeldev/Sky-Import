@@ -64,14 +64,25 @@ export function Intro() {
 
     document.documentElement.setAttribute('data-intro-running', '')
 
-    // Recorrido normal: las lamas se van solas por CSS y el nodo se retira
-    // cuando la última terminó.
+    /**
+     * El reloj corre desde que empezó la NAVEGACIÓN, no desde que React
+     * hidrata. La animación de las lamas es CSS y arranca con el primer
+     * pintado; si el temporizador que retira el nodo empezara a contar al
+     * hidratar, la cortina duraría lo que dure la hidratación por encima de lo
+     * diseñado — y eso crece con cada kilobyte que se le suma a la página.
+     *
+     * Medido antes de este cambio: 3.994 ms de cortina frente a los 2.358 ms
+     * que dice el diseño, en una página que termina de cargar en 150 ms.
+     */
+    const transcurrido = performance.now()
+    const restante = Math.max(0, OUT_MS - transcurrido)
+
     const settle = window.setTimeout(() => {
       doneRef.current = true
       setPhase('gone')
-    }, OUT_MS)
+    }, restante)
 
-    const hint = window.setTimeout(() => setSkipVisible(true), 460)
+    const hint = window.setTimeout(() => setSkipVisible(true), Math.max(0, 460 - transcurrido))
 
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') finish()
@@ -85,6 +96,23 @@ export function Intro() {
       document.documentElement.removeAttribute('data-intro-running')
     }
   }, [finish, skip])
+
+  /**
+   * La marca `data-intro-running` se retira en cuanto la cortina termina, no al
+   * desmontar el componente.
+   *
+   * El matiz importa: al acabar, este componente devuelve `null` pero SIGUE
+   * montado en el layout, así que la limpieza del efecto de arriba no llega a
+   * ejecutarse nunca. El atributo se quedaba puesto para el resto de la visita
+   * y cualquiera que lo consultara —como el armador 3D, que espera su turno
+   * para no robarle el hilo a la entrada— creía que la intro seguía corriendo y
+   * no arrancaba jamás.
+   */
+  useEffect(() => {
+    if (phase === 'gone' || skip) {
+      document.documentElement.removeAttribute('data-intro-running')
+    }
+  }, [phase, skip])
 
   if (skip || phase === 'gone') return null
 

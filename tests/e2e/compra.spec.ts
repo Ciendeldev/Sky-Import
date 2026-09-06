@@ -84,7 +84,11 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
   await page.getByLabel('Apellido').fill('Giménez')
   await page.getByLabel('Teléfono de contacto').fill('+595 981 111 222')
 
-  await page.getByRole('radio', { name: 'Gran Asunción', exact: false }).check()
+  // La lista de ciudades vive en la base y puede cambiar: la prueba toma la
+  // segunda opción, sea cual sea, y verifica que esa misma llegue al mensaje.
+  const zona = page.locator('#zona')
+  const zonaElegida = (await zona.locator('option').nth(1).textContent())?.trim() ?? ''
+  await zona.selectOption({ index: 1 })
   await page.getByLabel('Dirección exacta').fill('Av. España 1234')
   await page.getByLabel('Notas del pedido', { exact: false }).fill('Tocar timbre')
 
@@ -97,13 +101,56 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
     route.fulfill({ status: 200, contentType: 'text/html', body: 'ok' }),
   )
 
-  const pestañaPromesa = context.waitForEvent('page')
-  await page.getByTestId('enviar-pedido').click()
-  const pestaña = await pestañaPromesa
-  // La pestaña nace en `about:blank` y navega un instante después.
-  await pestaña.waitForURL(/wa\.me/, { timeout: 10_000 })
+  /**
+   * El registro del pedido se simula, y esto NO es un atajo.
+   *
+   * `place_order` descuenta stock e inserta filas de verdad. Sin interceptarlo,
+   * cada corrida de esta prueba vaciaba el inventario real y llenaba la tabla
+   * de pedidos con clientes inventados: a la cuarta pasada la pieza se quedaba
+   * sin unidades y la prueba fallaba sola, informando de un bug que no existía.
+   *
+   * Una prueba de extremo a extremo no puede mutar los datos del negocio. Lo
+   * que se verifica acá es el recorrido del cliente y el mensaje que sale; que
+   * la función descuente bien el stock es asunto de la base y de su propia
+   * prueba.
+   */
+  await context.route('**/rest/v1/rpc/place_order', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        ok: true,
+        order_number: 'SI-PRUEBA',
+        subtotal_usd: 0,
+        discount_usd: 0,
+        shipping_usd: 0,
+        total_usd: 0,
+        total_pyg: 0,
+        fx_pyg: 7400,
+      }),
+    }),
+  )
 
-  const url = new URL(pestaña.url())
+  // En escritorio WhatsApp se abre en otra pestaña; en teléfono, en la misma,
+  // porque ahí `wa.me` lanza la aplicación y una pestaña nueva quedaría vacía.
+  const enTelefono = Boolean(test.info().project.use.isMobile)
+
+  const pestañaPromesa = enTelefono ? null : context.waitForEvent('page')
+  await page.getByTestId('enviar-pedido').click()
+
+  let destino: string
+  if (pestañaPromesa) {
+    const pestaña = await pestañaPromesa
+    // La pestaña nace en `about:blank` y navega un instante después.
+    await pestaña.waitForURL(/wa\.me/, { timeout: 10_000 })
+    destino = pestaña.url()
+    await pestaña.close()
+  } else {
+    await page.waitForURL(/wa\.me/, { timeout: 10_000 })
+    destino = page.url()
+  }
+
+  const url = new URL(destino)
   expect(url.hostname).toBe('wa.me')
   expect(url.pathname).toBe(`/${WHATSAPP}`)
 
@@ -116,14 +163,16 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
   expect(mensaje).toContain('• Teléfono: +595 981 111 222')
   expect(mensaje).toContain('Av. España 1234')
   expect(mensaje).toContain('• Notas: Tocar timbre')
-  expect(mensaje).toContain('🚚 Envío (Gran Asunción)')
+  expect(mensaje).toContain(`🚚 Envío (${zonaElegida})`)
   expect(mensaje).toContain('💰 *TOTAL: Gs.')
   // Sin cupón aplicado, esa línea no se imprime.
   expect(mensaje).not.toContain('🎟️')
 
-  await pestaña.close()
-
-  // 11 · el carrito queda vacío después de enviar el pedido
+  // 11 · el carrito queda vacío después de enviar el pedido.
+  //
+  // En escritorio la tienda sigue en su pestaña; en teléfono se navegó a
+  // WhatsApp, así que hay que volver para comprobarlo.
+  if (enTelefono) await page.goBack()
   await expect(page.getByRole('button', { name: 'Abrir carrito' })).not.toContainText('02')
 })
 

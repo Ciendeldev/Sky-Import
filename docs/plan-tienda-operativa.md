@@ -12,45 +12,50 @@ Estado del trabajo. Se marca sobre la marcha; sobrevive a un reinicio de sesión
 - **El panel vive fuera de `[locale]`**, en `/admin`: no es bilingüe, no carga
   la intro ni el motor 3D, y no se indexa.
 - **La contraseña del admin no está en el repositorio.** Vive hasheada en
-  Supabase Auth. `.env.example` documenta qué variable hace falta.
+  Supabase Auth.
 - **WhatsApp de producción:** +595 994 222 542.
-- **El enlace del mensaje** es la URL real de la ficha, no el marcador
-  `concepto.de` del texto original.
+- **Fotografía real** en las 37 piezas; el dibujo vectorial queda como respaldo
+  de cualquier pieza que no tenga foto.
+- **Zonas de entrega por ciudad**, no por región: la tienda es de Ciudad del
+  Este, no del Área Metropolitana de Asunción.
 
 ## Fases
 
 - [x] **0 · Entorno.** Node 24.19.0 + npm 11.17.0 + gh 2.98.0 instalados
       (no había Node en la máquina). Higiene git, `.gitattributes`, `.nvmrc`,
-      `.env.example`, `.mcp.json` de Supabase. ESLint dejó de recorrer
-      `.worktrees/`.
-- [x] **1 · Mensajes de WhatsApp.** `src/lib/whatsapp.ts` con los dos formatos
-      exactos y sus pruebas.
-- [x] **2 · Esquema de la base.** Tres migraciones en `supabase/migrations/`:
-      esquema, RLS + funciones (`validate_coupon`, `place_order`), datos base.
-- [x] **3 · Sesión de administrador.** Login por usuario (no correo), guard de
-      rutas, cierre de sesión.
-- [x] **4 · Catálogo dinámico.** Los productos se leen de Supabase; el catálogo
-      estático queda como respaldo mientras no haya claves.
+      `.env.example`, `.mcp.json`. ESLint dejó de recorrer `.worktrees/`.
+- [x] **1 · Mensajes de WhatsApp.** Los dos formatos exactos, con pruebas.
+- [x] **2 · Esquema de la base.** Migraciones aplicadas en Supabase: esquema,
+      RLS + funciones (`validate_coupon`, `place_order`) y datos base.
+- [x] **3 · Sesión de administrador.** Login por usuario, guard de rutas,
+      cierre de sesión. Cuenta «Cielo» creada y verificada.
+- [x] **4 · Catálogo dinámico.** 37 productos cargados en Supabase.
 - [x] **5 · Panel.** Productos, variantes, stock con alertas, tasa de cambio,
       cupones, pedidos.
 - [x] **6 · Ficha de producto.** «Comprar por WhatsApp» como acción principal,
-      barra fija en teléfono, selector de variantes que cambia foto, SKU y stock.
-- [x] **7 · Checkout.** Formulario de datos y entrega, zona con costo, cupón,
-      cierre por WhatsApp. Sin métodos de pago.
-- [x] **8 · Producción.** Quitar todo aviso de demostración y la revelación del
-      checkout simulado.
-- [x] **9 · Verificación.** typecheck ✓ · lint ✓ · 66 unitarias ✓ · build ✓ ·
-      69 end-to-end ✓ · axe 10/10 rutas sin infracciones WCAG 2.1 AA ✓.
-      Publicación en GitHub: en curso.
+      barra fija en teléfono, selector de variantes.
+- [x] **7 · Checkout.** Datos de entrega, ciudad, cupón y cierre por WhatsApp.
+- [x] **8 · Producción.** Sin avisos de demostración; la tienda se indexa y el
+      panel no.
+- [x] **9 · Fotografía real.** 37 imágenes con procedencia documentada en
+      `public/products/SOURCES.md`.
+- [x] **10 · Armado 3D.** Escena WebGL del gabinete, plan de montaje y prueba
+      de encendido con diagnóstico. Carga diferida y espera a que la intro
+      termine.
+- [x] **11 · Documentación SRS.** `docs/srs/SRS-Sky-Import.docx` según la
+      plantilla de la cátedra, con diagrama de bloques y de flujo.
 
 ## Pendiente del usuario
 
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY` del panel de
-  Supabase → van a `.env.local` y a las variables de entorno de Vercel.
-- Confirmar el destino en GitHub: hoy el remoto es `Bryan-dev074/Sky-Import`.
+- Ejecutar `supabase/migrations/20260831000400_ciudades.sql` en el SQL Editor
+  para reemplazar «Gran Asunción / Interior» por las 21 ciudades.
+- Completar en el SRS el nombre del estudiante y del docente.
+- Consultar con el docente la desviación del lenguaje: la cátedra autoriza
+  Java, C++, PHP o Python; el sistema está en TypeScript. El resto de las
+  restricciones se cumplen.
 
-## Publicación
+## Ideas que quedaron fuera, por si se retoman
 
-`origin` apunta a `Ciendeldev/Sky-Import`; el remoto anterior quedó guardado
-como `origin-anterior`. Los tres commits están hechos y el árbol limpio: falta
-solo autenticar GitHub en esta máquina y empujar.
+- Subir fotos desde el panel a Supabase Storage (hoy solo URL en variantes).
+- Pantalla para editar zonas de envío sin tocar SQL.
+- Datos estructurados JSON-LD de producto, ahora que la tienda se indexa.

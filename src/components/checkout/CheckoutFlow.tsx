@@ -131,6 +131,29 @@ export function CheckoutFlow() {
 
     setSending(true)
 
+    /**
+     * DÓNDE SE ABRE WHATSAPP
+     *
+     * En un teléfono, `wa.me` abre la APLICACIÓN de WhatsApp: pedir una pestaña
+     * nueva para eso solo deja una pestaña en blanco huérfana en el navegador.
+     * Ahí se navega en la misma, y la tienda queda detrás intacta.
+     *
+     * En escritorio se abre WhatsApp Web, que sí conviene en otra pestaña para
+     * no sacar al cliente de la tienda.
+     *
+     * Cuando toca pestaña nueva, se reserva ANTES de cualquier `await`, mientras
+     * el navegador todavía reconoce el clic como gesto del usuario: abrirla
+     * después de registrar el pedido la convierte en emergente y la bloquea.
+     * Y no se le pasa `noopener`, porque con esa opción el navegador devuelve
+     * `null` en vez de la referencia y no habría a quién redirigir; el `opener`
+     * se anula a mano, que consigue lo mismo sin perder el control.
+     */
+    const enTelefono =
+      typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
+
+    const ventana = enTelefono ? null : window.open('', '_blank')
+    if (ventana) ventana.opener = null
+
     // Se registra ANTES de abrir la conversación: así queda constancia del
     // pedido aunque el cliente no llegue a mandar el mensaje.
     const outcome = await placeOrder({
@@ -154,6 +177,8 @@ export function CheckoutFlow() {
     // Falta de stock es lo único que detiene la venta: mandar por WhatsApp un
     // pedido que no se puede cumplir es peor que pararlo acá.
     if (outcome.status === 'bloqueado') {
+      // La pestaña reservada se cierra: no hay pedido que mandar.
+      ventana?.close()
       setSending(false)
       setError(outcome.message)
       return
@@ -191,9 +216,16 @@ export function CheckoutFlow() {
       orderNumber: orderNumber ?? undefined,
     })
 
-    // `window.open` desde el manejador del clic: si se hace después de un
-    // `await` largo, el navegador lo trata como emergente y lo bloquea.
-    window.open(whatsappUrl(mensaje), '_blank', 'noopener,noreferrer')
+    const destino = whatsappUrl(mensaje)
+
+    if (ventana && !ventana.closed) {
+      ventana.location.assign(destino)
+    } else {
+      // El navegador bloqueó la pestaña de todos modos, o el cliente la cerró.
+      // Antes que perder la venta, se navega en la misma pestaña.
+      window.location.assign(destino)
+    }
+
     clear()
     setSending(false)
   }
@@ -335,43 +367,42 @@ export function CheckoutFlow() {
             {t('checkout.section.delivery')}
           </h2>
 
-          <fieldset className="mt-5">
-            <legend className="u-label mb-3">{t('checkout.zone')}</legend>
-            <div className="flex flex-col gap-2">
+          {/* Con dos docenas de ciudades, una lista de botones ocuparía la
+              pantalla entera. El desplegable la resuelve en un gesto, y debajo
+              se muestra el detalle de la que quedó elegida. */}
+          <div className="mt-5">
+            <label className="u-label mb-2 block" htmlFor="zona">
+              {t('checkout.zone')}
+            </label>
+            <select
+              id="zona"
+              className="u-field cursor-pointer"
+              value={zoneSlug}
+              onChange={(e) => setZoneSlug(e.target.value)}
+            >
               {zones.map((z) => (
-                <label
-                  key={z.slug}
-                  className={`flex cursor-pointer items-start gap-3 border p-4 rounded-part transition-colors duration-200 ease-rail ${
-                    zoneSlug === z.slug ? 'border-accent' : 'border-rule hover:border-fg-low'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="zona"
-                    value={z.slug}
-                    checked={zoneSlug === z.slug}
-                    onChange={() => setZoneSlug(z.slug)}
-                    className="mt-1 size-4 shrink-0 accent-[var(--accent)]"
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex flex-wrap items-baseline justify-between gap-2">
-                      <span className="text-[0.9375rem] text-fg">{z.name[locale]}</span>
-                      <span className="font-mono text-[0.75rem] tabular-nums text-fg-mid">
-                        {shippingFor(z, netUsd) === 0 ? (
-                          t('cart.shipping.free')
-                        ) : (
-                          <Price usd={z.costUsd} />
-                        )}
-                      </span>
-                    </span>
-                    <span className="mt-1 block text-[0.8125rem] leading-snug text-fg-mid">
-                      {z.note[locale]}
-                    </span>
-                  </span>
-                </label>
+                <option key={z.slug} value={z.slug}>
+                  {z.name[locale]}
+                </option>
               ))}
-            </div>
-          </fieldset>
+            </select>
+
+            {zone ? (
+              <p
+                className="mt-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-l-2 border-accent pl-3 text-[0.8125rem] leading-snug text-fg-mid"
+                aria-live="polite"
+              >
+                <span className="min-w-0 flex-1">{zone.note[locale]}</span>
+                <span className="font-mono text-[0.75rem] tabular-nums text-fg">
+                  {shippingFor(zone, netUsd) === 0 ? (
+                    t('cart.shipping.free')
+                  ) : (
+                    <Price usd={zone.costUsd} />
+                  )}
+                </span>
+              </p>
+            ) : null}
+          </div>
 
           {zone?.requiresAddress ? (
             <div className="mt-5">

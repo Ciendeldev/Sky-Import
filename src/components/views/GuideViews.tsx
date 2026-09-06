@@ -1,10 +1,31 @@
 'use client'
 
 import Link from 'next/link'
-import { ComponentRender } from '@/components/render/ComponentRender'
+import { ProductPhoto } from '@/components/product/ProductPhoto'
 import { Reveal, SplitWords } from '@/components/motion/Motion'
-import { GUIDES, GUIDE_BY_SLUG } from '@/content/guides'
+import { GUIDES, GUIDE_BY_SLUG, type Guide } from '@/content/guides'
+import { PRODUCTS } from '@/lib/catalog/products'
 import { useI18n } from '@/lib/i18n/context'
+import type { RenderSpec } from '@/lib/catalog/types'
+
+/**
+ * Cada guía se ilustra con una pieza real de la familia que explica: la que
+ * habla de zócalos muestra un procesador, la de milímetros un gabinete. Es más
+ * concreto que un icono, y evita mantener un segundo juego de ilustraciones.
+ */
+const CATEGORIA_DE_FORMA: Partial<Record<RenderSpec['shape'], string>> = {
+  cpu: 'procesadores',
+  ram: 'memorias-ram',
+  psu: 'fuentes',
+  case: 'gabinetes',
+  gpu: 'tarjetas-graficas',
+  motherboard: 'placas-madre',
+}
+
+function piezaDeGuia(guide: Guide) {
+  const categoria = CATEGORIA_DE_FORMA[guide.shape]
+  return PRODUCTS.find((p) => p.category === categoria) ?? PRODUCTS[0]!
+}
 
 export function GuidesView() {
   const { t, locale, path } = useI18n()
@@ -39,14 +60,8 @@ export function GuidesView() {
                 <span className="font-mono text-[0.6875rem] tabular-nums text-accent md:col-span-1">
                   {guide.index}
                 </span>
-                <span className="hidden w-20 md:col-span-2 md:block">
-                  <ComponentRender
-                    shape={guide.shape}
-                    accent="#6E7A85"
-                    seed={i * 11 + 5}
-                    variant={i % 3}
-                    className="w-full opacity-70 transition-all duration-500 ease-rail group-hover:-translate-y-1 group-hover:opacity-100"
-                  />
+                <span className="relative hidden aspect-square w-20 opacity-80 transition-all duration-500 ease-rail group-hover:-translate-y-1 group-hover:opacity-100 md:col-span-2 md:block">
+                  <ProductPhoto product={piezaDeGuia(guide)} sizes="80px" />
                 </span>
                 <span className="md:col-span-9">
                   <span className="u-display-sm block text-[clamp(1.25rem,2.6vw,1.75rem)]">
@@ -102,13 +117,9 @@ export function GuideView({ slug }: { slug: string }) {
             </Reveal>
           </div>
           <Reveal delayIndex={1} from="right" className="hidden lg:col-span-4 lg:block">
-            <ComponentRender
-              shape={guide.shape}
-              accent="#6E7A85"
-              seed={17}
-              variant={1}
-              className="w-full opacity-80"
-            />
+            <span className="relative block aspect-square w-full">
+              <ProductPhoto product={piezaDeGuia(guide)} sizes="(min-width: 1024px) 30vw, 0px" />
+            </span>
           </Reveal>
         </header>
 

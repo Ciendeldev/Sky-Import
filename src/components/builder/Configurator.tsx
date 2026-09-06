@@ -1,8 +1,9 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState } from 'react'
+import dynamic from 'next/dynamic'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ComponentRender } from '@/components/render/ComponentRender'
+import { ProductPhoto } from '@/components/product/ProductPhoto'
 import { Price } from '@/components/ui/Price'
 import { CtaBody } from '@/components/ui/Cta'
 import { useFocusTrap } from '@/lib/useFocusTrap'
@@ -21,6 +22,22 @@ import {
   type BuildSlot,
 } from '@/lib/compat'
 import type { CompatKind, Product } from '@/lib/catalog/types'
+import { assessBuildCandidate } from '@/lib/buildCandidateFit'
+import { getPcAssemblyPlan } from '@/lib/pcAssemblyPlan'
+import { diagnosePcBoot } from '@/lib/pcBootSequence'
+import { useIntroDone } from '@/lib/useIntroDone'
+
+const PcBuildScene = dynamic(() => import('@/components/builder/PcBuildScene'), { ssr: false })
+
+const POWER_CHECK_MS = 2000
+
+type PcPowerPhase = 'off' | 'checking' | 'failed' | 'powered'
+
+interface PowerAttempt {
+  signature: string
+  phase: PcPowerPhase
+  diagnosticIssueId: string | null
+}
 
 /**
  * TABLERO DE COMPATIBILIDAD
@@ -57,8 +74,18 @@ export function Configurator() {
   const resetBuild = useBuild((s) => s.reset)
   const addToCart = useCart((s) => s.add)
   const toast = useUi((s) => s.toast)
+  const openCart = useUi((s) => s.openCart)
 
   const [openSlot, setOpenSlot] = useState<BuildSlot | null>(null)
+  const [sceneReady, setSceneReady] = useState(false)
+  // El 3D espera a que la cortina de entrada termine: ver `useIntroDone`.
+  const introLista = useIntroDone()
+  const [powerAttempt, setPowerAttempt] = useState<PowerAttempt>({
+    signature: '',
+    phase: 'off',
+    diagnosticIssueId: null,
+  })
+  const powerTimerRef = useRef<number | null>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
   const closeDialog = useCallback(() => setOpenSlot(null), [])
   useFocusTrap(dialogRef, openSlot !== null, closeDialog)
@@ -66,11 +93,85 @@ export function Configurator() {
   const build = useMemo(() => resolveBuild(picks), [picks])
   const issues = useMemo(() => checkBuild(build), [build])
   const status = summarize(issues)
+  const scenePlan = useMemo(() => getPcAssemblyPlan(picks), [picks])
   const draw = estimatedDrawW(build)
   const psu = suggestedPsuW(build)
 
-  const chosen = BUILD_SLOTS.map((slot) => build[slot]).filter(Boolean) as Product[]
+  const chosen = useMemo(
+    () => BUILD_SLOTS.map((slot) => build[slot]).filter(Boolean) as Product[],
+    [build],
+  )
   const totalUsd = chosen.reduce((sum, product) => sum + product.priceUsd, 0)
+  const buildSignature = BUILD_SLOTS.map((slot) => picks[slot] ?? '').join('|')
+  const currentAttempt = powerAttempt.signature === buildSignature
+  const powerPhase: PcPowerPhase = currentAttempt ? powerAttempt.phase : 'off'
+  const diagnosticIssue = currentAttempt
+    ? issues.find((issue) => issue.id === powerAttempt.diagnosticIssueId) ?? null
+    : null
+  const diagnosticSlots = diagnosticIssue?.slots ?? []
+  const guidedSlot = diagnosticSlots[0] ?? null
+  const candidateOptions = useMemo(() => {
+    if (!openSlot) return []
+
+    return optionsFor(openSlot)
+      .map((product, index) => ({
+        product,
+        index,
+        assessment: assessBuildCandidate(build, openSlot, product),
+      }))
+      .sort((left, right) => {
+        const fitOrder =
+          Number(right.assessment.fit === 'compatible') -
+          Number(left.assessment.fit === 'compatible')
+        return fitOrder || left.index - right.index
+      })
+  }, [build, openSlot])
+  const scenePhase = !scenePlan.complete
+    ? 'assembling'
+    : powerPhase === 'off'
+      ? 'ready'
+      : powerPhase
+
+  useEffect(
+    () => () => {
+      if (powerTimerRef.current !== null) {
+        window.clearTimeout(powerTimerRef.current)
+        powerTimerRef.current = null
+      }
+    },
+    [buildSignature],
+  )
+
+  const powerOn = useCallback(() => {
+    if (!scenePlan.complete || powerPhase === 'checking') return
+    if (powerTimerRef.current !== null) window.clearTimeout(powerTimerRef.current)
+
+    const signature = buildSignature
+    setPowerAttempt({ signature, phase: 'checking', diagnosticIssueId: null })
+    powerTimerRef.current = window.setTimeout(() => {
+      const result = diagnosePcBoot(true, issues)
+      setPowerAttempt({
+        signature,
+        phase: result.status === 'passed' ? 'powered' : 'failed',
+        diagnosticIssueId: result.issue?.id ?? null,
+      })
+      powerTimerRef.current = null
+    }, POWER_CHECK_MS)
+  }, [buildSignature, issues, powerPhase, scenePlan.complete])
+
+  const powerOff = useCallback(() => {
+    if (powerTimerRef.current !== null) {
+      window.clearTimeout(powerTimerRef.current)
+      powerTimerRef.current = null
+    }
+    setPowerAttempt({ signature: buildSignature, phase: 'off', diagnosticIssueId: null })
+  }, [buildSignature])
+
+  const addWholeBuild = useCallback(() => {
+    for (const product of chosen) addToCart(product.slug, 1)
+    toast(t('build.addedAll'))
+    openCart()
+  }, [addToCart, chosen, openCart, t, toast])
 
   /** Ranuras señaladas por alguna advertencia, con su nivel. */
   const flagged = useMemo(() => {
@@ -85,17 +186,234 @@ export function Configurator() {
   }, [issues])
 
   const overall = chosen.length === 0 ? 'vacio' : status.status
+  const coolingType =
+    build.cooling?.compat.kind === 'cooling' ? build.cooling.compat.type : undefined
+  const sceneStatusKey =
+    scenePhase === 'powered'
+      ? 'build.scene.powered'
+      : scenePhase === 'checking'
+        ? 'build.scene.checking'
+        : scenePhase === 'failed'
+          ? 'build.scene.failed'
+          : scenePhase === 'ready'
+            ? 'build.scene.ready'
+            : scenePlan.selectedCount > 0
+              ? 'build.scene.assembling'
+              : 'build.scene.idle'
+  const sceneHintKey =
+    scenePhase === 'powered'
+      ? 'build.scene.readyHint'
+      : scenePhase === 'checking'
+        ? 'build.scene.checkingHint'
+        : scenePhase === 'failed'
+          ? 'build.scene.failedHint'
+          : scenePhase === 'ready'
+            ? 'build.scene.powerHint'
+            : 'build.scene.hint'
+  const onSceneReady = useCallback(() => setSceneReady(true), [])
+  const onSceneLost = useCallback(() => setSceneReady(false), [])
 
   return (
-    <div className="u-page grid gap-10 pb-24 lg:grid-cols-12 lg:gap-12">
+    <div className="u-page pb-24">
+      <section
+        className="u-pc-lab relative mb-12 overflow-hidden"
+        aria-labelledby="pc-live-title"
+        data-boot-phase={scenePhase}
+      >
+        <div className="u-pc-lab__field pointer-events-none absolute inset-0" aria-hidden="true">
+          <div className="u-pc-lab-grid absolute -inset-[30%]" />
+          <div className="u-pc-lab-scan absolute inset-x-0 top-0 h-px" />
+        </div>
+
+        <div className="u-pc-lab__header pointer-events-none absolute z-20">
+          <div className="u-pc-lab__heading">
+            <p className="u-eyebrow">{t('build.scene.eyebrow')}</p>
+            <h2 id="pc-live-title" className="u-pc-lab__title">
+              {t('build.scene.title')}
+            </h2>
+          </div>
+          <div className="u-pc-lab__status-stack pointer-events-auto">
+            {scenePhase === 'powered' ? (
+              <button
+                type="button"
+                className="u-pc-purchase"
+                aria-label={t('build.scene.purchase')}
+                onClick={addWholeBuild}
+              >
+                <span>{t('build.scene.purchase')}</span>
+                <small>{t('build.scene.purchaseHint')}</small>
+              </button>
+            ) : null}
+            <div className="u-pc-status" data-state={scenePhase} role="status" aria-live="polite">
+              <p>{scenePlan.selectedCount}/{scenePlan.totalSlots}</p>
+              <span>{t(sceneStatusKey)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="u-pc-lab__scene absolute inset-0 z-10">
+          {/* La escena no se monta mientras la cortina de entrada sigue en
+              pantalla: compilar los shaders y construir la geometría ocupa el
+              hilo principal y retrasaba el cierre de la intro casi un segundo.
+              Primero la casa termina de abrir; después entra el 3D. */}
+          {introLista ? (
+          <PcBuildScene
+            picks={picks}
+            powered={scenePhase === 'powered'}
+            checking={scenePhase === 'checking'}
+            diagnosticSlots={diagnosticSlots}
+            diagnosticTone={diagnosticIssue ? 'warning' : null}
+            {...(coolingType ? { coolingType } : {})}
+            onReady={onSceneReady}
+            onLost={onSceneLost}
+            className="h-full w-full"
+          />
+          ) : null}
+        </div>
+
+        <div
+          className={`u-pc-lab__loading pointer-events-none absolute inset-0 z-[5] grid place-items-center ${sceneReady ? 'opacity-0' : 'opacity-100'}`}
+          aria-hidden="true"
+        >
+          <div />
+        </div>
+
+        {scenePhase === 'failed' && diagnosticIssue ? (
+          <div className="u-pc-diagnostic" role="alert">
+            <p>{t('build.scene.diagnostic')}</p>
+            <h3>{diagnosticIssue.title[locale]}</h3>
+            <span>{diagnosticIssue.detail[locale]}</span>
+            {guidedSlot ? (
+              <button
+                type="button"
+                className="u-pc-diagnostic__action"
+                onClick={() => setOpenSlot(guidedSlot)}
+              >
+                <span>{t('build.scene.compatibleOptions')}</span>
+                <span aria-hidden="true">→</span>
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+
+        {scenePlan.complete ? (
+          <div className="u-pc-power-tray">
+            <button
+              type="button"
+              className="u-pc-power"
+              data-state={scenePhase}
+              disabled={scenePhase === 'checking'}
+              onClick={scenePhase === 'powered' ? powerOff : powerOn}
+              aria-label={
+                scenePhase === 'powered'
+                  ? t('build.scene.powerOff')
+                  : scenePhase === 'checking'
+                  ? t('build.scene.checking')
+                  : scenePhase === 'failed'
+                    ? t('build.scene.retry')
+                    : t('build.scene.power')
+              }
+            >
+              <svg viewBox="0 0 48 48" aria-hidden="true">
+                <path d="M24 5v18" />
+                <path d="M14.3 11.6a16 16 0 1 0 19.4 0" />
+              </svg>
+              <span>
+                {scenePhase === 'powered'
+                  ? t('build.scene.powerOff')
+                  : scenePhase === 'checking'
+                  ? t('build.scene.checkingShort')
+                  : scenePhase === 'failed'
+                    ? t('build.scene.retry')
+                    : t('build.scene.power')}
+              </span>
+            </button>
+          </div>
+        ) : null}
+
+        <div className="u-pc-lab__footer absolute z-20">
+          <div className="u-pc-dock" data-pc-dock>
+            {BUILD_SLOTS.map((slot) => {
+              const product = build[slot]
+              const hasDiagnostic = diagnosticSlots.includes(slot)
+              const isGuided = guidedSlot === slot
+              return product ? (
+                <button
+                  key={slot}
+                  type="button"
+                  onClick={() => setOpenSlot(slot)}
+                  className="u-pc-dock__cell"
+                  data-pc-slot={slot}
+                  data-diagnostic={hasDiagnostic ? 'warning' : undefined}
+                  data-guided={isGuided ? 'true' : undefined}
+                  title={`${t(`build.slot.${slot}`)}: ${product.name}`}
+                  aria-label={`${t('build.change')} ${t(`build.slot.${slot}`)}: ${product.name}`}
+                  aria-haspopup="dialog"
+                >
+                  <ProductPhoto product={product} sizes="48px" />
+                  <span className="u-pc-dock__rail" aria-hidden="true" />
+                  {isGuided ? (
+                    <span
+                      className="u-pc-dock__guide"
+                      data-pc-guide
+                      data-target-slot={slot}
+                      aria-hidden="true"
+                    >
+                      <span>
+                        {t('build.change')} {t(`build.slot.${slot}`)}
+                      </span>
+                      <svg viewBox="0 0 18 22">
+                        <path d="M9 1v16" />
+                        <path d="m3 12 6 6 6-6" />
+                      </svg>
+                    </span>
+                  ) : null}
+                </button>
+              ) : (
+                <button
+                  key={slot}
+                  type="button"
+                  onClick={() => setOpenSlot(slot)}
+                  className="u-pc-dock__cell u-pc-dock__cell--empty"
+                  data-pc-slot={slot}
+                  aria-label={`${t('build.choose')} ${t(`build.slot.${slot}`)}`}
+                  aria-haspopup="dialog"
+                >
+                  {String(BUILD_SLOTS.indexOf(slot) + 1).padStart(2, '0')}
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="u-pc-lab__meta">
+            <div>
+              <p>
+                {scenePlan.nextSlot ? t(`build.slot.${scenePlan.nextSlot}`) : t(sceneStatusKey)}
+              </p>
+              <span>{t(sceneHintKey)}</span>
+            </div>
+            <small>
+              {t('build.scene.approx')}
+            </small>
+          </div>
+          <div className="u-pc-lab__progress" aria-hidden="true">
+            <span
+              style={{ transform: `scaleX(${scenePlan.progress})` }}
+            />
+          </div>
+        </div>
+      </section>
+
+      <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
       {/* ── las ocho ranuras ── */}
       <div className="lg:col-span-7">
         <ul>
           {BUILD_SLOTS.map((slot, i) => {
             const product = build[slot]
             const flag = flagged.get(slot)
+            const hasBootDiagnostic = diagnosticSlots.includes(slot)
             const railColor =
-              flag === 'bloqueo'
+              hasBootDiagnostic || flag === 'bloqueo'
                 ? 'bg-rust'
                 : flag === 'aviso'
                   ? 'bg-amber'
@@ -104,7 +422,12 @@ export function Configurator() {
                     : 'bg-rule'
 
             return (
-              <li key={slot} data-slot={slot} className="relative border-b border-rule first:border-t">
+              <li
+                key={slot}
+                data-slot={slot}
+                data-issue-state={hasBootDiagnostic ? 'warning' : undefined}
+                className="relative border-b border-rule first:border-t"
+              >
                 <div className="flex items-stretch gap-4 py-5 sm:gap-6">
                   {/* el rail: el trazado convertido en estado */}
                   <div className="relative flex w-4 shrink-0 justify-center" aria-hidden="true">
@@ -126,8 +449,8 @@ export function Configurator() {
                       <p className="mt-2 text-[0.9375rem] text-fg-low">…</p>
                     ) : product ? (
                       <div className="mt-2 flex items-start gap-4">
-                        <span className="hidden w-16 shrink-0 sm:block">
-                          <ComponentRender {...product.render} className="w-full" />
+                        <span className="relative hidden h-16 w-16 shrink-0 sm:block">
+                          <ProductPhoto product={product} sizes="64px" />
                         </span>
                         <span className="min-w-0 flex-1">
                           <Link
@@ -217,10 +540,7 @@ export function Configurator() {
               <button
                 type="button"
                 disabled={chosen.length === 0}
-                onClick={() => {
-                  for (const product of chosen) addToCart(product.slug, 1)
-                  toast(t('build.addedAll'))
-                }}
+                onClick={addWholeBuild}
                 data-lead
                 className="u-cta u-cta--block u-cta--sm"
               >
@@ -302,7 +622,7 @@ export function Configurator() {
             </div>
 
             <ul className="flex-1 overflow-y-auto overscroll-contain">
-              {optionsFor(openSlot).map((product) => {
+              {candidateOptions.map(({ product, assessment }) => {
                 const selected = picks[openSlot] === product.slug
                 return (
                   <li key={product.slug}>
@@ -313,10 +633,11 @@ export function Configurator() {
                         closeDialog()
                       }}
                       aria-pressed={selected}
-                      className="flex w-full items-center gap-4 border-b border-rule px-5 py-4 text-left transition-colors hover:bg-surface-sunk aria-pressed:bg-surface-sunk"
+                      data-fit={assessment.fit}
+                      className="u-build-option flex w-full items-center gap-4 border-b border-rule px-5 py-4 text-left transition-colors hover:bg-surface-sunk aria-pressed:bg-surface-sunk"
                     >
-                      <span className="w-16 shrink-0">
-                        <ComponentRender {...product.render} className="w-full" />
+                      <span className="u-product-interactive relative h-16 w-16 shrink-0">
+                        <ProductPhoto product={product} sizes="64px" />
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="u-label block">{product.brand}</span>
@@ -327,12 +648,20 @@ export function Configurator() {
                           {headlineSpec(product, locale)}
                         </span>
                       </span>
-                      <Price usd={product.priceUsd} className="shrink-0 font-mono text-[0.875rem]" />
+                      <span className="u-build-option__meta shrink-0">
+                        <Price usd={product.priceUsd} className="font-mono text-[0.875rem]" />
+                        <span className="u-build-option__fit" data-fit={assessment.fit}>
+                          <span aria-hidden="true">{assessment.fit === 'compatible' ? '✓' : '!'}</span>
+                          {assessment.fit === 'compatible'
+                            ? t('build.option.compatible')
+                            : t('build.option.conflict')}
+                        </span>
+                      </span>
                     </button>
                   </li>
                 )
               })}
-              {optionsFor(openSlot).length === 0 ? (
+              {candidateOptions.length === 0 ? (
                 <li className="px-5 py-10 text-center text-[0.9375rem] text-fg-mid">
                   {t('build.pickEmpty')}
                 </li>
@@ -341,6 +670,7 @@ export function Configurator() {
           </div>
         </>
       ) : null}
+      </div>
     </div>
   )
 }
