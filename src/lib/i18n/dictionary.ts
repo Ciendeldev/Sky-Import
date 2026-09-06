@@ -276,6 +276,7 @@ const es = {
   'checkout.notesOptional': 'Opcional',
 
   'checkout.section.coupon': 'Cupón de descuento',
+  'checkout.couponLabel': 'Código del cupón',
   'checkout.couponPlaceholder': 'Código',
   'checkout.couponApply': 'Aplicar',
   'checkout.couponApplied': 'Cupón aplicado',
@@ -592,6 +593,7 @@ const pt: Record<DictKey, string> = {
   'checkout.notesOptional': 'Opcional',
 
   'checkout.section.coupon': 'Cupom de desconto',
+  'checkout.couponLabel': 'Código do cupom',
   'checkout.couponPlaceholder': 'Código',
   'checkout.couponApply': 'Aplicar',
   'checkout.couponApplied': 'Cupom aplicado',

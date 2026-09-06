@@ -465,8 +465,12 @@ export function CheckoutFlow() {
           ) : (
             <>
               <div className="mt-4 flex flex-wrap gap-2">
+                {/* El nombre del campo NO puede repetir el de la sección: con
+                    los dos llamados «Cupón de descuento», un lector de pantalla
+                    anuncia lo mismo dos veces y no distingue el apartado del
+                    control que hay dentro. */}
                 <label className="sr-only" htmlFor="cupon-codigo">
-                  {t('checkout.section.coupon')}
+                  {t('checkout.couponLabel')}
                 </label>
                 <input
                   id="cupon-codigo"
@@ -493,7 +497,7 @@ export function CheckoutFlow() {
               </div>
 
               {couponError ? (
-                <p className="mt-3 text-[0.8125rem] text-amber" role="alert">
+                <p className="mt-3 text-[0.8125rem] text-amber" role="alert" data-testid="error-cupon">
                   {couponError}
                 </p>
               ) : null}
