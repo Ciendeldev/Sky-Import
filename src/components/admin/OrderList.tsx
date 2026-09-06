@@ -4,6 +4,7 @@ import { Fragment, useMemo, useState, useTransition } from 'react'
 import { setOrderNote, setOrderStatus } from '@/lib/admin/actions'
 import { ORDER_STATUSES, type OrderStatus } from '@/lib/supabase/types'
 import type { OrderWithItems } from '@/lib/admin/queries'
+import { waPhone } from '@/lib/whatsapp'
 
 /**
  * El historial de pedidos. Cada fila se abre para ver las líneas, los datos de
@@ -105,7 +106,7 @@ function OrderDetail({ order }: { order: OrderWithItems }) {
               <dt className="a-eyebrow mt-3">Teléfono</dt>
               <dd>
                 <a
-                  href={`https://wa.me/${order.phone.replace(/\D/g, '')}`}
+                  href={`https://wa.me/${waPhone(order.phone)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="a-num text-accent underline"

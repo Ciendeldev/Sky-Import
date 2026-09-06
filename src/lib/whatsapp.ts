@@ -193,3 +193,27 @@ export function orderMessage(input: OrderMessageInput): string {
 
   return out.join('\n')
 }
+
+// ══════════════════════════════════════════════ 3 · teléfono del cliente → wa.me
+
+/**
+ * Normaliza un teléfono paraguayo al formato que `wa.me` exige: código de país
+ * y nada más, sin signos y **sin el cero de tránsito**.
+ *
+ * Hace falta porque el cliente escribe su número como lo escribe todo el
+ * mundo acá —`0994 222 542`— y `wa.me/0994222542` no abre ninguna
+ * conversación: WhatsApp lee ese cero como parte del código de país y no
+ * encuentra a nadie. El panel enlazaba el número tal cual salía del checkout,
+ * así que el botón de contactar al cliente estaba roto en todos los pedidos.
+ *
+ * Solo toca lo que reconoce. Un número que ya trae código de país —el 595
+ * propio, o el 55 de un cliente brasileño cruzando el puente— sale intacto.
+ */
+export function waPhone(raw: string): string {
+  const digits = raw.replace(/\D/g, '')
+  if (digits.startsWith('595')) return digits
+  if (digits.startsWith('0')) return `595${digits.slice(1)}`
+  // Ocho o nueve dígitos sueltos es un número nacional escrito sin el cero.
+  if (digits.length >= 8 && digits.length <= 9) return `595${digits}`
+  return digits
+}

@@ -83,8 +83,15 @@ function CouponForm({ coupon, onDone }: { coupon?: CouponRow; onDone: () => void
           <input
             name="value"
             type="number"
+            /**
+             * El mínimo tiene que ir con el paso, o el navegador rechaza los
+             * números redondos. Con `step="1"` y `min="0.01"`, los valores
+             * válidos eran 0,01 · 1,01 · 2,01… y un cupón del 15 % —el caso
+             * normal— daba «introduce un valor válido». Un porcentaje va de 1
+             * en 1 desde 1; un monto en dólares, de céntimo en céntimo.
+             */
             step={kind === 'percent' ? '1' : '0.01'}
-            min="0.01"
+            min={kind === 'percent' ? '1' : '0.01'}
             max={kind === 'percent' ? 100 : undefined}
             className="a-field a-num"
             defaultValue={coupon?.value}

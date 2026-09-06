@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { orderMessage, productMessage, pyg, whatsappUrl } from '@/lib/whatsapp'
+import { orderMessage, productMessage, pyg, waPhone, whatsappUrl } from '@/lib/whatsapp'
 import { CONTACT } from '@/config/site'
 
 /**
@@ -160,5 +160,23 @@ describe('whatsappUrl', () => {
 
   it('usa el número de producción', () => {
     expect(CONTACT.whatsapp).toBe('595994222542')
+  })
+})
+
+describe('waPhone', () => {
+  it('cambia el cero de tránsito por el código de país', () => {
+    // Como lo escribe el cliente en el checkout: 0994 222 542.
+    expect(waPhone('0994 222 542')).toBe('595994222542')
+    expect(waPhone('0981-123-456')).toBe('595981123456')
+  })
+
+  it('respeta un número que ya trae código de país', () => {
+    expect(waPhone('+595 994 222 542')).toBe('595994222542')
+    // Cliente brasileño: 55 no se toca.
+    expect(waPhone('+55 45 99999 8888')).toBe('5545999998888')
+  })
+
+  it('completa un nacional escrito sin el cero', () => {
+    expect(waPhone('994222542')).toBe('595994222542')
   })
 })
