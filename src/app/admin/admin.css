@@ -32,9 +32,21 @@
   }
 }
 
+/*
+ * La barra lateral es lo único fijo de la pantalla, así que es lo que da la
+ * impresión de conjunto. Un degradado de dos paradas apenas perceptible la
+ * separa del contenido sin meter un color nuevo, y el filete cian del canto
+ * derecho ata el panel a la tienda: es el mismo acento del configurador.
+ */
 .a-side {
+  position: relative;
   border-bottom: 1px solid var(--rule);
-  background: var(--color-carbon-sunk);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-sky) 5%, var(--color-carbon-sunk)) 0%,
+      var(--color-carbon-sunk) 38%
+    );
   padding: 1.25rem 1rem;
 }
 
@@ -47,7 +59,77 @@
     border-bottom: 0;
     display: flex;
     flex-direction: column;
+    padding: 1.5rem 1rem 1.25rem;
   }
+
+  /* Hilo de acento en el canto: 1 px que se apaga hacia abajo. */
+  .a-side::after {
+    content: '';
+    position: absolute;
+    inset: 0 -1px 0 auto;
+    width: 1px;
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--accent) 55%, transparent) 0%,
+      transparent 42%
+    );
+    pointer-events: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────── el sello */
+
+.a-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 44px;
+  color: var(--accent);
+}
+
+.a-brand__mark {
+  flex: none;
+}
+
+.a-brand__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.a-brand__name {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.a-brand__role {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-low);
+  line-height: 1;
+}
+
+/* ──────────────────────────────────────────────── la sesión, al pie */
+
+.a-session {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-part);
+  background: color-mix(in oklab, var(--color-carbon) 60%, transparent);
+  padding: 0.875rem;
+}
+
+.a-session__user {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--fg-hi);
 }
 
 .a-main {
@@ -101,24 +183,30 @@
   color: var(--fg-hi);
 }
 
+/*
+ * La sección activa se marca por dentro y por fuera: el fondo la levanta y el
+ * filete del canto izquierdo la ancla. El icono se tiñe de acento con ella,
+ * que es lo que hace que la fila entera se lea como un bloque y no como un
+ * dibujo al lado de un texto.
+ */
 .a-nav a[aria-current='page'] {
-  background: color-mix(in oklab, var(--color-sky) 16%, transparent);
+  background: color-mix(in oklab, var(--color-sky) 14%, transparent);
   color: var(--fg-hi);
+  box-shadow: inset 2px 0 0 var(--accent);
 }
 
-/* El filete que marca la sección activa: el mismo trazado del configurador. */
-.a-nav a[aria-current='page']::before {
-  content: '';
-  width: 2px;
-  height: 14px;
-  background: var(--accent);
+.a-nav a[aria-current='page'] svg {
+  color: var(--accent);
 }
 
-.a-nav a:not([aria-current='page'])::before {
-  content: '';
-  width: 2px;
-  height: 14px;
-  background: transparent;
+.a-nav a svg {
+  flex: none;
+  color: var(--fg-low);
+  transition: color 220ms var(--ease-rail);
+}
+
+.a-nav a:hover svg {
+  color: var(--fg-mid);
 }
 
 /* ────────────────────────────────────────────────────────── encabezados */
@@ -140,10 +228,35 @@
 
 /* ──────────────────────────────────────────────────────────── superficies */
 
-.a-panel {
+/*
+ * Un filo de luz de 1 px en el canto superior. Es el truco de siempre para
+ * que una superficie plana parezca tener grosor, y acá hace falta: sin él,
+ * las tarjetas del tablero y las tablas se leen como rectángulos pegados al
+ * fondo en vez de como piezas apoyadas encima.
+ */
+.a-panel,
+.a-stat {
+  position: relative;
   border: 1px solid var(--rule);
   border-radius: var(--radius-part);
   background: var(--color-carbon-lift);
+}
+
+.a-panel::before,
+.a-stat::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  border-radius: var(--radius-part) var(--radius-part) 0 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--fg-hi) 12%, transparent) 22%,
+    color-mix(in oklab, var(--fg-hi) 12%, transparent) 78%,
+    transparent
+  );
+  pointer-events: none;
 }
 
 .a-panel--pad {
@@ -351,18 +464,23 @@ textarea.a-field {
 /* ────────────────────────────────────────────── tarjetas de cifra del tablero */
 
 .a-stat {
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-part);
-  background: var(--color-carbon-lift);
-  padding: 1rem;
+  padding: 1.125rem 1.125rem 1.25rem;
+  transition: border-color 240ms var(--ease-rail);
+}
+
+.a-stat:hover {
+  border-color: var(--rule-strong);
 }
 
 .a-stat__value {
-  margin-top: 0.375rem;
+  margin-top: 0.5rem;
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  font-size: 1.75rem;
+  font-size: 1.875rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   line-height: 1;
+  color: var(--fg-hi);
 }
 
 /* ───────────────────────────────────────────────── movimiento reducido */

@@ -25,6 +25,16 @@ const azeret = Azeret_Mono({ subsets: ['latin'], variable: '--font-azeret', disp
 export const metadata: Metadata = {
   title: 'Panel · Sky Import',
   robots: { index: false, follow: false, nocache: true },
+  /**
+   * El sello, también acá.
+   *
+   * Al ser un layout raíz aparte, el panel no heredaba el icono de la tienda y
+   * la pestaña salía con el globo genérico del navegador. En una barra con
+   * ocho pestañas abiertas eso importa más de lo que parece: el operador que
+   * tiene la tienda y el panel abiertos a la vez encuentra el suyo por la
+   * forma, no leyendo los títulos uno por uno.
+   */
+  icons: { icon: '/icon.svg', apple: '/icon.svg' },
 }
 
 export const viewport: Viewport = {

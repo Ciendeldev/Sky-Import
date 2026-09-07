@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getAdminSession } from '@/lib/admin/auth'
+import { BrandMark } from '@/components/brand/Wordmark'
 import { LoginForm } from '@/components/admin/LoginForm'
 import { hasSupabase } from '@/lib/supabase/server'
 
@@ -13,8 +14,16 @@ export default async function AccesoPage() {
   return (
     <main className="grid min-h-dvh place-items-center px-5 py-16">
       <div className="w-full max-w-[380px]">
-        <p className="a-eyebrow">Sky Import</p>
-        <h1 className="a-title mt-3">Panel de administración</h1>
+        {/* El sello antes que el título: quien llega acá tiene que reconocer
+            de un vistazo que es la trastienda de SU tienda, no un formulario
+            de acceso cualquiera al que pudo llegar de rebote. */}
+        <div className="flex items-center gap-2.5 text-accent">
+          <BrandMark size={30} animate="draw" />
+          <span className="font-mono text-[0.8125rem] font-medium tracking-[0.2em]">
+            <span className="text-fg">SKY</span> <span className="text-accent">IMPORT</span>
+          </span>
+        </div>
+        <h1 className="a-title mt-6">Panel de administración</h1>
         <p className="mt-3 text-[0.875rem] leading-relaxed text-fg-mid">
           Inventario, precios, cupones y pedidos de la tienda.
         </p>

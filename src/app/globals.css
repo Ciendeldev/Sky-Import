@@ -730,17 +730,24 @@ a:focus-visible .wordmark__l {
   flex: none;
 }
 
+/*
+ * La cinta de marcas iba en el gris más apagado de la paleta y a 11 px: se
+ * leía como relleno, y no lo es —son las veintiuna casas cuyas piezas hay en
+ * depósito, que es una de las pocas pruebas de solvencia que una tienda nueva
+ * puede enseñar—. Sube a 12 px y al gris medio, con un poco más de aire entre
+ * nombres. Sigue sin gritar; ahora se lee.
+ */
 .u-marquee__item {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  padding-inline: 1.75rem;
+  gap: 0.875rem;
+  padding-inline: 2rem;
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--fg-low);
+  color: var(--fg-mid);
   white-space: nowrap;
 }
 
@@ -749,7 +756,7 @@ a:focus-visible .wordmark__l {
   width: 4px;
   height: 4px;
   background: var(--accent);
-  opacity: 0.55;
+  opacity: 0.7;
 }
 
 /* El contador del carrito acusa recibo. */
@@ -2670,8 +2677,10 @@ html[data-pointer='hidden'] [contenteditable='true'] {
  * 5,2:1 y se sigue leyendo como WhatsApp, porque lo que se reconoce es la
  * forma del globo con el auricular, no el valor exacto del verde.
  *
- * 56 px de diámetro, por encima del mínimo de 44 de la casa: es un control
- * fijo y el pulgar lo busca sin mirar.
+ * 56 px de diámetro —el estándar de un botón flotante, y por encima del
+ * mínimo de 44 de la casa: es un control fijo y el pulgar lo busca sin
+ * mirar—, con el glifo a la mitad del diámetro. Esa proporción es la que
+ * separa un botón prolijo de uno que parece un sticker pegado encima.
  */
 .u-wa-fab {
   position: fixed;
@@ -2687,8 +2696,8 @@ html[data-pointer='hidden'] [contenteditable='true'] {
   color: #fff;
   text-decoration: none;
   box-shadow:
-    0 1px 2px rgb(0 0 0 / 0.3),
-    0 12px 30px -8px rgb(15 125 70 / 0.6);
+    0 1px 2px rgb(0 0 0 / 0.28),
+    0 10px 24px -10px rgb(15 125 70 / 0.5);
   transition:
     transform 260ms var(--ease-rail),
     opacity 200ms var(--ease-rail),
@@ -2696,8 +2705,8 @@ html[data-pointer='hidden'] [contenteditable='true'] {
 }
 
 .u-wa-fab svg {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
 }
 
 /* Con el carrito abierto se aparta en lugar de desmontarse: si desapareciera,
