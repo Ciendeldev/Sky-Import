@@ -55,7 +55,7 @@ export function HomeView() {
   return (
     <>
       {/* ─────────────────────────────────────────────────────────── HERO ── */}
-      <section className="u-plate relative overflow-hidden pt-28 lg:pt-36" aria-labelledby="titular">
+      <section className="u-hero u-plate relative overflow-hidden" aria-labelledby="titular">
         <div className="pointer-events-none absolute inset-0 opacity-[0.55]" aria-hidden="true">
           <Threads className="h-full w-full" amplitude={1.15} distance={0.34} />
         </div>
@@ -64,7 +64,7 @@ export function HomeView() {
           aria-hidden="true"
         />
 
-        <div className="u-page relative grid items-center gap-10 pb-14 lg:grid-cols-12 lg:gap-8 lg:pb-20">
+        <div className="u-hero__grid u-page relative grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-6 xl:col-span-5">
             <Reveal from="left" distance={16}>
               <p className="u-eyebrow">{t('home.hero.eyebrow')}</p>
@@ -73,7 +73,7 @@ export function HomeView() {
             {/* El titular no se queda quieto: una luz lo recorre cada siete
                 segundos, línea tras línea, con un reposo largo entre pasadas
                 para que nunca compita con la lectura. */}
-            <h1 id="titular" className="u-display mt-6 text-[clamp(2.6rem,7vw,5.5rem)]">
+            <h1 id="titular" className="u-hero__title u-display">
               <SplitWords
                 as="span"
                 start="now"
@@ -107,11 +107,11 @@ export function HomeView() {
             </h1>
 
             <Reveal delayIndex={4}>
-              <p className="u-measure mt-7 text-[1.0625rem] leading-relaxed text-fg-mid">
+              <p className="u-hero__lede u-measure text-[1.0625rem] leading-relaxed text-fg-mid">
                 {t('home.hero.lede')}
               </p>
 
-              <div className="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+              <div className="u-hero__actions flex flex-col items-start gap-3 sm:flex-row sm:items-center">
                 {/* La acción principal de toda la tienda. No es un botón: es una
                     pieza conectada. Corriente dando la vuelta al perímetro sin
                     parar, halo que se enciende por el lado del que viene el
@@ -156,7 +156,7 @@ export function HomeView() {
           <div className="relative lg:col-span-6 xl:col-span-7 lg:-mr-[6vw]">
             <div
               ref={heroArt}
-              className="relative mx-auto aspect-square w-full max-w-[38rem] rounded-part lg:ml-auto lg:mr-0"
+              className="u-hero__art relative mx-auto aspect-square w-full rounded-part lg:ml-auto lg:mr-0"
             >
               <ProductPhoto
                 product={HERO_GPU}

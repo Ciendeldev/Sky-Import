@@ -2738,3 +2738,49 @@ html[data-pointer='hidden'] [contenteditable='true'] {
     transform: none;
   }
 }
+
+/* ═══════════════════════════════════════════════ el primer viewport ══════
+ *
+ * REGLA: el primer viewport entra ENTERO, con sus dos botones dentro.
+ *
+ * No entraba. Todo estaba dimensionado contra el ANCHO —`7vw` para el
+ * titular, un relleno superior fijo de 144 px— y el ancho no dice nada sobre
+ * cuánto alto hay. En una pantalla ancha pero baja —un portátil de 1366×768,
+ * o cualquier monitor con el zoom del navegador al 125 %, que es lo más común
+ * del mundo— el bloque medía 943 px contra 744 disponibles, y «Ver catálogo»
+ * y «Arma tu PC» quedaban cortados por el borde inferior. Un primer viewport
+ * cuya llamada a la acción hay que ir a buscar con el scroll no es un primer
+ * viewport: es media portada.
+ *
+ * Así que todo lo que ocupa alto se mide TAMBIÉN contra el alto. El `min()`
+ * de cada `clamp` es el que manda cuando la pantalla es baja, y los `clamp`
+ * siguen poniendo un suelo para que en un teléfono no se encoja a nada.
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+.u-hero {
+  padding-top: clamp(4.5rem, 9vh, 9rem);
+}
+
+.u-hero__grid {
+  padding-bottom: clamp(2rem, 5vh, 5rem);
+}
+
+/* El titular es lo que más alto ocupa: tres líneas. Que ceda primero. */
+.u-hero__title {
+  margin-top: clamp(0.75rem, 2.2vh, 1.5rem);
+  font-size: clamp(2.6rem, min(7vw, 8.6vh), 5.5rem);
+}
+
+.u-hero__lede {
+  margin-top: clamp(1rem, 3vh, 1.75rem);
+}
+
+.u-hero__actions {
+  margin-top: clamp(1.25rem, 3.4vh, 2.25rem);
+}
+
+/* La pieza también: en pantalla baja se achica con ella en vez de estirar el
+   bloque hacia abajo. El tope de 38rem manda en pantallas anchas y altas. */
+.u-hero__art {
+  max-width: min(38rem, 62vh);
+}
