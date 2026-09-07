@@ -55,7 +55,15 @@ export function HomeView() {
   return (
     <>
       {/* ─────────────────────────────────────────────────────────── HERO ── */}
-      <section className="u-hero u-plate relative overflow-hidden" aria-labelledby="titular">
+      {/* El relleno superior cede cuando la pantalla es baja, y NADA MÁS.
+          Con 144 px fijos, en un monitor de 1080 al que la barra de tareas y
+          la del navegador le quitan lo suyo, «Ver catálogo» y «Arma tu PC»
+          quedaban aplastados contra el borde de abajo. `clamp` deja el valor
+          de siempre en pantallas altas y solo lo recorta cuando hace falta. */}
+      <section
+        className="u-plate relative overflow-hidden pt-28 lg:pt-[clamp(4.5rem,11vh,9rem)]"
+        aria-labelledby="titular"
+      >
         <div className="pointer-events-none absolute inset-0 opacity-[0.55]" aria-hidden="true">
           <Threads className="h-full w-full" amplitude={1.15} distance={0.34} />
         </div>
@@ -64,7 +72,7 @@ export function HomeView() {
           aria-hidden="true"
         />
 
-        <div className="u-hero__grid u-page relative grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
+        <div className="u-page relative grid items-center gap-10 pb-14 lg:grid-cols-12 lg:gap-8 lg:pb-20">
           <div className="lg:col-span-6 xl:col-span-5">
             <Reveal from="left" distance={16}>
               <p className="u-eyebrow">{t('home.hero.eyebrow')}</p>
@@ -73,7 +81,7 @@ export function HomeView() {
             {/* El titular no se queda quieto: una luz lo recorre cada siete
                 segundos, línea tras línea, con un reposo largo entre pasadas
                 para que nunca compita con la lectura. */}
-            <h1 id="titular" className="u-hero__title u-display">
+            <h1 id="titular" className="u-display mt-6 text-[clamp(2.6rem,7vw,5.5rem)]">
               <SplitWords
                 as="span"
                 start="now"
@@ -107,11 +115,11 @@ export function HomeView() {
             </h1>
 
             <Reveal delayIndex={4}>
-              <p className="u-hero__lede u-measure text-[1.0625rem] leading-relaxed text-fg-mid">
+              <p className="u-measure mt-7 text-[1.0625rem] leading-relaxed text-fg-mid">
                 {t('home.hero.lede')}
               </p>
 
-              <div className="u-hero__actions flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+              <div className="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
                 {/* La acción principal de toda la tienda. No es un botón: es una
                     pieza conectada. Corriente dando la vuelta al perímetro sin
                     parar, halo que se enciende por el lado del que viene el
@@ -141,23 +149,9 @@ export function HomeView() {
 
           {/* La pieza desborda el margen: no está encajonada. La foto es lo
               primero que se ve de la tienda, así que carga con prioridad y sus
-              cotas se superponen encima en vez de sustituirla.
-
-              La caja es CUADRADA y va topada. Era 4:3, y como las fotos del
-              catálogo son cuadradas, `object-contain` dejaba un cuarto del
-              ancho en vacío a cada lado: la placa quedaba chica en el centro y
-              —peor— las cotas, que se dibujan contra los bordes de la caja, se
-              despegaban del producto y flotaban sobre la nada. En una pantalla
-              de 1880 px eso se ve como basura suelta alrededor del titular.
-
-              Cuadrada, la foto llena el marco exacto y las cotas vuelven a
-              medir lo que dicen medir. El tope de 38rem evita que en pantallas
-              muy anchas el primer viewport crezca hasta no entrar de una vez. */}
+              cotas se superponen encima en vez de sustituirla. */}
           <div className="relative lg:col-span-6 xl:col-span-7 lg:-mr-[6vw]">
-            <div
-              ref={heroArt}
-              className="u-hero__art relative mx-auto aspect-square w-full rounded-part lg:ml-auto lg:mr-0"
-            >
+            <div ref={heroArt} className="relative aspect-[4/3] rounded-part">
               <ProductPhoto
                 product={HERO_GPU}
                 priority
