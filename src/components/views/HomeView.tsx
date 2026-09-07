@@ -30,7 +30,21 @@ const COUNT_BY_CATEGORY = new Map<string, number>()
 for (const product of PRODUCTS) {
   COUNT_BY_CATEGORY.set(product.category, (COUNT_BY_CATEGORY.get(product.category) ?? 0) + 1)
 }
-const HERO_GPU = PRODUCTS.find((product) => product.slug === 'geforce-rtx-5080-16gb') ?? PRODUCTS[0]!
+/**
+ * La pieza que abre la tienda.
+ *
+ * Era la 5080 Founders Edition: dos ventiladores, carcasa plana y una toma
+ * casi de frente. Técnicamente es la más potente del catálogo, pero en la
+ * portada se leía apagada — parecía un lingote, no una placa de video.
+ *
+ * La 5070 Ti es una MSI Ventus 3X: tres ventiladores grandes, fotografiada a
+ * tres cuartos, con las aspas y el disipador a la vista. Es lo que alguien
+ * reconoce como «placa de video» a dos metros de la pantalla, que es lo único
+ * que se le pide a la imagen que abre una tienda. Sigue siendo generación
+ * actual y sigue siendo NVIDIA; las cotas que la rodean salen del catálogo,
+ * así que se actualizan solas.
+ */
+const HERO_GPU = PRODUCTS.find((product) => product.slug === 'geforce-rtx-5070-ti-16gb') ?? PRODUCTS[0]!
 
 /**
  * Cada categoría se representa con la fotografía de una pieza real suya, no con
@@ -151,7 +165,11 @@ export function HomeView() {
               primero que se ve de la tienda, así que carga con prioridad y sus
               cotas se superponen encima en vez de sustituirla. */}
           <div className="relative lg:col-span-6 xl:col-span-7 lg:-mr-[6vw]">
-            <div ref={heroArt} className="relative aspect-[4/3] rounded-part">
+            <div ref={heroArt} className="u-hero-art relative aspect-[4/3] rounded-part">
+              {/* El halo respira detrás de la placa. No es un fondo: es la luz
+                  que insinúa que la pieza está encendida. Va detrás de la foto
+                  y no la toca. */}
+              <span className="u-hero-art__halo" aria-hidden="true" />
               <ProductPhoto
                 product={HERO_GPU}
                 priority
