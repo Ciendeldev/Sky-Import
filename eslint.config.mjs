@@ -16,6 +16,7 @@ const config = [
       // propio `node_modules`. Sin esta línea, `npm run lint` los recorre y
       // devuelve miles de problemas que no son de este árbol.
       '.worktrees/**',
+      '.img2threejs/**',
     ],
   },
   ...coreWebVitals,

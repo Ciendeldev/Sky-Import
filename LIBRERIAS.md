@@ -35,6 +35,17 @@
 
 ## ADOPTADAS
 
+### img2threejs — reconstrucción de RTX 5090
+- **Adoptada el:** 2026-09-07 por pedido explícito del cliente, reemplazando el descarte anterior.
+- **Repositorio:** https://github.com/img2threejs/img2threejs · commit 6e60b5e22419464b4853e01ddb6c0e6f6659a733.
+- **Licencia:** Apache-2.0, admite uso comercial.
+- **Uso:** herramienta local de especificación, inventario y revisión; patrones de geometría y jerarquía para una RTX 5090 Founders Edition procedural. No es una dependencia npm ni una malla descargada.
+- **Compatibilidad:** TypeScript y Three.js existente, integrado en efecto React 19. Sin segundo motor; scroll y giro usan onFrame.
+- **Peso:** cero dependencias nuevas. Instancias para aletas y microcomponentes, carga diferida, presupuesto comprobado con size-limit.
+- **Accesibilidad:** alternativa estática del mismo modelo con movimiento reducido o sin WebGL; selección mediante controles HTML con foco y etiquetas bilingües.
+- **Decisión:** fábrica específica y datos separados; no incorporar el runtime genérico completo al navegador. Las partes internas no documentadas se declaran ilustrativas.
+
+
 ### three.js
 - **Qué aporta:** el armado de la PC pieza por pieza en «Arma tu PC», con su
   prueba de encendido, y el fondo de haces. Geometría generada en código, sin
@@ -123,12 +134,6 @@
 - **Descartada el:** 2026-08-31
 - **Motivo:** mismo motivo que GSAP — segundo motor de animación.
 
-### img2threejs
-- **Descartada el:** 2026-08-31
-- **Motivo:** 80.000–180.000 tokens por objeto, y la pieza 3D que el proyecto
-  necesita ya está escrita a mano en `GpuAssembly.tsx` con jerarquía de partes.
-- **Reconsiderar si:** hiciera falta modelar varias piezas nuevas del catálogo
-  en 3D, donde el coste por objeto se amortice.
 
 ---
 
@@ -156,7 +161,7 @@
 | Uiverse | Referencia | MIT (comunidad) | ⚠️ | **Solo referencia visual** |
 | GSAP | Animación | Gratis | ❌ | Duplica el motor propio |
 | Motion | Animación | MIT | ❌ | Duplica el motor propio |
-| img2threejs | 3D (skill) | Apache-2.0 | ⚠️ | 80k–180k tokens por objeto |
+| img2threejs | 3D (skill) | Apache-2.0 | Sí | Herramientas locales y patrones para RTX 5090 |
 | TanStack Table | Datos | MIT | ⚠️ | Cuando el panel lo justifique |
 
 Leyenda: ✅ verificada en este proyecto · ⚠️ con condiciones · ❌ incompatible

@@ -2785,3 +2785,28 @@ html[data-pointer='hidden'] [contenteditable='true'] {
 @media (prefers-reduced-motion: reduce) {
   .gpu-scroll { height: auto; }
 }
+
+/* El estudio neutro separa polímero oscuro, aletas y metal sin añadir neón. */
+.gpu5090-stage {
+  background: radial-gradient(ellipse at 48% 38%, #e9eae6 0%, #dcdeda 48%, #cbd0ce 100%);
+  color: #283138;
+  isolation: isolate;
+}
+.gpu5090-top {
+  position: absolute; inset: 0 0 auto; display: flex; align-items: center;
+  justify-content: space-between; gap: 8px; padding: 12px 16px;
+}
+.gpu5090-top .u-label { color: #36434a; white-space: nowrap; }
+.gpu5090-select {
+  min-height: 44px; max-width: 62%; border: 1px solid #acb4b5;
+  background: #edf0ec; border-radius: 3px; color: #24343d;
+  font: 11px var(--font-mono), monospace; padding: 8px 10px;
+}
+.gpu5090-select:focus-visible { outline: 2px solid #245e76; outline-offset: 3px; }
+.gpu5090-stage > div:last-child .u-label { color: #46545b; font-size: 9px; }
+.gpu5090-stage .bg-rule { background: #aeb8b9; }
+.gpu5090-stage .bg-accent { background: #346779; }
+@media (max-width: 479px) {
+  .gpu5090-stage { min-height: 370px; }
+  .gpu5090-stage > div:last-child .u-label { letter-spacing: 0.07em; }
+}

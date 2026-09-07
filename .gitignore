@@ -42,3 +42,6 @@ npm-debug.log*
 
 # notas de trabajo locales — no forman parte del proyecto
 llave.txt
+
+# local reconstruction evidence
+/.img2threejs/

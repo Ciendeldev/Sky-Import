@@ -110,6 +110,11 @@ El razonamiento completo está en
   no había ninguna animación protagonista donde aportara una diferencia
   perceptible frente a CSS más un único bucle de `requestAnimationFrame`.
 - **img2threejs** (<https://github.com/img2threejs/img2threejs>) — Apache-2.0.
-  No instalado: exige una fotografía de referencia y este proyecto no tiene
-  fotografía de producto con derechos. Se adoptó su enfoque —un modelo 3D que es
-  código legible y no un binario— escribiendo la geometría a mano.
+  Adoptado el 2026-09-07 por pedido del cliente. Checkout local en commit
+  6e60b5e22419464b4853e01ddb6c0e6f6659a733. Guías, herramientas de especificación,
+  admisión de referencia y cobertura de partes utilizadas para la RTX 5090 FE.
+  Fábrica propia con geometría procedural e inventario separado; sin añadir
+  dependencias al navegador. Véase docs/adr/009-rtx5090-procedural.md.
+- **NVIDIA RTX 5090 Founders Edition** — referencias visuales oficiales para
+  la reconstrucción. Marcas pertenecientes a NVIDIA. La imagen de respaldo
+  publicada es un render propio de la fábrica Three.js.
