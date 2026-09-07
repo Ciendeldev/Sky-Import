@@ -459,6 +459,39 @@ export function HomeView() {
         </div>
       </section>
 
+      {/* ─────────────────────────────────────────────────── CÓMO COMPRAR ──
+          Toda tienda que cierra por mensajería explica esto en la portada, y
+          por buenos motivos: quien entra por primera vez no sabe si acá se
+          paga con tarjeta, si hay carrito de verdad o si le van a pedir datos
+          que no quiere dar. Tres pasos y se acabó la duda. */}
+      <section className="u-page border-t border-rule py-20 lg:py-24" aria-label={t('home.how.title')}>
+        <Reveal>
+          <p className="u-eyebrow">{t('home.how.eyebrow')}</p>
+        </Reveal>
+        <SplitWords
+          as="h2"
+          className="u-display mt-5 max-w-[16ch] text-[clamp(1.9rem,4vw,3rem)]"
+          text={t('home.how.title')}
+        />
+
+        <ol className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-3">
+          {[1, 2, 3].map((n, i) => (
+            <Reveal key={n} as="li" delayIndex={i} className="group border-t border-rule pt-5">
+              <span className="font-mono text-[0.6875rem] tabular-nums text-accent">
+                {String(n).padStart(2, '0')}
+              </span>
+              <span className="mt-3 block h-px w-8 origin-left bg-accent transition-transform duration-500 ease-rail group-hover:scale-x-[3]" />
+              <h3 className="mt-3 text-[1.0625rem] font-medium leading-snug text-fg">
+                {t(`home.how${n}.title` as 'home.how1.title')}
+              </h3>
+              <p className="mt-3 text-[0.875rem] leading-relaxed text-fg-mid">
+                {t(`home.how${n}.body` as 'home.how1.body')}
+              </p>
+            </Reveal>
+          ))}
+        </ol>
+      </section>
+
       {/* ────────────────────────────────────────────────────────── CIERRE ── */}
       {hasWhatsapp ? (
         <section className="relative overflow-hidden border-t border-rule">

@@ -81,20 +81,19 @@ function OrderDetail({ order }: { order: OrderWithItems }) {
               ) : null}
               <div className="flex justify-between py-1">
                 <dt className="text-fg-mid">Envío · {order.zone_name}</dt>
-                {/* Cero no es un regalo: o es retiro por el local —no hay
-                    flete— o es una zona cuyo costo se cierra en la
-                    conversación. La zona, al lado, dice cuál de las dos. Poner
-                    «¡Gratis!» hacía creer al operador que ya estaba cobrado. */}
+                {/* El envío no tiene importe en el sistema: se acuerda en la
+                    conversación. Decía «¡Gratis!», que hacía creer al operador
+                    que ya estaba cobrado y no había nada que cobrar. */}
                 <dd className="a-num">
                   {Number(order.shipping_usd) > 0 ? (
                     gs(aGs(Number(order.shipping_usd)))
                   ) : (
-                    <span className="text-fg-mid">sin cargo registrado</span>
+                    <span className="text-fg-mid">se acuerda por WhatsApp</span>
                   )}
                 </dd>
               </div>
               <div className="flex justify-between border-t border-rule py-2">
-                <dt className="text-fg">Total</dt>
+                <dt className="text-fg">Total de las piezas</dt>
                 <dd className="a-num text-fg">{gs(Number(order.total_pyg))}</dd>
               </div>
             </dl>

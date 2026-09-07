@@ -947,7 +947,7 @@ const doc = new Document({
             ['Pruebas unitarias', '93 casos sobre dominio, carrito, compatibilidad, búsqueda, moneda, arranque del configurador, mensajería y material gráfico', '93 correctas'],
             ['Pruebas de extremo a extremo', '85 casos en perfiles de escritorio y móvil', '85 correctas'],
             ['Auditoría de accesibilidad', '10 rutas en ambos idiomas, norma WCAG 2.1 AA', '0 infracciones'],
-            ['Presupuesto de código de cliente', 'Totalidad del JavaScript transferido', '624 kB de 650 kB'],
+            ['Presupuesto de código de cliente', 'Totalidad del JavaScript transferido', '619 kB de 650 kB'],
             ['Compilación de producción', 'Generación estática del sitio', '99 páginas generadas'],
           ],
           [2600, 4426, 2000],

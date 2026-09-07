@@ -276,7 +276,13 @@ export function CheckoutFlow() {
 
         <div className="u-spec">
           <dt>{t('cart.shipping')}</dt>
-          <dd className="text-fg-mid">{t('cart.shipping.toArrange')}</dd>
+          {/* En el retiro por el local no hay flete, así que no hay nada que
+              acordar: decirlo igual haría dudar de si van a cobrar algo. */}
+          <dd className="text-fg-mid">
+            {zone?.requiresAddress === false
+              ? t('cart.shipping.pickup')
+              : t('cart.shipping.toArrange')}
+          </dd>
         </div>
 
         <div className="u-spec border-b-0">
@@ -287,9 +293,11 @@ export function CheckoutFlow() {
         </div>
       </dl>
 
-      <p className="u-label mt-3 leading-relaxed normal-case tracking-normal">
-        {t('cart.shipping.note')}
-      </p>
+      {zone?.requiresAddress ? (
+        <p className="u-label mt-3 leading-relaxed normal-case tracking-normal">
+          {t('cart.shipping.note')}
+        </p>
+      ) : null}
 
       <p className="u-label mt-4 leading-relaxed normal-case tracking-normal">
         {t('checkout.howItWorks')}
@@ -397,7 +405,7 @@ export function CheckoutFlow() {
               >
                 <span className="min-w-0 flex-1">{zone.note[locale]}</span>
                 <span className="font-mono text-[0.75rem] text-fg-mid">
-                  {t('cart.shipping.toArrange')}
+                  {zone.requiresAddress ? t('cart.shipping.toArrange') : t('cart.shipping.pickup')}
                 </span>
               </p>
             ) : null}

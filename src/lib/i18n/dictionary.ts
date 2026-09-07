@@ -82,6 +82,17 @@ const es = {
   'home.guides.lede':
     'No es una lista de recomendaciones. Es el orden real en que una pieza condiciona a la siguiente.',
 
+  'home.how.eyebrow': 'Cómo comprar',
+  'home.how.title': 'Tres pasos y listo',
+  'home.how1.title': 'Elegís las piezas',
+  'home.how1.body':
+    'Cada ficha trae zócalo, vataje y milímetros. El configurador avisa si algo no encaja antes de que lo agregues, no después.',
+  'home.how2.title': 'Enviás el pedido por WhatsApp',
+  'home.how2.body':
+    'El mensaje se arma solo con lo que elegiste y tus datos de entrega. No se piden datos de tarjeta en ninguna pantalla.',
+  'home.how3.title': 'Cerramos por chat',
+  'home.how3.body':
+    'Confirmamos disponibilidad, acordamos el envío según a dónde va y coordinamos el pago y la entrega. Recién ahí pagás.',
   'home.benefits.eyebrow': 'Cómo trabajamos',
   'home.benefits.title': 'Lo que sí podemos afirmar',
   'home.benefit1.title': 'Ficha técnica completa en cada pieza',
@@ -238,6 +249,8 @@ const es = {
    * en la misma conversación de WhatsApp donde se cierra la venta.
    */
   'cart.shipping.toArrange': 'Se acuerda por WhatsApp',
+  /** Retiro por el local: no hay flete, así que no hay nada que acordar. */
+  'cart.shipping.pickup': 'Retirás en el local',
   'cart.shipping.note':
     'El costo del flete depende del peso y del destino. Lo cerramos con vos en la conversación, antes de que pagues nada.',
   'checkout.totalWithoutShipping': 'Total de las piezas',
@@ -422,6 +435,17 @@ const pt: Record<DictKey, string> = {
   'home.guides.lede':
     'Não é uma lista de recomendações. É a ordem real em que uma peça condiciona a seguinte.',
 
+  'home.how.eyebrow': 'Como comprar',
+  'home.how.title': 'Três passos e pronto',
+  'home.how1.title': 'Você escolhe as peças',
+  'home.how1.body':
+    'Cada ficha traz soquete, potência e milímetros. O configurador avisa se algo não encaixa antes de você adicionar, não depois.',
+  'home.how2.title': 'Envia o pedido pelo WhatsApp',
+  'home.how2.body':
+    'A mensagem se monta sozinha com o que você escolheu e seus dados de entrega. Não pedimos dados de cartão em nenhuma tela.',
+  'home.how3.title': 'Fechamos pelo chat',
+  'home.how3.body':
+    'Confirmamos a disponibilidade, combinamos o envio conforme o destino e acertamos o pagamento e a entrega. Só então você paga.',
   'home.benefits.eyebrow': 'Como trabalhamos',
   'home.benefits.title': 'O que podemos afirmar',
   'home.benefit1.title': 'Ficha técnica completa em cada peça',
@@ -567,6 +591,7 @@ const pt: Record<DictKey, string> = {
   'cart.subtotal': 'Subtotal',
   'cart.shipping': 'Envio',
   'cart.shipping.toArrange': 'Combinado pelo WhatsApp',
+  'cart.shipping.pickup': 'Você retira na loja',
   'cart.shipping.note':
     'O custo do frete depende do peso e do destino. Fechamos com você na conversa, antes de pagar qualquer coisa.',
   'checkout.totalWithoutShipping': 'Total das peças',
