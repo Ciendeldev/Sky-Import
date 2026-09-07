@@ -1,4 +1,5 @@
 import { listOrders } from '@/lib/admin/queries'
+import { getAdminSession } from '@/lib/admin/auth'
 import { OrderList } from '@/components/admin/OrderList'
 
 export const metadata = { title: 'Pedidos · Panel Sky Import' }
@@ -6,6 +7,9 @@ export const dynamic = 'force-dynamic'
 
 export default async function PedidosPage() {
   const pedidos = await listOrders(200)
+  // Borrar es del moderador. La base lo comprueba igual; esto solo evita
+  // ofrecerle a un administrador un botón que le va a decir que no.
+  const session = await getAdminSession()
 
   return (
     <>
@@ -19,7 +23,7 @@ export default async function PedidosPage() {
         pedido viejo sigue diciendo la verdad.
       </p>
 
-      <OrderList orders={pedidos} />
+      <OrderList orders={pedidos} canDelete={session?.role === 'moderator'} />
     </>
   )
 }

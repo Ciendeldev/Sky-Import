@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useMemo, useState, useTransition } from 'react'
-import { setOrderNote, setOrderStatus } from '@/lib/admin/actions'
+import { deleteOrder, setOrderNote, setOrderStatus } from '@/lib/admin/actions'
 import { ORDER_STATUSES, type OrderStatus } from '@/lib/supabase/types'
 import type { OrderWithItems } from '@/lib/admin/queries'
 import { waPhone } from '@/lib/whatsapp'
@@ -35,10 +35,15 @@ function gs(pygAmount: number): string {
   return `Gs. ${Math.round(pygAmount).toLocaleString('es-PY')}`
 }
 
-function OrderDetail({ order }: { order: OrderWithItems }) {
+function OrderDetail({ order, canDelete }: { order: OrderWithItems; canDelete: boolean }) {
   const [pending, start] = useTransition()
   const [note, setNote] = useState(order.admin_note)
   const [saved, setSaved] = useState(false)
+  // Confirmar tecleando el número es más lento que un «¿estás seguro?» y esa
+  // es la idea: no hay papelera, y el pedido de al lado se parece a este.
+  const [confirming, setConfirming] = useState(false)
+  const [typed, setTyped] = useState('')
+  const [failed, setFailed] = useState<string | null>(null)
 
   // La tasa que se grabó con el pedido, no la de hoy.
   const aGs = (usd: number) => Math.round((usd * Number(order.fx_pyg)) / 1000) * 1000
@@ -171,6 +176,75 @@ function OrderDetail({ order }: { order: OrderWithItems }) {
                 {pending ? 'Guardando…' : saved ? 'Guardada ✓' : 'Guardar nota'}
               </button>
             </div>
+
+            {canDelete ? (
+              <div className="mt-6 border-t border-rule pt-4">
+                <h3 className="a-eyebrow">Borrar pedido</h3>
+                {confirming ? (
+                  <>
+                    <p className="a-hint mt-2">
+                      Escribí <strong className="a-num text-fg">{order.number}</strong> para confirmar. Se
+                      borra para siempre
+                      {order.status === 'entregado'
+                        ? '; como está entregado, el stock no se toca.'
+                        : ' y sus unidades vuelven al stock.'}
+                    </p>
+                    <input
+                      className="a-field a-num mt-2"
+                      value={typed}
+                      onChange={(e) => setTyped(e.target.value)}
+                      aria-label={`Escribí ${order.number} para confirmar`}
+                      autoComplete="off"
+                      spellCheck={false}
+                    />
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className="a-btn a-btn--sm"
+                        onClick={() => {
+                          setConfirming(false)
+                          setTyped('')
+                          setFailed(null)
+                        }}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="button"
+                        className="a-btn a-btn--sm a-btn--danger"
+                        disabled={pending || typed.trim().toUpperCase() !== order.number.toUpperCase()}
+                        onClick={() =>
+                          start(async () => {
+                            const r = await deleteOrder(order.id)
+                            if (!r.ok) setFailed(r.error ?? 'No se pudo borrar el pedido.')
+                          })
+                        }
+                      >
+                        {pending ? 'Borrando…' : 'Borrar definitivamente'}
+                      </button>
+                    </div>
+                    {failed ? (
+                      <p className="a-note a-note--error mt-2" role="alert">
+                        {failed}
+                      </p>
+                    ) : null}
+                  </>
+                ) : (
+                  <>
+                    <p className="a-hint mt-2">
+                      Para los registros que no fueron una venta. No tiene vuelta atrás.
+                    </p>
+                    <button
+                      type="button"
+                      className="a-btn a-btn--sm mt-2"
+                      onClick={() => setConfirming(true)}
+                    >
+                      Borrar pedido
+                    </button>
+                  </>
+                )}
+              </div>
+            ) : null}
           </div>
         </div>
       </td>
@@ -178,7 +252,7 @@ function OrderDetail({ order }: { order: OrderWithItems }) {
   )
 }
 
-export function OrderList({ orders }: { orders: OrderWithItems[] }) {
+export function OrderList({ orders, canDelete = false }: { orders: OrderWithItems[]; canDelete?: boolean }) {
   const [open, setOpen] = useState<string | null>(null)
   const [filter, setFilter] = useState<OrderStatus | 'todos'>('todos')
   const [pending, start] = useTransition()
@@ -288,7 +362,7 @@ export function OrderList({ orders }: { orders: OrderWithItems[] }) {
                     </button>
                   </td>
                 </tr>
-                {open === o.id ? <OrderDetail order={o} /> : null}
+                {open === o.id ? <OrderDetail order={o} canDelete={canDelete} /> : null}
               </Fragment>
             ))}
           </tbody>

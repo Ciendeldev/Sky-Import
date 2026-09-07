@@ -49,7 +49,7 @@ export function AssemblyVisual() {
         {near && animated ? <GpuAssembly progress={progress} selected={selected} onSelect={onSelect}
           onReady={onReady} onLost={onLost} className="absolute inset-0" /> : null}
         <div className="gpu5090-top">
-          <span className="u-label">RTX 5090 <span className="opacity-50">/ FE</span></span>
+          <span className="u-label">RTX 5090 <span className="gpu5090-sub">/ FE</span></span>
           {live && animated ? (
             <select className="gpu5090-select" aria-label={t('assembly.select')}
               value={selected??''} onChange={e=>onSelect((e.target.value||null) as GpuPartId|null)}>

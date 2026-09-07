@@ -165,18 +165,40 @@ describe('acceso revocable', () => {
     expect(update).not.toHaveBeenCalled()
   })
 
-  it('el listado informa el estado real de cada cuenta', async () => {
+  function listado(usuarios: unknown[], errorAuth: unknown = null) {
+    const listUsers = vi.fn().mockResolvedValue({ data: { users: usuarios }, error: errorAuth })
     mocks.service.mockReturnValue({
       from: () => ({ select: () => ({ order: async () => ({ data: [
         { user_id: 'a', username: 'cielo', full_name: 'Cielo', revoked_at: null },
         { user_id: 'b', username: 'vendedor', full_name: 'Vendedor', revoked_at: '2026-09-07T12:00:00.000Z' },
       ] }) }) }),
-      auth: { admin: { getUserById: async (id: string) => ({ data: { user: { app_metadata: { panel_role: id === 'a' ? 'moderator' : 'admin' } } } }) } },
+      auth: { admin: { listUsers } },
     })
+    return listUsers
+  }
+
+  it('el listado informa el estado real de cada cuenta con una sola llamada a Auth', async () => {
+    const listUsers = listado([
+      { id: 'a', app_metadata: { panel_role: 'moderator' } },
+      { id: 'b', app_metadata: { panel_role: 'admin' } },
+    ])
     const cuentas = await listPanelAccounts()
     expect(cuentas.map(c => [c.username, c.role, c.revokedAt !== null])).toEqual([
       ['cielo', 'moderator', false],
       ['vendedor', 'admin', true],
     ])
+    // N+1 contra Auth era lo que tiraba la pantalla abajo cuando una respuesta fallaba.
+    expect(listUsers).toHaveBeenCalledTimes(1)
+  })
+
+  it('una cuenta que Auth no devuelve se muestra con el privilegio menor, sin tirar la tabla', async () => {
+    listado([{ id: 'a', app_metadata: { panel_role: 'moderator' } }])
+    const cuentas = await listPanelAccounts()
+    expect(cuentas.map(c => [c.username, c.role])).toEqual([['cielo', 'moderator'], ['vendedor', 'admin']])
+  })
+
+  it('si Auth entero falla, avisa en vez de inventar roles', async () => {
+    listado([], { message: 'boom' })
+    await expect(listPanelAccounts()).rejects.toThrow('No se pudieron cargar los usuarios.')
   })
 })

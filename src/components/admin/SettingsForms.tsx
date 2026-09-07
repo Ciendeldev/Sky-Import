@@ -25,6 +25,9 @@ export function FxForm({ fx }: { fx: FxSettings }) {
   const [pyg, setPyg] = useState(String(fx.PYG))
 
   const ejemplo = Number(pyg) > 0 ? Math.round((1000 * Number(pyg)) / 1000) * 1000 : 0
+  // Se avisa mientras escribe, no al guardar: el error clásico es tipear el
+  // punto de millar —7.400— y que el campo numérico lo deje en 7.
+  const pygFuera = pyg !== '' && (!(Number(pyg) >= 1000) || Number(pyg) > 20000)
 
   return (
     <form
@@ -42,15 +45,24 @@ export function FxForm({ fx }: { fx: FxSettings }) {
           name="PYG"
           type="number"
           step="1"
-          min="1"
+          min="1000"
+          max="20000"
           className="a-field a-num"
           value={pyg}
           onChange={(e) => setPyg(e.target.value)}
+          aria-invalid={pygFuera}
+          aria-describedby="PYG-ayuda"
           required
         />
-        <p className="a-hint">
-          Con esta tasa, una pieza de US$ 1.000 se publica como Gs.{' '}
-          <span className="a-num">{ejemplo.toLocaleString('es-PY')}</span>.
+        <p className={pygFuera ? 'a-note a-note--error mt-2' : 'a-hint'} id="PYG-ayuda" role={pygFuera ? 'alert' : undefined}>
+          {pygFuera ? (
+            <>Eso no es una tasa. Escribila sin punto: <span className="a-num">7400</span>, no 7.400.</>
+          ) : (
+            <>
+              Con esta tasa, una pieza de US$ 1.000 se publica como Gs.{' '}
+              <span className="a-num">{ejemplo.toLocaleString('es-PY')}</span>.
+            </>
+          )}
         </p>
       </div>
 
@@ -63,7 +75,8 @@ export function FxForm({ fx }: { fx: FxSettings }) {
           name="BRL"
           type="number"
           step="0.01"
-          min="0.01"
+          min="1"
+          max="50"
           className="a-field a-num"
           defaultValue={fx.BRL}
           required

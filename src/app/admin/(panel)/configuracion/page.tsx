@@ -9,7 +9,15 @@ export default async function ConfigurationPage() {
   const session = await getAdminSession()
   if (!session) redirect('/admin/acceso')
   const moderator = session.role === 'moderator'
-  const accounts = moderator ? await listPanelAccounts().catch(() => null) : null
+  // El fallo se registra antes de tragárselo. Sin esto, «no se pudieron cargar
+  // los usuarios» es un callejón sin salida: no queda rastro de si faltó la
+  // clave de servicio, si cayó la red o si Auth no devolvió a alguien.
+  const accounts = moderator
+    ? await listPanelAccounts().catch((e: unknown) => {
+        console.error('[configuracion] listPanelAccounts falló:', e)
+        return null
+      })
+    : null
   return <div className="a-settings">
     <header className="a-settings-intro">
       <div><p className="a-eyebrow">Sky Import · Panel</p><h1 className="a-title mt-2">Configuración</h1></div>

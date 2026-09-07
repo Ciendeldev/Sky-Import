@@ -13,14 +13,31 @@ export async function listPanelAccounts(): Promise<PanelAccount[]> {
   await requireModerator()
   const service = supabaseAdmin()
   const { data, error } = await service.from('admin_users').select('user_id, username, full_name, revoked_at').order('created_at')
-  if (error) throw new Error('No se pudieron cargar los usuarios.')
-  return Promise.all((data ?? []).map(async (row) => {
-    const result = await service.auth.admin.getUserById(row.user_id)
-    if (result.error || !result.data.user) throw new Error('No se pudieron cargar los usuarios.')
-    return {
-      userId: row.user_id, username: row.username, fullName: row.full_name,
-      role: panelRole(result.data.user.app_metadata), revokedAt: row.revoked_at,
-    }
+  // El mensaje que sube a la pantalla es siempre el mismo; el motivo concreto
+  // va al registro del servidor, que es donde se puede leer sin filtrarlo.
+  if (error) {
+    console.error('[cuentas] admin_users:', error.message)
+    throw new Error('No se pudieron cargar los usuarios.')
+  }
+  // UNA llamada a Auth, no una por usuario. Antes era N+1 contra un servicio
+  // remoto: bastaba que una sola respondiera mal para que la pantalla entera
+  // se cayera y el moderador se quedara sin poder gestionar a nadie.
+  const lista = await service.auth.admin.listUsers({ page: 1, perPage: 200 })
+  if (lista.error) {
+    console.error('[cuentas] listUsers:', lista.error.message)
+    throw new Error('No se pudieron cargar los usuarios.')
+  }
+  const roles = new Map(lista.data.users.map((u) => [u.id, panelRole(u.app_metadata)]))
+
+  return (data ?? []).map((row) => ({
+    userId: row.user_id,
+    username: row.username,
+    fullName: row.full_name,
+    // Si a alguien no lo devolvió Auth se lo muestra como administrador, que es
+    // el privilegio menor. La autorización real no sale de acá: cada acción
+    // vuelve a leer el rol de Auth antes de tocar nada.
+    role: roles.get(row.user_id) ?? 'admin',
+    revokedAt: row.revoked_at,
   }))
 }
 

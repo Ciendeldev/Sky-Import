@@ -8,6 +8,11 @@ async function scrollToProgress(page: Page, value: number) {
   }, value)
 }
 test('la gráfica se desarma, se monta y revierte al subir', async ({ page }, info) => {
+  // Presupuesto propio: esta prueba arranca WebGL, recorre cinco posiciones de
+  // desplazamiento con amortiguación y saca dos capturas del lienzo. Medido,
+  // tarda ~60 s, que es exactamente el límite global: quedaba en el filo y
+  // fallaba de forma intermitente por agotar el tiempo, no por un defecto.
+  test.setTimeout(120_000)
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
   await page.goto('/es')

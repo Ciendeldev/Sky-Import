@@ -2788,7 +2788,12 @@ html[data-pointer='hidden'] [contenteditable='true'] {
 
 /* El estudio neutro separa polímero oscuro, aletas y metal sin añadir neón. */
 .gpu5090-stage {
-  background: radial-gradient(ellipse at 48% 38%, #e9eae6 0%, #dcdeda 48%, #cbd0ce 100%);
+  /* El color sólido va aparte del gradiente a propósito. Un `background`
+     con solo gradiente no le dice a nadie —ni a un verificador de contraste,
+     ni al navegador si la pintura falla— cuál es el fondo real, y el cálculo
+     se va al negro de la página: texto oscuro sobre fondo que se supone claro. */
+  background-color: #dcdeda;
+  background-image: radial-gradient(ellipse at 48% 38%, #e9eae6 0%, #dcdeda 48%, #cbd0ce 100%);
   color: #283138;
   isolation: isolate;
 }
@@ -2797,6 +2802,9 @@ html[data-pointer='hidden'] [contenteditable='true'] {
   justify-content: space-between; gap: 8px; padding: 12px 16px;
 }
 .gpu5090-top .u-label { color: #36434a; white-space: nowrap; }
+/* El sufijo se distingue con tono, no con opacidad: a 9 px, media opacidad
+   deja el texto en 2,2:1 sobre el estudio claro y no llega al 4,5:1 de AA. */
+.gpu5090-top .gpu5090-sub { color: #4a555b; }
 .gpu5090-select {
   min-height: 44px; max-width: 62%; border: 1px solid #acb4b5;
   background: #edf0ec; border-radius: 3px; color: #24343d;

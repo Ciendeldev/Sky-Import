@@ -207,6 +207,15 @@ export type SettingKey = keyof SettingsMap
 
 // ──────────────────────────────────────────── respuestas de las funciones
 
+/** Lo que devuelve `delete_order`: cuántas unidades volvieron al stock. */
+export type DeleteOrderResult = {
+  ok: boolean
+  error?: string
+  number?: string
+  restored?: number
+  entregado?: boolean
+}
+
 export type ValidateCouponResult =
   | {
       ok: true
@@ -350,6 +359,8 @@ export type Database = {
     Views: Record<string, never>
     Functions: {
       is_admin: { Args: Record<never, never>; Returns: boolean }
+      is_moderator: { Args: Record<never, never>; Returns: boolean }
+      delete_order: { Args: { p_order: string }; Returns: DeleteOrderResult }
       validate_coupon: {
         Args: { p_code: string; p_subtotal_usd: number }
         Returns: ValidateCouponResult

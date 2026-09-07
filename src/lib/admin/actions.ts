@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { supabaseServer, hasSupabase } from '@/lib/supabase/server'
-import { emailForUsername, requireAdmin } from '@/lib/admin/auth'
+import { emailForUsername, requireAdmin, requireModerator } from '@/lib/admin/auth'
 import { PRODUCTS } from '@/lib/catalog/products'
 import { CATEGORY_META, CATEGORY_ORDER } from '@/lib/catalog/categories'
 import type { CouponKind, OrderStatus } from '@/lib/supabase/types'
@@ -224,8 +224,22 @@ export async function saveFx(form: FormData): Promise<ActionResult> {
   const pyg = Number(form.get('PYG') ?? 0)
   const brl = Number(form.get('BRL') ?? 0)
 
-  if (!Number.isFinite(pyg) || pyg <= 0 || !Number.isFinite(brl) || brl <= 0) {
-    return { ok: false, error: 'Las dos tasas tienen que ser números mayores que cero.' }
+  // Rangos, no solo «mayor que cero». Acá el guaraní se escribe con punto de
+  // millar —7.400—, y un `type="number"` se come ese punto: queda 7. Con la
+  // comprobación vieja eso se guardaba tan campante y dividía por mil el precio
+  // de TODA la tienda, que seguía vendiendo a esos importes. Ya pasó una vez.
+  //
+  // Los límites son de cordura, no de mercado: el guaraní lleva décadas en los
+  // miles por dólar y el real en unidades. Cualquier valor fuera de esto es un
+  // error de tipeo, no una devaluación.
+  if (!Number.isFinite(pyg) || pyg < 1000 || pyg > 20000) {
+    return {
+      ok: false,
+      error: 'El guaraní por dólar tiene que estar entre 1000 y 20000. Escribilo sin punto: 7400, no 7.400.',
+    }
+  }
+  if (!Number.isFinite(brl) || brl < 1 || brl > 50) {
+    return { ok: false, error: 'El real por dólar tiene que estar entre 1 y 50. Usá el punto como decimal: 5.39.' }
   }
 
   const { error } = await supabase
@@ -329,6 +343,39 @@ export async function setOrderStatus(id: string, status: OrderStatus): Promise<A
   if (error) return { ok: false, error: error.message }
   revalidatePath('/admin/pedidos')
   return { ok: true }
+}
+
+/**
+ * BORRA UN PEDIDO Y DEVUELVE SUS UNIDADES AL STOCK
+ *
+ * Solo el moderador, y es irreversible: no hay papelera. Por eso la pantalla
+ * pide confirmar escribiendo el número del pedido.
+ *
+ * El trabajo lo hace `delete_order` en la base, no acá. Devolver el stock y
+ * borrar la fila tienen que ser una sola transacción: si se hiciera en dos
+ * pasos desde el servidor y el segundo fallara, quedaría un pedido con las
+ * unidades ya devueltas, y reintentarlo las devolvería por segunda vez.
+ *
+ * Se invoca con la sesión del operador y NO con la clave de servicio, para que
+ * Postgres compruebe el rol por su cuenta en vez de creerle a esta capa.
+ */
+export async function deleteOrder(id: string): Promise<ActionResult> {
+  await requireModerator()
+  const supabase = await supabaseServer()
+
+  const { data, error } = await supabase.rpc('delete_order', { p_order: id })
+  if (error) return { ok: false, error: 'No se pudo borrar el pedido.' }
+  if (!data?.ok) return { ok: false, error: 'Ese pedido ya no existe. Actualizá la lista.' }
+
+  revalidatePath('/admin/pedidos')
+  revalidatePath('/admin/productos')
+  const devueltas = data.restored ?? 0
+  return {
+    ok: true,
+    message: data.entregado
+      ? `Pedido ${data.number} borrado. Estaba entregado, así que el stock no se tocó.`
+      : `Pedido ${data.number} borrado. ${devueltas} ${devueltas === 1 ? 'unidad volvió' : 'unidades volvieron'} al stock.`,
+  }
 }
 
 export async function setOrderNote(id: string, note: string): Promise<ActionResult> {
