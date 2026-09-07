@@ -13,7 +13,8 @@ import { panelRole, USERNAME_PATTERN, type PanelRole } from './account-policy'
  *      vuelve una sesión. En el repositorio no hay ninguna contraseña, ni en
  *      claro ni hasheada.
  *   2. La tabla `admin_users` dice si ese usuario puede administrar. Tener
- *      cuenta no alcanza; hay que estar en la lista.
+ *      cuenta no alcanza; hay que estar en la lista y no tener el acceso
+ *      retirado.
  *   3. Las políticas RLS lo comprueban otra vez del lado de la base. Aunque
  *      alguien encontrara una ruta sin guard, Postgres le niega la escritura.
  *
@@ -66,11 +67,16 @@ export const getAdminSession = cache(async (): Promise<AdminSession | null> => {
 
   const { data: admin } = await supabase
     .from('admin_users')
-    .select('user_id, username, full_name')
+    .select('user_id, username, full_name, revoked_at')
     .eq('user_id', user.id)
     .maybeSingle()
 
-  if (!admin) return null
+  // Una cuenta revocada conserva su identidad en Supabase Auth —la contraseña
+  // sigue siendo válida— pero deja de administrar. El corte es inmediato y no
+  // hay que esperar a que caduque ningún token: esto se evalúa en cada
+  // petición del panel, y `is_admin()` niega además la escritura del lado de
+  // Postgres, así que tampoco sirve el token que ya tenga en el navegador.
+  if (!admin || admin.revoked_at) return null
 
   return {
     userId: admin.user_id,

@@ -18,7 +18,8 @@ La cuenta existente Cielo conserva ID, correo y contraseña. El despliegue asign
 el rol de moderador a su ID comprobado, preservando los otros app_metadata.
 Crear usuarios y restablecer claves ajenas requiere ese rol en cada acción del
 servidor. Las nuevas cuentas siempre son administradores; el formulario no puede
-crear más moderadores. No hay borrado, suspensión ni edición de roles en la UI.
+crear más moderadores. No hay borrado ni edición de roles en la UI; la suspensión se agregó
+después, en el ADR 011.
 
 Los nuevos usuarios se normalizan a minúsculas y usan correo interno determinista
 `usuario@users.skyimport.local`. No se envían correos. Supabase Auth garantiza

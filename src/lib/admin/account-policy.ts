@@ -18,4 +18,6 @@ export interface PanelAccount {
   username: string
   fullName: string | null
   role: PanelRole
+  /** Fecha en que se le retiró el acceso, o `null` si sigue activo. */
+  revokedAt: string | null
 }

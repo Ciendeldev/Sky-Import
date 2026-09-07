@@ -13,7 +13,7 @@ vi.mock('@/lib/admin/auth', () => ({
 vi.mock('@/lib/supabase/server', () => ({
   hasSupabaseAdmin: true, supabaseAdmin: mocks.service, supabaseServer: mocks.server, supabasePasswordCheck: mocks.verifier,
 }))
-import { changeOwnPassword, createPanelAccount, listPanelAccounts, resetPanelPassword } from '@/lib/admin/account-actions'
+import { changeOwnPassword, createPanelAccount, listPanelAccounts, resetPanelPassword, setPanelAccess } from '@/lib/admin/account-actions'
 import { panelRole, passwordError } from '@/lib/admin/account-policy'
 
 const actor = { userId: '11111111-1111-4111-a111-111111111111', username: 'owner', email: 'owner@example.invalid', role: 'moderator' }
@@ -34,7 +34,7 @@ describe('límites de privilegios', () => {
   })
   it.each(['sin sesión', 'administrador'])('niega todas las operaciones privilegiadas: %s', async () => {
     mocks.requireModerator.mockRejectedValue(new Error('NO_AUTORIZADO'))
-    for (const action of [createPanelAccount, resetPanelPassword]) expect((await action(null, form({}))).ok).toBe(false)
+    for (const action of [createPanelAccount, resetPanelPassword, setPanelAccess]) expect((await action(null, form({}))).ok).toBe(false)
     await expect(listPanelAccounts()).rejects.toThrow('NO_AUTORIZADO')
     expect(mocks.service).not.toHaveBeenCalled()
   })
@@ -115,5 +115,68 @@ describe('alta consistente', () => {
     })
     expect((await createPanelAccount(null, form({ username: 'Existing', full_name: 'Ya existe', password: randomUUID() }))).ok).toBe(false)
     expect(createUser).not.toHaveBeenCalled()
+  })
+})
+
+describe('acceso revocable', () => {
+  const otro = '33333333-3333-4333-a333-333333333333'
+  /** Devuelve el espía del `update`, que es lo único que esta operación escribe. */
+  function cuentaAjena(role: 'admin' | 'moderator') {
+    const update = vi.fn().mockReturnValue({ eq: async () => ({ error: null }) })
+    const deleteUser = vi.fn()
+    mocks.service.mockReturnValue({
+      from: () => ({
+        select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: { user_id: otro, username: 'vendedor' } }) }) }),
+        update,
+      }),
+      auth: { admin: { getUserById: async () => ({ data: { user: { app_metadata: { panel_role: role } } } }), deleteUser } },
+    })
+    return { update, deleteUser }
+  }
+
+  it('retira el acceso con una fecha y lo devuelve con null, sin borrar la cuenta', async () => {
+    const quitar = cuentaAjena('admin')
+    const quitado = await setPanelAccess(null, form({ user_id: otro, intent: 'revoke' }))
+    expect(quitado.ok).toBe(true)
+    expect(typeof quitar.update.mock.calls[0]?.[0].revoked_at).toBe('string')
+    expect(quitar.deleteUser).not.toHaveBeenCalled()
+
+    const devolver = cuentaAjena('admin')
+    const devuelto = await setPanelAccess(null, form({ user_id: otro, intent: 'restore' }))
+    expect(devuelto.ok).toBe(true)
+    expect(devolver.update.mock.calls[0]?.[0]).toEqual({ revoked_at: null })
+    expect(devolver.deleteUser).not.toHaveBeenCalled()
+  })
+
+  it('el moderador no puede dejarse a sí mismo fuera de su propia tienda', async () => {
+    expect((await setPanelAccess(null, form({ user_id: actor.userId, intent: 'revoke' }))).ok).toBe(false)
+    expect(mocks.service).not.toHaveBeenCalled()
+  })
+
+  it('no permite revocar a otro moderador', async () => {
+    const { update } = cuentaAjena('moderator')
+    expect((await setPanelAccess(null, form({ user_id: otro, intent: 'revoke' }))).ok).toBe(false)
+    expect(update).not.toHaveBeenCalled()
+  })
+
+  it.each(['', 'basura', 'REVOKE'])('exige la intención escrita y no deduce nada: %s', async (intent) => {
+    const { update } = cuentaAjena('admin')
+    expect((await setPanelAccess(null, form({ user_id: otro, intent }))).ok).toBe(false)
+    expect(update).not.toHaveBeenCalled()
+  })
+
+  it('el listado informa el estado real de cada cuenta', async () => {
+    mocks.service.mockReturnValue({
+      from: () => ({ select: () => ({ order: async () => ({ data: [
+        { user_id: 'a', username: 'cielo', full_name: 'Cielo', revoked_at: null },
+        { user_id: 'b', username: 'vendedor', full_name: 'Vendedor', revoked_at: '2026-09-07T12:00:00.000Z' },
+      ] }) }) }),
+      auth: { admin: { getUserById: async (id: string) => ({ data: { user: { app_metadata: { panel_role: id === 'a' ? 'moderator' : 'admin' } } } }) } },
+    })
+    const cuentas = await listPanelAccounts()
+    expect(cuentas.map(c => [c.username, c.role, c.revokedAt !== null])).toEqual([
+      ['cielo', 'moderator', false],
+      ['vendedor', 'admin', true],
+    ])
   })
 })

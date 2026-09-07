@@ -12,12 +12,15 @@ const unavailable: ActionResult = { ok: false, error: 'No se pudo completar la o
 export async function listPanelAccounts(): Promise<PanelAccount[]> {
   await requireModerator()
   const service = supabaseAdmin()
-  const { data, error } = await service.from('admin_users').select('user_id, username, full_name').order('created_at')
+  const { data, error } = await service.from('admin_users').select('user_id, username, full_name, revoked_at').order('created_at')
   if (error) throw new Error('No se pudieron cargar los usuarios.')
   return Promise.all((data ?? []).map(async (row) => {
     const result = await service.auth.admin.getUserById(row.user_id)
     if (result.error || !result.data.user) throw new Error('No se pudieron cargar los usuarios.')
-    return { userId: row.user_id, username: row.username, fullName: row.full_name, role: panelRole(result.data.user.app_metadata) }
+    return {
+      userId: row.user_id, username: row.username, fullName: row.full_name,
+      role: panelRole(result.data.user.app_metadata), revokedAt: row.revoked_at,
+    }
   }))
 }
 
@@ -109,4 +112,55 @@ export async function resetPanelPassword(_prev: ActionResult | null, form: FormD
   const { error } = await service.auth.admin.updateUserById(userId, { password })
   if (error) return { ok: false, error: 'No se pudo restablecer la contraseña. Probá con una clave más segura.' }
   return { ok: true, message: 'Contraseña restablecida.' }
+}
+
+/**
+ * RETIRAR Y DEVOLVER EL ACCESO
+ *
+ * La contrapartida de crear usuarios. Sin esto, el panel solo sabía sumar
+ * administradores: el día que alguien deja el local, el moderador no tenía
+ * forma de cortarle la entrada sin pedir ayuda.
+ *
+ * No borra a nadie. Escribe una fecha en `revoked_at` y la saca. Eso conserva
+ * el rastro de quién administró —los pedidos que tocó siguen teniendo dueño— y
+ * deja la operación deshacer: equivocarse de fila no es una pérdida.
+ *
+ * Las mismas tres barreras que el resto de las operaciones privilegiadas, y
+ * dos límites propios: nadie se revoca a sí mismo —el moderador quedaría fuera
+ * de su propia tienda, sin nadie que pueda devolverle la entrada— y ningún
+ * moderador puede ser revocado desde acá.
+ */
+export async function setPanelAccess(_prev: ActionResult | null, form: FormData): Promise<ActionResult> {
+  const actor = await requireModerator().catch(() => null)
+  if (!actor) return denied
+  if (!hasSupabaseAdmin) return unavailable
+
+  const userId = String(form.get('user_id') ?? '')
+  if (!/^[0-9a-f-]{36}$/i.test(userId) || userId === actor.userId) return denied
+  // Se exige la intención escrita. Deducirla por descarte haría que un campo
+  // vacío o mal escrito ejecutara siempre una de las dos ramas por accidente.
+  const intent = String(form.get('intent') ?? '')
+  if (intent !== 'revoke' && intent !== 'restore') return denied
+  const revoke = intent === 'revoke'
+
+  const service = supabaseAdmin()
+  const member = await service.from('admin_users').select('user_id, username').eq('user_id', userId).maybeSingle()
+  if (member.error || !member.data) return denied
+  // El rol se lee de Auth, que es donde vive de verdad; la fila del panel no autoriza.
+  const target = await service.auth.admin.getUserById(userId)
+  if (target.error || !target.data.user || panelRole(target.data.user.app_metadata) === 'moderator') return denied
+
+  const { error } = await service
+    .from('admin_users')
+    .update({ revoked_at: revoke ? new Date().toISOString() : null })
+    .eq('user_id', userId)
+  if (error) return unavailable
+
+  revalidatePath('/admin/configuracion')
+  return {
+    ok: true,
+    message: revoke
+      ? 'Se retiró el acceso de ' + member.data.username + '. Su contraseña ya no abre el panel.'
+      : member.data.username + ' vuelve a tener acceso con su contraseña de siempre.',
+  }
 }

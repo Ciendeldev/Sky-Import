@@ -55,13 +55,26 @@ export async function signIn(_prev: ActionResult | null, form: FormData): Promis
 
   const { data: admin } = await supabase
     .from('admin_users')
-    .select('user_id')
+    .select('user_id, revoked_at')
     .eq('user_id', data.user.id)
     .maybeSingle()
 
-  if (!admin) {
+  // La revocación se comprueba ACÁ y no solo en el guard del panel. Si no,
+  // la contraseña sigue siendo válida en Auth, el acceso «entra», queda una
+  // cookie de sesión creada para una cuenta sin permisos y recién `/admin` la
+  // rebota: la persona vuelve al formulario vacío sin saber por qué.
+  //
+  // Se le dice qué pasó en vez de dejarla creyendo que se equivocó de clave.
+  // El mensaje solo aparece después de acertar la contraseña, así que no le
+  // sirve a nadie para averiguar qué cuentas existen.
+  if (!admin || admin.revoked_at) {
     await supabase.auth.signOut()
-    return { ok: false, error: 'Esta cuenta no tiene permisos de administración.' }
+    return {
+      ok: false,
+      error: admin
+        ? 'Tu acceso al panel fue retirado. Pedile al moderador que te lo devuelva.'
+        : 'Esta cuenta no tiene permisos de administración.',
+    }
   }
 
   redirect('/admin')

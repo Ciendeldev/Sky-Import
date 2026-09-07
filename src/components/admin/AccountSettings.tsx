@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from 'react'
 import { useFormStatus } from 'react-dom'
-import { changeOwnPassword, createPanelAccount, resetPanelPassword } from '@/lib/admin/account-actions'
+import { changeOwnPassword, createPanelAccount, resetPanelPassword, setPanelAccess } from '@/lib/admin/account-actions'
 import type { PanelAccount } from '@/lib/admin/account-policy'
 import type { ActionResult } from '@/lib/admin/actions'
 
@@ -62,43 +62,81 @@ export function OwnPasswordForm() {
   </section>
 }
 
+/** Qué se está haciendo sobre qué cuenta. Una sola a la vez: dos formularios
+ *  abiertos con dos mensajes distintos se leen mal y se confunden. */
+type Task = { account: PanelAccount; mode: 'reset' | 'revoke' | 'restore' }
+
 export function UserManagement({ accounts, currentUserId }: { accounts: PanelAccount[]; currentUserId: string }) {
-  const [resetTarget, setResetTarget] = useState<PanelAccount | null>(null)
+  const [task, setTask] = useState<Task | null>(null)
+  const activos = accounts.filter(a => !a.revokedAt).length
+  // Un moderador no se gestiona a sí mismo ni a otro moderador desde acá:
+  // revocarse dejaría la tienda sin nadie que pueda devolver el acceso.
+  const gestionable = (a: PanelAccount) => a.role === 'admin' && a.userId !== currentUserId
+
   return <section className="a-panel a-account-section" aria-label="Gestión de usuarios">
     <AccountSectionTitle title="Gestión de usuarios" type="users" count={accounts.length} />
     <p className="a-hint a-users-scroll-hint">Deslizá la tabla para ver roles y acciones.</p>
     <div className="a-scroll">
       <table className="a-table a-users-table">
-        <caption className="sr-only">Usuarios con acceso al panel</caption>
+        <caption className="sr-only">Usuarios con acceso al panel: {activos} activos de {accounts.length}</caption>
         <thead><tr><th scope="col">Usuario</th><th scope="col">Nombre completo</th><th scope="col">Rol</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
-        <tbody>{accounts.map(account => <tr key={account.userId}>
+        <tbody>{accounts.map(account => <tr key={account.userId} className={account.revokedAt ? 'a-user-row--off' : undefined}>
           <td className="a-num">{account.username}{account.userId === currentUserId && <span className="a-hint"> · Vos</span>}</td>
           <td>{account.fullName ?? '—'}</td>
           <td>{account.role === 'moderator' ? 'Moderador' : 'Administrador'}</td>
-          <td><span className="a-tag a-tag--ok">Activo</span></td>
-          <td>{account.role === 'admin' && account.userId !== currentUserId
-            ? <button type="button" className="a-btn" onClick={() => setResetTarget(account)} aria-label={'Restablecer contraseña de ' + account.username} aria-expanded={resetTarget?.userId === account.userId}>Restablecer clave</button>
-            : <span className="a-hint">—</span>}</td>
+          <td>{account.revokedAt
+            ? <span className="a-tag a-tag--stop">Sin acceso</span>
+            : <span className="a-tag a-tag--ok">Activo</span>}</td>
+          <td>{gestionable(account) ? <div className="a-row-actions">
+            <button type="button" className="a-btn" onClick={() => setTask({ account, mode: 'reset' })}
+              aria-label={'Restablecer contraseña de ' + account.username}
+              aria-expanded={task?.account.userId === account.userId && task.mode === 'reset'}>Restablecer clave</button>
+            <button type="button" className="a-btn" onClick={() => setTask({ account, mode: account.revokedAt ? 'restore' : 'revoke' })}
+              aria-label={(account.revokedAt ? 'Devolver el acceso a ' : 'Retirar el acceso a ') + account.username}
+              aria-expanded={task?.account.userId === account.userId && task.mode !== 'reset'}>
+              {account.revokedAt ? 'Devolver acceso' : 'Retirar acceso'}</button>
+          </div> : <span className="a-hint">—</span>}</td>
         </tr>)}</tbody>
       </table>
     </div>
-    {resetTarget && <div className="a-account-body a-account-divider" key={resetTarget.userId}>
-      <h3 className="a-account-subtitle">Restablecer contraseña de {resetTarget.username}</h3>
-      <AccountForm action={resetPanelPassword} label={'Restablecer contraseña de ' + resetTarget.username}>
-        <input type="hidden" name="user_id" value={resetTarget.userId} />
-        <div className="a-grid a-grid--2">
-          <PasswordField id="reset-password" name="new_password" label="Nueva contraseña" />
-          <PasswordField id="reset-confirm" name="confirm_password" label="Repetir contraseña" />
-        </div>
-        <div className="a-account-footer">
-          <p className="a-hint">La contraseña anterior dejará de servir para iniciar sesión.</p>
-          <div className="flex flex-wrap gap-2">
-            <button type="button" className="a-btn" onClick={() => setResetTarget(null)}>Cerrar</button>
-            <Submit busy="Restableciendo…">Restablecer contraseña</Submit>
+
+    {task && <div className="a-account-body a-account-divider" key={task.account.userId + task.mode}>
+      {task.mode === 'reset' ? <>
+        <h3 className="a-account-subtitle">Restablecer contraseña de {task.account.username}</h3>
+        <AccountForm action={resetPanelPassword} label={'Restablecer contraseña de ' + task.account.username}>
+          <input type="hidden" name="user_id" value={task.account.userId} />
+          <div className="a-grid a-grid--2">
+            <PasswordField id="reset-password" name="new_password" label="Nueva contraseña" />
+            <PasswordField id="reset-confirm" name="confirm_password" label="Repetir contraseña" />
           </div>
-        </div>
-      </AccountForm>
+          <div className="a-account-footer">
+            <p className="a-hint">La contraseña anterior dejará de servir para iniciar sesión.</p>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" className="a-btn" onClick={() => setTask(null)}>Cerrar</button>
+              <Submit busy="Restableciendo…">Restablecer contraseña</Submit>
+            </div>
+          </div>
+        </AccountForm>
+      </> : <>
+        <h3 className="a-account-subtitle">
+          {task.mode === 'revoke' ? 'Retirar el acceso de ' : 'Devolver el acceso a '}{task.account.username}</h3>
+        <AccountForm action={setPanelAccess} label={(task.mode === 'revoke' ? 'Retirar el acceso de ' : 'Devolver el acceso a ') + task.account.username}>
+          <input type="hidden" name="user_id" value={task.account.userId} />
+          <input type="hidden" name="intent" value={task.mode} />
+          <div className="a-account-footer">
+            <p className="a-hint">{task.mode === 'revoke'
+              ? 'No se borra la cuenta: deja de entrar al panel y de escribir en la base, y podés devolverle el acceso cuando quieras.'
+              : 'Vuelve a entrar con el usuario y la contraseña que ya tenía.'}</p>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" className="a-btn" onClick={() => setTask(null)}>Cancelar</button>
+              <Submit busy={task.mode === 'revoke' ? 'Retirando…' : 'Devolviendo…'}>
+                {task.mode === 'revoke' ? 'Retirar el acceso' : 'Devolver el acceso'}</Submit>
+            </div>
+          </div>
+        </AccountForm>
+      </>}
     </div>}
+
     <div className="a-account-body a-account-divider">
       <h3 className="a-account-subtitle">Crear usuario</h3>
       <AccountForm action={createPanelAccount} label="Crear administrador">
@@ -109,7 +147,7 @@ export function UserManagement({ accounts, currentUserId }: { accounts: PanelAcc
           <div><label className="a-label" htmlFor="account-role">Rol</label><select id="account-role" className="a-field" disabled defaultValue="admin"><option value="admin">Administrador</option></select></div>
         </div>
         <div className="a-account-footer">
-          <p className="a-hint">Solo el moderador crea usuarios y restablece contraseñas. Las nuevas cuentas administran la tienda.</p>
+          <p className="a-hint">Solo el moderador crea usuarios, restablece contraseñas y retira accesos. Las nuevas cuentas administran la tienda.</p>
           <Submit busy="Creando…"><span aria-hidden="true">＋</span> Crear usuario</Submit>
         </div>
       </AccountForm>

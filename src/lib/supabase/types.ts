@@ -243,9 +243,16 @@ export type Database = {
   public: {
     Tables: {
       admin_users: {
-        Row: { user_id: string; username: string; full_name: string | null; created_at: string }
-        Insert: { user_id: string; username: string; full_name?: string | null }
-        Update: { username?: string; full_name?: string | null }
+        Row: {
+          user_id: string
+          username: string
+          full_name: string | null
+          created_at: string
+          /** Fecha en que se le retiró el acceso. `null` = activo. */
+          revoked_at: string | null
+        }
+        Insert: { user_id: string; username: string; full_name?: string | null; revoked_at?: string | null }
+        Update: { username?: string; full_name?: string | null; revoked_at?: string | null }
         Relationships: []
       }
       categories: {
