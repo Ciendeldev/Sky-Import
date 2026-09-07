@@ -83,12 +83,16 @@ function OrderDetail({ order }: { order: OrderWithItems }) {
                 <dt className="text-fg-mid">Envío · {order.zone_name}</dt>
                 {/* El envío no tiene importe en el sistema: se acuerda en la
                     conversación. Decía «¡Gratis!», que hacía creer al operador
-                    que ya estaba cobrado y no había nada que cobrar. */}
+                    que ya estaba cobrado cuando no había nada cobrado.
+                    La dirección vacía distingue el retiro por el local —única
+                    zona que no la exige— de un envío pendiente de acordar. */}
                 <dd className="a-num">
                   {Number(order.shipping_usd) > 0 ? (
                     gs(aGs(Number(order.shipping_usd)))
                   ) : (
-                    <span className="text-fg-mid">se acuerda por WhatsApp</span>
+                    <span className="text-fg-mid">
+                      {order.address.trim() ? 'se acuerda por WhatsApp' : 'retira en el local'}
+                    </span>
                   )}
                 </dd>
               </div>
