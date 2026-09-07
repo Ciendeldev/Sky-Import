@@ -74,12 +74,16 @@ export const FX = {
   reference: '2026-07',
 } as const
 
-/** Umbrales comerciales de los que se derivan los estados visibles. */
+/**
+ * Umbrales comerciales de los que se derivan los estados visibles.
+ *
+ * Acá vivían también un umbral de «envío bonificado» y una tarifa única de
+ * flete. Los dos se fueron: el costo del envío depende de la ciudad y vive en
+ * `shipping_zones`, y no hay envío gratis. Una tienda que importa piezas y las
+ * manda por transporte paga el flete siempre; anunciarlo como regalo en un
+ * pedido de millones era una promesa que el local no podía sostener.
+ */
 export const RULES = {
   /** Al llegar o bajar de esta cantidad, la pieza muestra «últimas unidades». */
   lowStockAt: 3,
-  /** Envío bonificado dentro del país a partir de este neto en USD. */
-  freeShippingUsd: 400,
-  /** Costo de envío nacional cuando no aplica la bonificación. */
-  shippingUsd: 12,
 } as const

@@ -2,7 +2,7 @@
 
 > Consultar **antes** de escribir cualquier componente de interfaz, animación o
 > efecto visual. La regla completa está en `CLAUDE.md`.
-> Última revisión: 2026-08-31
+> Última revisión: 2026-09-06
 
 ## Contexto de este proyecto
 
@@ -36,8 +36,15 @@
 ## ADOPTADAS
 
 ### three.js
-- **Qué aporta:** la placa de video que se arma con el scroll y el fondo de
-  haces. Geometría generada en código, sin modelos ni texturas importadas.
+- **Qué aporta:** el armado de la PC pieza por pieza en «Arma tu PC», con su
+  prueba de encendido, y el fondo de haces. Geometría generada en código, sin
+  modelos ni texturas importadas.
+- **Se retiró de la portada el 2026-09-06.** Ahí vivía `GpuAssembly`, un
+  despiece 3D de una placa de video. Estaba bien hecho, pero enseñaba un
+  **dibujo** en una tienda de importación, donde lo que el cliente necesita ver
+  es la pieza que le van a entregar. La sección pasó a la fotografía real del
+  producto. En el armador se queda, porque ahí el 3D aporta algo que una foto
+  no puede: el orden del montaje y el resultado de encender.
 - **Instalada como:** `npm install three @types/three`
 - **Versión:** 0.185.1 · **Licencia:** MIT
 - **Se usa en:** `src/components/three/GpuAssembly.tsx`,

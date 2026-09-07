@@ -17,13 +17,25 @@ import { hasSupabaseBrowser, supabaseBrowser } from '@/lib/supabase/client'
 import type { Locale } from '@/lib/i18n/locales'
 import type { ShippingZoneRow, ValidateCouponResult } from '@/lib/supabase/types'
 
+/**
+ * Una zona es un DESTINO, no una tarifa.
+ *
+ * La tienda no publica ningún costo de envío, y es una decisión, no un
+ * olvido. Sky Import manda piezas desde Ciudad del Este a todo el país por
+ * empresa de transporte: el flete depende del peso, del volumen y del
+ * destino —no cuesta lo mismo un tubo de pasta térmica que un gabinete ATX—,
+ * y nadie puede saber de antemano cuánto sale llevar un pedido a un pueblo
+ * del Chaco. Publicar una cifra fija sería inventarla, y corregirla después
+ * en la conversación es la peor manera de empezar una venta.
+ *
+ * Así que el envío no tiene número en ninguna pantalla: se acuerda en el
+ * mismo WhatsApp donde se cierra todo lo demás. El total que la tienda
+ * muestra es el de las piezas, y lo dice con esas palabras.
+ */
 export interface Zone {
   slug: string
   name: { es: string; pt: string }
   note: { es: string; pt: string }
-  costUsd: number
-  /** Neto a partir del cual el envío es gratis. `null` = nunca por monto. */
-  freeOverUsd: number | null
   requiresAddress: boolean
 }
 
@@ -39,8 +51,6 @@ export const FALLBACK_ZONES: Zone[] = [
       es: 'Ciudad del Este. Coordinamos horario por WhatsApp.',
       pt: 'Ciudad del Este. Combinamos o horário pelo WhatsApp.',
     },
-    costUsd: 0,
-    freeOverUsd: null,
     requiresAddress: false,
   },
   {
@@ -50,8 +60,6 @@ export const FALLBACK_ZONES: Zone[] = [
       es: 'Entrega dentro de la ciudad, coordinada por WhatsApp.',
       pt: 'Entrega dentro da cidade, combinada pelo WhatsApp.',
     },
-    costUsd: 3,
-    freeOverUsd: 200,
     requiresAddress: true,
   },
   {
@@ -61,8 +69,6 @@ export const FALLBACK_ZONES: Zone[] = [
       es: 'Envío por empresa de transporte. Llega en 24 a 48 horas hábiles.',
       pt: 'Envio por transportadora. Chega em 24 a 48 horas úteis.',
     },
-    costUsd: 7,
-    freeOverUsd: 400,
     requiresAddress: true,
   },
   {
@@ -72,8 +78,7 @@ export const FALLBACK_ZONES: Zone[] = [
       es: 'Escribí tu ciudad en la dirección. Coordinamos el costo exacto por WhatsApp.',
       pt: 'Escreva sua cidade no endereço. Combinamos o custo exato pelo WhatsApp.',
     },
-    costUsd: 10,
-    freeOverUsd: 500,
+    // La nota ya decía que el costo se acuerda; cobrar 10 fijos la contradecía.
     requiresAddress: true,
   },
 ]
@@ -83,8 +88,6 @@ function toZone(row: ShippingZoneRow): Zone {
     slug: row.slug,
     name: { es: row.name_es, pt: row.name_pt },
     note: { es: row.note_es, pt: row.note_pt },
-    costUsd: Number(row.cost_usd),
-    freeOverUsd: row.free_over_usd === null ? null : Number(row.free_over_usd),
     requiresAddress: row.requires_address,
   }
 }
@@ -103,13 +106,6 @@ export async function fetchZones(): Promise<Zone[]> {
     // Sin red, la tienda sigue vendiendo con las zonas de arranque.
     return FALLBACK_ZONES
   }
-}
-
-/** Costo de envío de una zona para un neto dado. */
-export function shippingFor(zone: Zone | null, netUsd: number): number {
-  if (!zone) return 0
-  if (zone.freeOverUsd !== null && netUsd >= zone.freeOverUsd) return 0
-  return zone.costUsd
 }
 
 export function zoneName(zone: Zone | null, locale: Locale): string {

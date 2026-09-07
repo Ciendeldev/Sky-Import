@@ -400,7 +400,7 @@ const RF = [
     sintaxis:
       'Cuando el administrador registre una nueva tasa de cambio [Condición], el módulo de configuración [Sujeto] deberá persistir y propagar [Acción] dicho valor a la totalidad de la tienda y de los mensajes generados [Objeto], sin necesidad de un nuevo despliegue [Restricción].',
     descripcion:
-      'Centraliza la tasa de guaraníes y reales por dólar, el mes de referencia y los umbrales comerciales de stock mínimo, envío bonificado y costo de envío. No existe ninguna segunda copia de estos valores en el código de la aplicación.',
+      'Centraliza la tasa de guaraníes y reales por dólar, el mes de referencia y el umbral de aviso de últimas unidades. El costo del envío no figura en el sistema: se acuerda por la vía de mensajería. No existe ninguna segunda copia de estos valores en el código de la aplicación.',
     pre: [
       '1. Existe una sesión de administrador activa.',
       '2. Ambas tasas son números mayores que cero.',
@@ -676,7 +676,7 @@ const doc = new Document({
             ['SSG / ISR', 'Static Site Generation / Incremental Static Regeneration. Generación estática de páginas y su regeneración periódica sin necesidad de un nuevo despliegue.'],
             ['Variante', 'Versión de un producto que difiere en uno o más ejes (capacidad, color, velocidad) y posee SKU, stock y precio propios.'],
             ['Cupón', 'Código que otorga un descuento porcentual o de monto fijo, sujeto a compra mínima, vigencia y límite de usos.'],
-            ['Zona de envío', 'Ámbito geográfico de entrega con costo asociado y umbral de bonificación propio.'],
+            ['Zona de envío', 'Destino de entrega. Es un dato geográfico, no tarifario: el sistema no le asocia ningún costo, porque el flete depende del peso, del volumen y de la distancia, y se acuerda por la vía de mensajería.'],
             ['WCAG 2.1 AA', 'Web Content Accessibility Guidelines, nivel AA. Norma internacional de accesibilidad web.'],
             ['SECURITY DEFINER', 'Cláusula de PostgreSQL que ejecuta una función con los privilegios de su propietario, permitiendo operaciones controladas sin conceder acceso directo a las tablas.'],
           ],
@@ -715,7 +715,7 @@ const doc = new Document({
         bullet('Módulo de Carrito y Checkout: acumulación de líneas, recolección de datos de entrega, aplicación de cupones y cálculo de totales.'),
         bullet('Módulo de Registro de Transacciones: persistencia del pedido, descuento de existencias y generación del mensaje estructurado.'),
         bullet('Módulo de Administración de Inventario: alta, modificación y baja de productos y variantes, con control de existencias y alertas.'),
-        bullet('Módulo de Configuración Comercial: tasa de cambio, umbrales de stock y envío, y cupones de descuento.'),
+        bullet('Módulo de Configuración Comercial: tasa de cambio, umbral de aviso de existencias y cupones de descuento.'),
         bullet('Módulo de Seguimiento de Pedidos: historial con estados, importes históricos y observaciones internas.'),
         p('El siguiente cursograma detalla el proceso principal del sistema, desde la consulta de un producto hasta el registro del pedido y su cierre por mensajería:'),
         ...imagen('flujo.png', 470, 647, 'Figura 2 — Diagrama de flujo del proceso de compra y cierre de venta.'),
@@ -932,8 +932,10 @@ const doc = new Document({
         p('El sistema genera dos formatos de mensaje estructurado. Ambos codifican su contenido mediante encodeURIComponent antes de la transmisión y expresan todo importe en guaraníes.'),
         p('Formato 1 — Compra directa desde la ficha de producto', { run: { bold: true } }),
         p('Incluye encabezado de saludo, denominación del producto y su variante si corresponde, código de referencia, cantidad, precio unitario, enlace a la ficha, total y solicitud de confirmación de disponibilidad.'),
+        p('Restricción de juego de caracteres', { run: { bold: true } }),
+        p('Ambos formatos se restringen al Plano Multilingüe Básico de Unicode. La transferencia del enlace desde el navegador hacia la aplicación de mensajería degrada los caracteres situados fuera de dicho plano —entre ellos la totalidad de los pictogramas emoji— y los sustituye por el carácter de reemplazo. La estructura del mensaje se sustenta, por tanto, en el marcado de negrita, la sangría y los filetes de separación, todos ellos representables dentro del plano básico y verificados como íntegros en el cliente de destino. Dos casos de prueba automatizados impiden la reintroducción de caracteres fuera de dicho rango.'),
         p('Formato 2 — Pedido completo desde el checkout', { run: { bold: true } }),
-        p('Incluye encabezado, número de pedido, una línea numerada por pieza con su código, cantidad y subtotal, el subtotal general, la línea de cupón cuando corresponde, el costo de envío con su zona, el total, el bloque de datos de entrega y la solicitud de confirmación. Las líneas que no aplican se omiten en lugar de imprimirse vacías.'),
+        p('Incluye encabezado, número de pedido, una línea numerada por pieza con su código, cantidad y subtotal, el subtotal general, la línea de cupón cuando corresponde, la zona de entrega con la indicación de que el envío se acuerda en la conversación, el total de las piezas, el bloque de datos de entrega y la solicitud de confirmación. Las líneas que no aplican se omiten en lugar de imprimirse vacías.'),
 
         h2('4.3 Apéndice C — Resultados de verificación'),
         p('Mediciones obtenidas sobre la versión correspondiente a esta especificación:'),
@@ -942,10 +944,10 @@ const doc = new Document({
           [
             ['Verificación de tipos', 'Totalidad del código fuente en modo estricto', 'Sin errores'],
             ['Análisis estático', 'Totalidad del código fuente', 'Sin advertencias'],
-            ['Pruebas unitarias', '72 casos sobre dominio, carrito, compatibilidad, búsqueda, moneda, mensajería y material gráfico', '72 correctas'],
-            ['Pruebas de extremo a extremo', '35 casos en perfiles de escritorio y móvil', '35 correctas'],
+            ['Pruebas unitarias', '93 casos sobre dominio, carrito, compatibilidad, búsqueda, moneda, arranque del configurador, mensajería y material gráfico', '93 correctas'],
+            ['Pruebas de extremo a extremo', '85 casos en perfiles de escritorio y móvil', '85 correctas'],
             ['Auditoría de accesibilidad', '10 rutas en ambos idiomas, norma WCAG 2.1 AA', '0 infracciones'],
-            ['Presupuesto de código de cliente', 'Totalidad del JavaScript transferido', '601 kB de 650 kB'],
+            ['Presupuesto de código de cliente', 'Totalidad del JavaScript transferido', '624 kB de 650 kB'],
             ['Compilación de producción', 'Generación estática del sitio', '99 páginas generadas'],
           ],
           [2600, 4426, 2000],
@@ -956,7 +958,7 @@ const doc = new Document({
           ['Término de negocio', 'Significado en el contexto de Sky Import'],
           [
             ['Últimas unidades', 'Estado derivado que se aplica a un producto cuyas existencias son iguales o inferiores al umbral configurado.'],
-            ['Envío bonificado', 'Exención del costo de envío cuando el neto del pedido alcanza el umbral definido para la zona.'],
+            ['Envío a coordinar', 'Régimen único de entrega del sistema. Ninguna pantalla exhibe un importe de flete; el importe que se muestra corresponde exclusivamente a las piezas y así queda rotulado.'],
             ['Precio de vitrina', 'Importe redondeado que se publica: al millar en guaraníes y al décimo en reales.'],
             ['Iniciado por WhatsApp', 'Estado inicial de todo pedido: el detalle fue transmitido pero la operación aún no fue confirmada por el vendedor.'],
             ['Código de referencia', 'Identificador interno del producto, legible y dictable por teléfono.'],

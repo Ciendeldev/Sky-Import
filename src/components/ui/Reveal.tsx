@@ -53,7 +53,24 @@ export function Reveal({
           }
         }
       },
-      { rootMargin: '0px 0px -12% 0px', threshold: 0.08 },
+      /**
+       * El margen superior enorme no es un truco: define QUÉ cuenta como
+       * «ya entró».
+       *
+       * Un `IntersectionObserver` solo avisa si existe un cuadro en el que el
+       * elemento se cruza con la raíz. Si alguien arrastra la barra de scroll,
+       * pulsa Fin o llega por un ancla, la página salta y hay elementos que
+       * pasan de estar debajo del pliegue a estar encima sin cruzarse nunca:
+       * el observador no dispara y esos bloques se quedan en opacidad 0 para
+       * siempre. La página queda en negro y no hay forma de recuperarla salvo
+       * recargar.
+       *
+       * Con la raíz estirada cien mil píxeles hacia arriba, «encima del
+       * pliegue» también es intersección. El recorte de abajo se conserva: por
+       * debajo sigue haciendo falta que entre de verdad para que la entrada se
+       * vea, que es para lo que existe.
+       */
+      { rootMargin: '100000px 0px -12% 0px', threshold: 0.08 },
     )
     observer.observe(node)
     return () => observer.disconnect()

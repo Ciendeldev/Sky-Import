@@ -147,38 +147,10 @@ export function RulesForm({ rules }: { rules: RulesSettings }) {
         </p>
       </div>
 
-      <div className="mt-4">
-        <label className="a-label" htmlFor="freeShippingUsd">
-          Envío bonificado desde (US$)
-        </label>
-        <input
-          id="freeShippingUsd"
-          name="freeShippingUsd"
-          type="number"
-          step="1"
-          min="0"
-          className="a-field a-num"
-          defaultValue={rules.freeShippingUsd}
-        />
-        <p className="a-hint">
-          Cada zona de envío puede tener su propio mínimo; este es el general.
-        </p>
-      </div>
-
-      <div className="mt-4">
-        <label className="a-label" htmlFor="shippingUsd">
-          Costo de envío por defecto (US$)
-        </label>
-        <input
-          id="shippingUsd"
-          name="shippingUsd"
-          type="number"
-          step="0.5"
-          min="0"
-          className="a-field a-num"
-          defaultValue={rules.shippingUsd}
-        />
-      </div>
+      {/* El envío ya no se configura acá. Dependía de dos números generales
+          —un umbral de bonificación y una tarifa única— que contradecían el
+          costo real de cada zona. Ahora el flete vive en `shipping_zones`,
+          ciudad por ciudad, y no hay envío bonificado que ajustar. */}
 
       <Aviso result={result} />
 

@@ -62,7 +62,9 @@ export function Reveal({
           }
         }
       },
-      { rootMargin: '0px 0px -8% 0px', threshold: 0.06 },
+      // Mismo motivo que en `Reveal`: un salto de scroll no puede dejar
+      // contenido invisible. Ver el razonamiento completo allí.
+      { rootMargin: '100000px 0px -8% 0px', threshold: 0.06 },
     )
     observer.observe(node)
     return () => observer.disconnect()
@@ -134,7 +136,10 @@ export function SplitWords({
   aliveStep?: number
 }) {
   const ref = useRef<HTMLElement>(null)
-  const inView = useInView(ref, { once: true, threshold: 0.15, rootMargin: '0px' })
+  // Sin `rootMargin` propio: se toma el del hook, que cuenta «ya pasó por
+  // pantalla» como entrada. Con `'0px'` un salto de scroll dejaba el titular
+  // con las palabras escondidas detrás de su máscara, para siempre.
+  const inView = useInView(ref, { once: true, threshold: 0.15 })
   const go = start === 'now' || inView
   const words = text.split(' ')
 

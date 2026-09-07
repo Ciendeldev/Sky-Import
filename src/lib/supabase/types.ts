@@ -107,8 +107,14 @@ export type ShippingZoneRow = {
   name_pt: string
   note_es: string
   note_pt: string
-  cost_usd: number
-  free_over_usd: number | null
+  /**
+   * MUERTA. El envío no tiene importe: se acuerda por WhatsApp, y ninguna
+   * pantalla lo enseña. La columna sigue en la base, siempre en `null`, y
+   * este espejo la declara para no mentir sobre el esquema — pero nada del
+   * código la lee. No la reutilices para otra cosa: si hace falta un dato de
+   * envío algún día, que tenga su propio nombre.
+   */
+  cost_usd: number | null
   requires_address: boolean
   sort_order: number
   active: boolean
@@ -184,8 +190,6 @@ export type FxSettings = {
 
 export type RulesSettings = {
   lowStockAt: number
-  freeShippingUsd: number
-  shippingUsd: number
 }
 
 export type ContactSettings = {

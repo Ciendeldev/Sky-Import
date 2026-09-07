@@ -99,20 +99,11 @@ const es = {
 
 
   // ───────────────────────────────────────────────────────────── ensamblaje
-  'assembly.eyebrow': 'Pieza en código',
-  'assembly.title': 'Una placa de video dibujada por el navegador',
-  'assembly.lede':
-    'Sin modelo importado, sin texturas, sin archivos binarios: cada pieza es geometría colocada por código. Desplazate y se arma.',
+  'assembly.eyebrow': 'La pieza mayor',
+  'assembly.cta': 'Ver la ficha completa',
   'assembly.note':
-    'Se monta sola al acercarse y libera el contexto gráfico al alejarse. Si tu equipo no puede con WebGL, en su lugar queda el dibujo técnico.',
-  'assembly.part1': 'Placa de circuito',
-  'assembly.part2': 'Backplate',
-  'assembly.part3': 'Peine de aletas',
-  'assembly.part4': 'Caños de calor',
-  'assembly.part5': 'Carcasa',
-  'assembly.part6': 'Ventiladores',
-  'assembly.part7': 'Soporte y salidas',
-  'assembly.hint': 'Desplazá para ensamblar',
+    'Fotografía del producto real, no un render. Si al llegar la unidad tuviera otra revisión de fábrica, te lo decimos antes de cerrar.',
+  'assembly.hint': 'Foto del producto real',
 
   // ─────────────────────────────────────────────────────────────────── catálogo
   'catalog.title': 'Catálogo',
@@ -241,9 +232,34 @@ const es = {
   'cart.empty.body': 'Empezá por el catálogo, o armá el equipo completo en el configurador.',
   'cart.subtotal': 'Subtotal',
   'cart.shipping': 'Envío',
-  'cart.shipping.free': 'Bonificado',
-  'cart.shipping.toFree': 'Te faltan {amount} para el envío bonificado',
-  'cart.shipping.qualified': 'Envío bonificado aplicado',
+  /**
+   * El envío NO tiene importe en ninguna pantalla. Depende del peso y del
+   * destino, y la tienda no puede saberlo antes de ver el pedido: se cierra
+   * en la misma conversación de WhatsApp donde se cierra la venta.
+   */
+  'cart.shipping.toArrange': 'Se acuerda por WhatsApp',
+  'cart.shipping.note':
+    'El costo del flete depende del peso y del destino. Lo cerramos con vos en la conversación, antes de que pagues nada.',
+  'checkout.totalWithoutShipping': 'Total de las piezas',
+  /**
+   * El botón flotante no lleva texto: solo el globo de WhatsApp, que es la
+   * marca más reconocible que existe y no necesita que la expliquen. La
+   * etiqueta sigue existiendo para el lector de pantalla, que sí la necesita.
+   */
+  'wa.fabLabel': 'Escribinos por WhatsApp',
+  /**
+   * El mensaje que ya viene escrito.
+   *
+   * El patrón que usan las tiendas —y el motivo— es este: el vendedor recibe
+   * decenas de «hola» sueltos al día y no sabe de dónde vienen. Un primer
+   * mensaje que nombra la tienda le dice que ese contacto llegó de la web y no
+   * de un cartel, y que ya vio los precios. Y para el cliente vale más que un
+   * saludo vacío: le ahorra tener que explicar de entrada quién es.
+   *
+   * Corto a propósito. Un texto largo puesto en boca del cliente se lee falso,
+   * y lo primero que hace es borrarlo.
+   */
+  'wa.fabMessage': '¡Hola! Estoy en la web de Sky Import y quiero hacer una consulta.',
   'cart.total': 'Total',
   'cart.remove': 'Quitar',
   'cart.removed': 'quitado del carrito',
@@ -422,20 +438,11 @@ const pt: Record<DictKey, string> = {
     'O carrinho monta a mensagem com os modelos, as quantidades e os totais. Não há formulários nem contas para criar.',
 
 
-  'assembly.eyebrow': 'Peça em código',
-  'assembly.title': 'Uma placa de vídeo desenhada pelo navegador',
-  'assembly.lede':
-    'Sem modelo importado, sem texturas, sem arquivos binários: cada peça é geometria colocada por código. Role a página e ela se monta.',
+  'assembly.eyebrow': 'A peça maior',
+  'assembly.cta': 'Ver a ficha completa',
   'assembly.note':
-    'Monta-se sozinha ao se aproximar e libera o contexto gráfico ao se afastar. Se o seu equipamento não der conta do WebGL, fica o desenho técnico no lugar.',
-  'assembly.part1': 'Placa de circuito',
-  'assembly.part2': 'Backplate',
-  'assembly.part3': 'Pente de aletas',
-  'assembly.part4': 'Heat pipes',
-  'assembly.part5': 'Carcaça',
-  'assembly.part6': 'Ventiladores',
-  'assembly.part7': 'Suporte e saídas',
-  'assembly.hint': 'Role para montar',
+    'Fotografia do produto real, não um render. Se a unidade chegar com outra revisão de fábrica, avisamos antes de fechar.',
+  'assembly.hint': 'Foto do produto real',
 
   'catalog.title': 'Catálogo',
   'catalog.eyebrow': 'Manifesto de peças',
@@ -559,9 +566,12 @@ const pt: Record<DictKey, string> = {
   'cart.empty.body': 'Comece pelo catálogo, ou monte o equipamento completo no configurador.',
   'cart.subtotal': 'Subtotal',
   'cart.shipping': 'Envio',
-  'cart.shipping.free': 'Cortesia',
-  'cart.shipping.toFree': 'Faltam {amount} para o envio cortesia',
-  'cart.shipping.qualified': 'Envio cortesia aplicado',
+  'cart.shipping.toArrange': 'Combinado pelo WhatsApp',
+  'cart.shipping.note':
+    'O custo do frete depende do peso e do destino. Fechamos com você na conversa, antes de pagar qualquer coisa.',
+  'checkout.totalWithoutShipping': 'Total das peças',
+  'wa.fabLabel': 'Fale conosco pelo WhatsApp',
+  'wa.fabMessage': 'Olá! Estou no site da Sky Import e quero fazer uma consulta.',
   'cart.total': 'Total',
   'cart.remove': 'Remover',
   'cart.removed': 'removido do carrinho',

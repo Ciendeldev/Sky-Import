@@ -242,8 +242,6 @@ export async function saveRules(form: FormData): Promise<ActionResult> {
     key: 'rules',
     value: {
       lowStockAt: Math.max(0, Number(form.get('lowStockAt') ?? 3)),
-      freeShippingUsd: Math.max(0, Number(form.get('freeShippingUsd') ?? 400)),
-      shippingUsd: Math.max(0, Number(form.get('shippingUsd') ?? 12)),
     },
   })
 

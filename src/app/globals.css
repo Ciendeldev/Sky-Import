@@ -2656,3 +2656,76 @@ html[data-pointer='hidden'] [contenteditable='true'] {
   50% { transform: translateY(4px); opacity: 1; }
 }
 
+
+/* ══════════════════════════════════════════ botón flotante de WhatsApp ══════
+ *
+ * Solo el globo, sin etiqueta. Es la marca más reconocible que hay: ponerle
+ * «Escribinos» al lado no informa a nadie y le quita el aire que necesita un
+ * control fijo, que compite con el contenido las veinticuatro horas. El nombre
+ * sigue existiendo para quien navega con lector de pantalla, en `aria-label`.
+ *
+ * Verde de WhatsApp, no el acento de la casa: es el único elemento de la
+ * tienda que remite a un servicio de fuera. Pero el verde de marca —#25D366—
+ * da 1,98:1 contra el blanco y reprueba WCAG AA; este está oscurecido hasta
+ * 5,2:1 y se sigue leyendo como WhatsApp, porque lo que se reconoce es la
+ * forma del globo con el auricular, no el valor exacto del verde.
+ *
+ * 56 px de diámetro, por encima del mínimo de 44 de la casa: es un control
+ * fijo y el pulgar lo busca sin mirar.
+ */
+.u-wa-fab {
+  position: fixed;
+  right: clamp(0.875rem, 3vw, 1.75rem);
+  bottom: clamp(0.875rem, 3vw, 1.75rem);
+  z-index: 60;
+  display: inline-grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: #0F7D46;
+  color: #fff;
+  text-decoration: none;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.3),
+    0 12px 30px -8px rgb(15 125 70 / 0.6);
+  transition:
+    transform 260ms var(--ease-rail),
+    opacity 200ms var(--ease-rail),
+    visibility 200ms;
+}
+
+.u-wa-fab svg {
+  width: 30px;
+  height: 30px;
+}
+
+/* Con el carrito abierto se aparta en lugar de desmontarse: si desapareciera,
+   al cerrar el carrito volvería de golpe y llamaría la atención dos veces. */
+.u-wa-fab[data-hidden='true'] {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(0.5rem) scale(0.96);
+  pointer-events: none;
+}
+
+.u-wa-fab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .u-wa-fab:hover {
+    transform: translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .u-wa-fab {
+    transition: opacity 200ms linear, visibility 200ms;
+  }
+
+  .u-wa-fab:hover {
+    transform: none;
+  }
+}

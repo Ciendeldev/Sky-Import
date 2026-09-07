@@ -70,6 +70,57 @@ test.describe('movimiento reducido', () => {
   })
 })
 
+test.describe('entradas por scroll', () => {
+  /**
+   * Un salto de scroll —arrastrar la barra, pulsar Fin, llegar por un ancla—
+   * llevaba bloques enteros de debajo del pliegue a encima del pliegue sin un
+   * solo cuadro intermedio. El `IntersectionObserver` no disparaba nunca y esos
+   * bloques quedaban en opacidad 0 PARA SIEMPRE: media portada en negro, sin
+   * más salida que recargar.
+   *
+   * No lo cubría nada porque la prueba que existía corre con movimiento
+   * reducido, y ahí las entradas se muestran de entrada. Esta va con
+   * movimiento normal y salta a propósito.
+   */
+  test('un salto de scroll no deja bloques invisibles detrás', async ({ page }) => {
+    await page.goto('/es')
+    // Hasta el final de una vez, que es lo que hace la tecla Fin.
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    await page.waitForTimeout(1500)
+
+    const ocultosEnPantalla = await page.evaluate(() => {
+      const alto = window.innerHeight
+      return [...document.querySelectorAll('.u-enter')].filter((el) => {
+        if (getComputedStyle(el).opacity !== '0') return false
+        const r = el.getBoundingClientRect()
+        // Solo cuenta lo que el visitante TIENE delante o ya dejó atrás.
+        return r.top < alto
+      }).length
+    })
+
+    expect(ocultosEnPantalla).toBe(0)
+  })
+
+  test('el titular con máscara se abre aunque se llegue de golpe', async ({ page }) => {
+    await page.goto('/es')
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    await page.waitForTimeout(1500)
+    await page.evaluate(() => window.scrollTo(0, 0))
+
+    // `u-word__in` viaja escondido detrás de su máscara hasta que entra.
+    const palabrasEscondidas = await page.evaluate(
+      () =>
+        [...document.querySelectorAll('.u-word__in')].filter((el) => {
+          const r = el.getBoundingClientRect()
+          if (r.top > window.innerHeight) return false
+          return getComputedStyle(el).transform !== 'none'
+        }).length,
+    )
+
+    expect(palabrasEscondidas).toBe(0)
+  })
+})
+
 test.describe('cursor propio', () => {
   test('se dibuja con puntero fino y no existe en táctil', async ({ page, isMobile }) => {
     await page.goto('/es')

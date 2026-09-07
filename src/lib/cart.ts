@@ -3,7 +3,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { PRODUCT_BY_SLUG } from '@/lib/catalog/products'
-import { RULES } from '@/config/site'
 import type { Product } from '@/lib/catalog/types'
 import type { Variant } from '@/lib/variants'
 
@@ -185,22 +184,21 @@ export function resolveLines(lines: CartLine[]): CartLineResolved[] {
 export interface CartTotals {
   count: number
   subtotalUsd: number
-  shippingUsd: number
-  totalUsd: number
-  /** Cuánto falta en USD para el envío bonificado; `0` si ya aplica. */
-  toFreeShippingUsd: number
 }
 
+/**
+ * El carrito suma piezas y nada más.
+ *
+ * Antes estimaba un envío con una tarifa general y lo regalaba por encima de
+ * cierto monto. Las dos cosas estaban mal: el flete depende de la ciudad, que
+ * el cliente recién elige en el checkout, y no hay envío bonificado. Un
+ * carrito que muestra un total que después cambia miente dos veces —una al
+ * enseñarlo y otra al corregirlo—, así que no muestra total: muestra el
+ * subtotal y dice dónde se cierra la cuenta.
+ */
 export function totalsOf(resolved: CartLineResolved[]): CartTotals {
-  const subtotalUsd = resolved.reduce((sum, l) => sum + l.lineTotalUsd, 0)
-  const count = resolved.reduce((sum, l) => sum + l.qty, 0)
-  const qualifies = subtotalUsd >= RULES.freeShippingUsd
-  const shippingUsd = count === 0 || qualifies ? 0 : RULES.shippingUsd
   return {
-    count,
-    subtotalUsd,
-    shippingUsd,
-    totalUsd: subtotalUsd + shippingUsd,
-    toFreeShippingUsd: qualifies ? 0 : Math.max(0, RULES.freeShippingUsd - subtotalUsd),
+    count: resolved.reduce((sum, l) => sum + l.qty, 0),
+    subtotalUsd: resolved.reduce((sum, l) => sum + l.lineTotalUsd, 0),
   }
 }

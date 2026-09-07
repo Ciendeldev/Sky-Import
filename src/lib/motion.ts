@@ -100,10 +100,24 @@ export function useFinePointer(): boolean {
 
 // ────────────────────────────────────────────────────────────────── en pantalla
 
+/**
+ * ¿Está a la vista?
+ *
+ * Con `once` —el caso de las entradas— el margen superior se estira hasta lo
+ * absurdo a propósito: un salto de scroll (arrastrar la barra, pulsar Fin,
+ * llegar por un ancla) puede llevar un elemento de debajo del pliegue a encima
+ * del pliegue sin un solo cuadro intermedio, y entonces el observador no
+ * dispara nunca y el bloque se queda invisible para siempre. «Ya pasó por
+ * pantalla» tiene que contar como «entró». Con `once: false` no se toca,
+ * porque ahí sí importa saber si está dentro AHORA.
+ */
 export function useInView<T extends Element>(
   ref: RefObject<T | null>,
-  { once = true, rootMargin = '0px 0px -10% 0px', threshold = 0.1 } = {},
+  opciones: { once?: boolean; rootMargin?: string; threshold?: number } = {},
 ): boolean {
+  const { once = true, threshold = 0.1 } = opciones
+  const rootMargin =
+    opciones.rootMargin ?? (once ? '100000px 0px -10% 0px' : '0px 0px -10% 0px')
   const [inView, setInView] = useState(false)
 
   useEffect(() => {

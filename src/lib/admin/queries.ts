@@ -111,8 +111,6 @@ export async function getSettings(): Promise<{ fx: FxSettings; rules: RulesSetti
 
   const rules = (map.get('rules') as RulesSettings | undefined) ?? {
     lowStockAt: 3,
-    freeShippingUsd: 400,
-    shippingUsd: 12,
   }
 
   return { fx, rules }

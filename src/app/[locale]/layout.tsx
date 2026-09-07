@@ -13,6 +13,7 @@ import { RenderDefs } from '@/components/render/RenderDefs'
 import { Footer } from '@/components/chrome/Footer'
 import { CartDrawer } from '@/components/chrome/CartDrawer'
 import { Toaster } from '@/components/chrome/Toaster'
+import { WhatsappFab } from '@/components/chrome/WhatsappFab'
 import { Intro } from '@/components/intro/Intro'
 import { Cursor } from '@/components/cursor/Cursor'
 
@@ -163,6 +164,7 @@ export default async function LocaleLayout({
 
           <CartDrawer />
           <Toaster />
+          <WhatsappFab />
         </I18nProvider>
       </body>
     </html>

@@ -41,10 +41,10 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
   expect(enlaceDirecto).toContain(`https://wa.me/${WHATSAPP}`)
 
   const mensajeDirecto = decodeURIComponent(new URL(enlaceDirecto!).searchParams.get('text') ?? '')
-  expect(mensajeDirecto).toContain('🛍️ *PRODUCTO*')
+  expect(mensajeDirecto).toContain('*PRODUCTO*')
   expect(mensajeDirecto).toContain('SI-VGA-0124')
   expect(mensajeDirecto).toContain('/es/producto/geforce-rtx-5070-12gb')
-  expect(mensajeDirecto).toContain('💰 *TOTAL: Gs.')
+  expect(mensajeDirecto).toContain('*TOTAL: Gs.')
 
   // 5 · agregar al carrito con la acción secundaria
   await page.getByTestId('agregar').click()
@@ -155,18 +155,18 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
   expect(url.pathname).toBe(`/${WHATSAPP}`)
 
   const mensaje = decodeURIComponent(url.searchParams.get('text') ?? '')
-  expect(mensaje).toContain('🛍️ *MI PEDIDO*')
-  expect(mensaje).toContain('1️⃣')
-  expect(mensaje).toContain('✖️ 2 u.')
-  expect(mensaje).toContain('👤 *DATOS DE ENTREGA*')
-  expect(mensaje).toContain('• Nombre: Ana Giménez')
-  expect(mensaje).toContain('• Teléfono: +595 981 111 222')
+  expect(mensaje).toContain('*MI PEDIDO*')
+  expect(mensaje).toContain('1. ')
+  expect(mensaje).toContain('· Cantidad: 2 u.')
+  expect(mensaje).toContain('*DATOS DE ENTREGA*')
+  expect(mensaje).toContain('· Nombre: Ana Giménez')
+  expect(mensaje).toContain('· Teléfono: +595 981 111 222')
   expect(mensaje).toContain('Av. España 1234')
-  expect(mensaje).toContain('• Notas: Tocar timbre')
-  expect(mensaje).toContain(`🚚 Envío (${zonaElegida})`)
-  expect(mensaje).toContain('💰 *TOTAL: Gs.')
+  expect(mensaje).toContain('· Notas: Tocar timbre')
+  expect(mensaje).toContain(`Envío a ${zonaElegida}: lo coordinamos por acá`)
+  expect(mensaje).toContain('*TOTAL DE LAS PIEZAS: Gs.')
   // Sin cupón aplicado, esa línea no se imprime.
-  expect(mensaje).not.toContain('🎟️')
+  expect(mensaje).not.toContain('Cupón (')
 
   // 11 · el carrito queda vacío después de enviar el pedido.
   //

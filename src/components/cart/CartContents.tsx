@@ -6,8 +6,6 @@ import { Price } from '@/components/ui/Price'
 import { useCart, resolveLines, totalsOf, lineKey } from '@/lib/cart'
 import { useUi } from '@/lib/ui'
 import { useI18n } from '@/lib/i18n/context'
-import { formatMoney } from '@/lib/money'
-import { RULES } from '@/config/site'
 
 function Stepper({
   qty,
@@ -162,25 +160,6 @@ export function CartContents({
       </ul>
 
       <div className="border-t border-rule bg-surface px-5 py-5">
-        {/* Medidor de envío bonificado: 1 px, sin relleno de color. */}
-        {totals.toFreeShippingUsd > 0 ? (
-          <div className="mb-4">
-            <p className="u-label mb-2">
-              {t('cart.shipping.toFree', { amount: formatMoney(totals.toFreeShippingUsd, 'USD') })}
-            </p>
-            <div className="h-px w-full bg-rule">
-              <div
-                className="h-px bg-accent transition-[width] duration-500 ease-rail"
-                style={{
-                  width: `${Math.min(100, Math.round((totals.subtotalUsd / RULES.freeShippingUsd) * 100))}%`,
-                }}
-              />
-            </div>
-          </div>
-        ) : (
-          <p className="u-label mb-4 text-accent">{t('cart.shipping.qualified')}</p>
-        )}
-
         <dl>
           <div className="u-spec">
             <dt>{t('cart.subtotal')}</dt>
@@ -188,21 +167,11 @@ export function CartContents({
               <Price usd={totals.subtotalUsd} />
             </dd>
           </div>
-          <div className="u-spec">
-            <dt>{t('cart.shipping')}</dt>
-            <dd>
-              {totals.shippingUsd === 0 ? (
-                t('cart.shipping.free')
-              ) : (
-                <Price usd={totals.shippingUsd} />
-              )}
-            </dd>
-          </div>
+          {/* El envío no tiene importe en ninguna pantalla: depende del peso
+              y del destino y se cierra en la conversación. */}
           <div className="u-spec border-b-0">
-            <dt className="text-fg">{t('cart.total')}</dt>
-            <dd className="text-base font-medium">
-              <Price usd={totals.totalUsd} />
-            </dd>
+            <dt>{t('cart.shipping')}</dt>
+            <dd className="text-fg-mid">{t('cart.shipping.toArrange')}</dd>
           </div>
         </dl>
 

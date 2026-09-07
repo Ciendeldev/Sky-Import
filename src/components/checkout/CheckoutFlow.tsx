@@ -14,7 +14,6 @@ import {
   checkCoupon,
   fetchZones,
   placeOrder,
-  shippingFor,
   type Zone,
 } from '@/lib/checkout'
 import type { DictKey } from '@/lib/i18n/dictionary'
@@ -80,8 +79,9 @@ export function CheckoutFlow() {
 
   const discountUsd = coupon ? Math.min(coupon.discountUsd, subtotalUsd) : 0
   const netUsd = subtotalUsd - discountUsd
-  const shippingUsd = shippingFor(zone, netUsd)
-  const totalUsd = netUsd + shippingUsd
+  // El envío no entra en la cuenta: no tiene importe hasta que se acuerda por
+  // WhatsApp. El total que se muestra es el de las piezas, y así se rotula.
+  const totalUsd = netUsd
 
   if (!hydrated) {
     return (
@@ -203,7 +203,6 @@ export function CheckoutFlow() {
       subtotalUsd,
       discountUsd,
       couponCode: coupon?.code,
-      shippingUsd,
       zoneName: zone ? zone.name[locale] : '',
       totalUsd,
       customer: {
@@ -277,16 +276,20 @@ export function CheckoutFlow() {
 
         <div className="u-spec">
           <dt>{t('cart.shipping')}</dt>
-          <dd>{shippingUsd === 0 ? t('cart.shipping.free') : <Price usd={shippingUsd} />}</dd>
+          <dd className="text-fg-mid">{t('cart.shipping.toArrange')}</dd>
         </div>
 
         <div className="u-spec border-b-0">
-          <dt className="text-fg">{t('cart.total')}</dt>
+          <dt className="text-fg">{t('checkout.totalWithoutShipping')}</dt>
           <dd className="text-base font-medium">
             <Price usd={totalUsd} />
           </dd>
         </div>
       </dl>
+
+      <p className="u-label mt-3 leading-relaxed normal-case tracking-normal">
+        {t('cart.shipping.note')}
+      </p>
 
       <p className="u-label mt-4 leading-relaxed normal-case tracking-normal">
         {t('checkout.howItWorks')}
@@ -393,12 +396,8 @@ export function CheckoutFlow() {
                 aria-live="polite"
               >
                 <span className="min-w-0 flex-1">{zone.note[locale]}</span>
-                <span className="font-mono text-[0.75rem] tabular-nums text-fg">
-                  {shippingFor(zone, netUsd) === 0 ? (
-                    t('cart.shipping.free')
-                  ) : (
-                    <Price usd={zone.costUsd} />
-                  )}
+                <span className="font-mono text-[0.75rem] text-fg-mid">
+                  {t('cart.shipping.toArrange')}
                 </span>
               </p>
             ) : null}

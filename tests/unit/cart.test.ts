@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { RULES } from '@/config/site'
 import { useCart, resolveLines, totalsOf } from '@/lib/cart'
 import { PRODUCTS } from '@/lib/catalog/products'
 
@@ -66,29 +65,23 @@ describe('carrito', () => {
 })
 
 describe('totales', () => {
-  it('cobra envío por debajo del umbral y lo bonifica al alcanzarlo', () => {
-    const barato = totalsOf(resolveLines([{ slug: paste.slug, qty: 1 }]))
-    expect(barato.shippingUsd).toBe(RULES.shippingUsd)
-    expect(barato.toFreeShippingUsd).toBe(RULES.freeShippingUsd - paste.priceUsd)
-
-    const caro = totalsOf(resolveLines([{ slug: gpu.slug, qty: 1 }]))
-    expect(gpu.priceUsd).toBeGreaterThanOrEqual(RULES.freeShippingUsd)
-    expect(caro.shippingUsd).toBe(0)
-    expect(caro.toFreeShippingUsd).toBe(0)
-  })
-
-  it('un carrito vacío no cobra envío', () => {
-    const totals = totalsOf([])
-    expect(totals).toMatchObject({ count: 0, subtotalUsd: 0, shippingUsd: 0, totalUsd: 0 })
-  })
-
-  it('el total es la suma de las líneas más el envío', () => {
-    const resolved = resolveLines([
-      { slug: paste.slug, qty: 2 },
-    ])
-    const totals = totalsOf(resolved)
+  /**
+   * El carrito ya no estima el envío. No puede: el flete depende de la ciudad,
+   * y la ciudad se elige en el checkout. Antes cobraba una tarifa general y la
+   * regalaba por encima de un umbral, y las dos cosas eran falsas.
+   */
+  it('suma las líneas y nada más', () => {
+    const totals = totalsOf(resolveLines([{ slug: paste.slug, qty: 2 }]))
     expect(totals.subtotalUsd).toBe(paste.priceUsd * 2)
-    expect(totals.totalUsd).toBe(totals.subtotalUsd + totals.shippingUsd)
     expect(totals.count).toBe(2)
+  })
+
+  it('un carrito vacío está en cero', () => {
+    expect(totalsOf([])).toEqual({ count: 0, subtotalUsd: 0 })
+  })
+
+  it('no expone ningún total con envío que después haya que corregir', () => {
+    const totals = totalsOf(resolveLines([{ slug: gpu.slug, qty: 1 }]))
+    expect(Object.keys(totals).sort()).toEqual(['count', 'subtotalUsd'])
   })
 })

@@ -98,7 +98,7 @@ test('un cupón válido descuenta del total', async ({ page, context }) => {
   }
 
   const mensaje = decodeURIComponent(new URL(destino).searchParams.get('text') ?? '')
-  expect(mensaje).toContain(`🎟️ Cupón (${CUPON})`)
+  expect(mensaje).toContain(`Cupón (${CUPON})`)
 })
 
 test('un cupón inexistente lo dice y no toca el total', async ({ page, context }) => {

@@ -20,6 +20,23 @@
  *      guion que el vendedor tiene que interpretar.
  *   4. Es un módulo **puro**: no toca el DOM, no lee estado global y no abre
  *      ventanas. Devuelve texto. Quien lo abre es el componente.
+ *   5. **Ningún emoji. Solo caracteres del plano básico.**
+ *
+ *      Los mensajes llegaban con un rombo con interrogación en el lugar de
+ *      cada emoji. El código fuente estaba limpio y el paquete compilado
+ *      también —se comprobaron los dos, byte a byte—, así que lo que se rompe
+ *      está en el traspaso del enlace del navegador a la aplicación: fuera de
+ *      este proyecto y fuera de su alcance.
+ *
+ *      Pero la captura del cliente dejó una pista que sí sirve. El filete y el
+ *      punto medio llegaron PERFECTOS, y todos los emojis llegaron rotos. Los
+ *      dos primeros viven en el plano básico —tres bytes o menos en UTF-8—;
+ *      los emojis, fuera de él. Así que la regla no es una corazonada: entra
+ *      solo lo que ya demostró sobrevivir el viaje.
+ *
+ *      La estructura la llevan la negrita de WhatsApp, la sangría y los
+ *      filetes. Un mensaje de venta que llega con veinte rombos negros da
+ *      peor impresión que uno sobrio que llega intacto en cualquier teléfono.
  */
 
 import { CONTACT, SITE } from '@/config/site'
@@ -48,14 +65,24 @@ export function pyg(usd: number): string {
   return groupThousands(convert(usd, 'PYG'))
 }
 
-/** Los índices de las líneas del pedido, como los escribe WhatsApp. */
-const KEYCAPS = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'] as const
-
+/**
+ * Numeración de las líneas del pedido.
+ *
+ * Eran teclas de emoji, que son tres codepoints cada una y llegaban
+ * rotas. Un número y un punto se leen igual y no se rompen en ningún lado.
+ */
 function keycap(index: number): string {
-  return KEYCAPS[index] ?? `${index + 1}.`
+  return `${index + 1}.`
 }
 
 const RULE = '━━━━━━━━━━━━━━━━━━'
+
+/**
+ * Viñeta de dato. Punto medio (U+00B7): late en latín-1 y llegó intacto en la
+ * captura del cliente, que es toda la prueba que hay de que un carácter
+ * sobrevive el viaje hasta WhatsApp.
+ */
+const DOT = '·'
 
 /** Enlace `wa.me` con el mensaje ya codificado. */
 export function whatsappUrl(message: string): string {
@@ -87,18 +114,19 @@ export function productMessage(input: ProductMessageInput): string {
   const titulo = variantLabel ? `${name} (Var: ${variantLabel})` : name
 
   return [
-    '¡Hola! 👋 Me interesa este producto de *Sky Import*:',
+    '¡Hola! Me interesa este producto de *Sky Import*',
     '',
-    '🛍️ *PRODUCTO*',
+    '*PRODUCTO*',
     RULE,
-    `📌 *${titulo}*`,
-    `🏷️ Cód. ${sku}   ✖️ ${qty} u.`,
-    `💵 Precio: Gs. ${pyg(unitPriceUsd)}`,
-    `🔗 Link: ${productUrl(slug, locale)}`,
+    `*${titulo}*`,
+    `${DOT} Código: ${sku}`,
+    `${DOT} Cantidad: ${qty} u.`,
+    `${DOT} Precio: Gs. ${pyg(unitPriceUsd)}`,
+    `${DOT} Link: ${productUrl(slug, locale)}`,
     RULE,
-    `💰 *TOTAL: Gs. ${pyg(unitPriceUsd * qty)}*`,
+    `*TOTAL: Gs. ${pyg(unitPriceUsd * qty)}*`,
     '',
-    '✅ ¿Me confirman si tienen disponible para coordinar la entrega?',
+    '¿Me confirman si tienen disponible para coordinar la entrega?',
   ].join('\n')
 }
 
@@ -119,7 +147,6 @@ export interface OrderMessageInput {
   /** Descuento en USD. Si es 0 o no hay código, la línea del cupón no se imprime. */
   discountUsd?: number
   couponCode?: string
-  shippingUsd: number
   /** Nombre de la zona tal como se le mostró al cliente. */
   zoneName: string
   totalUsd: number
@@ -143,18 +170,17 @@ export function orderMessage(input: OrderMessageInput): string {
     subtotalUsd,
     discountUsd = 0,
     couponCode,
-    shippingUsd,
     zoneName,
     totalUsd,
     customer,
     orderNumber,
   } = input
 
-  const out: string[] = ['¡Hola! 👋 Quiero confirmar este pedido de *Sky Import*']
+  const out: string[] = ['¡Hola! Quiero confirmar este pedido de *Sky Import*']
 
-  if (orderNumber) out.push('', `📄 Pedido ${orderNumber}`)
+  if (orderNumber) out.push('', `Pedido ${orderNumber}`)
 
-  out.push('', '🛍️ *MI PEDIDO*', RULE)
+  out.push('', '*MI PEDIDO*', RULE)
 
   lines.forEach((line, i) => {
     // Una línea en blanco entre piezas: en WhatsApp, sin ella, el bloque se
@@ -164,32 +190,36 @@ export function orderMessage(input: OrderMessageInput): string {
       ? `*${line.name}* (Var: ${line.variantLabel})`
       : `*${line.name}*`
     out.push(`${keycap(i)} ${titulo}`)
-    out.push(`     🏷️ Cód. ${line.sku}   ✖️ ${line.qty} u.   💵 Gs. ${pyg(line.subtotalUsd)}`)
+    out.push(`   ${DOT} Código: ${line.sku}`)
+    out.push(`   ${DOT} Cantidad: ${line.qty} u.  —  Gs. ${pyg(line.subtotalUsd)}`)
   })
 
   out.push(RULE)
-  out.push(`📦 Subtotal: Gs. ${pyg(subtotalUsd)}`)
+  out.push(`Subtotal: Gs. ${pyg(subtotalUsd)}`)
 
   // El cupón solo existe en el mensaje si de verdad descontó algo.
   if (discountUsd > 0 && couponCode) {
-    out.push(`🎟️ Cupón (${couponCode.toUpperCase()}): -Gs. ${pyg(discountUsd)}`)
+    out.push(`Cupón (${couponCode.toUpperCase()}): −Gs. ${pyg(discountUsd)}`)
   }
 
-  out.push(`🚚 Envío (${zoneName}): ${shippingUsd > 0 ? `Gs. ${pyg(shippingUsd)}` : '¡Gratis!'}`)
-  out.push(`💰 *TOTAL: Gs. ${pyg(totalUsd)}*`)
+  // El envío no lleva importe: depende del peso y del destino, y se cierra en
+  // esta misma conversación. El total se rotula por lo que de verdad es —las
+  // piezas— para que nadie lo lea como el importe final a pagar.
+  out.push(`Envío a ${zoneName}: lo coordinamos por acá`)
+  out.push(`*TOTAL DE LAS PIEZAS: Gs. ${pyg(totalUsd)}*`)
 
-  out.push('', '👤 *DATOS DE ENTREGA*')
-  out.push(`• Nombre: ${customer.firstName} ${customer.lastName}`.trimEnd())
-  out.push(`• Teléfono: ${customer.phone}`)
+  out.push('', RULE, '*DATOS DE ENTREGA*')
+  out.push(`${DOT} Nombre: ${customer.firstName} ${customer.lastName}`.trimEnd())
+  out.push(`${DOT} Teléfono: ${customer.phone}`)
 
   // Dirección y ciudad viajan juntas en una línea; en retiro por el local no
   // hay dirección que poner, así que se imprime la zona y nada más.
   const destino = [customer.address, customer.city].map((v) => v?.trim()).filter(Boolean).join(', ')
-  out.push(`• Ciudad / Dirección: ${destino || zoneName}`)
+  out.push(`${DOT} Ciudad / Dirección: ${destino || zoneName}`)
 
-  if (customer.notes?.trim()) out.push(`• Notas: ${customer.notes.trim()}`)
+  if (customer.notes?.trim()) out.push(`${DOT} Notas: ${customer.notes.trim()}`)
 
-  out.push('', '✅ ¿Me confirman el pedido y los datos para concretar el pago?')
+  out.push('', '¿Me confirman el pedido y coordinamos la entrega?')
 
   return out.join('\n')
 }
