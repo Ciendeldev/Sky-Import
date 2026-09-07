@@ -141,9 +141,23 @@ export function HomeView() {
 
           {/* La pieza desborda el margen: no está encajonada. La foto es lo
               primero que se ve de la tienda, así que carga con prioridad y sus
-              cotas se superponen encima en vez de sustituirla. */}
+              cotas se superponen encima en vez de sustituirla.
+
+              La caja es CUADRADA y va topada. Era 4:3, y como las fotos del
+              catálogo son cuadradas, `object-contain` dejaba un cuarto del
+              ancho en vacío a cada lado: la placa quedaba chica en el centro y
+              —peor— las cotas, que se dibujan contra los bordes de la caja, se
+              despegaban del producto y flotaban sobre la nada. En una pantalla
+              de 1880 px eso se ve como basura suelta alrededor del titular.
+
+              Cuadrada, la foto llena el marco exacto y las cotas vuelven a
+              medir lo que dicen medir. El tope de 38rem evita que en pantallas
+              muy anchas el primer viewport crezca hasta no entrar de una vez. */}
           <div className="relative lg:col-span-6 xl:col-span-7 lg:-mr-[6vw]">
-            <div ref={heroArt} className="relative aspect-[4/3] rounded-part">
+            <div
+              ref={heroArt}
+              className="relative mx-auto aspect-square w-full max-w-[38rem] rounded-part lg:ml-auto lg:mr-0"
+            >
               <ProductPhoto
                 product={HERO_GPU}
                 priority
