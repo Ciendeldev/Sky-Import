@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ProductPhoto } from '@/components/product/ProductPhoto'
+import { PhotoAssembly } from '@/components/home/PhotoAssembly'
 import { Price } from '@/components/ui/Price'
 import { Reveal } from '@/components/ui/Reveal'
 import { PRODUCT_BY_SLUG } from '@/lib/catalog/products'
@@ -10,16 +10,19 @@ import { useI18n } from '@/lib/i18n/context'
 /**
  * LA PIEZA MÁS CARA DEL CATÁLOGO, EN GRANDE
  *
- * Acá vivía un despiece 3D de una placa de video construida con geometría de
- * código: siete capas que se separaban con el scroll. Era una demostración
- * técnica honesta y estaba bien hecha, pero enseñaba **un dibujo**, y esta es
- * una tienda de importación: lo que tiene que ver quien entra es la pieza que
- * le van a entregar, no una interpretación de ella. Un cliente que compara
- * precios de una 5080 no quiere admirar un render; quiere reconocer la placa.
+ * Acá vivía un despiece 3D de una placa construida con geometría de código:
+ * siete capas que se separaban con el scroll. La INTERACCIÓN era lo mejor de
+ * la portada; el objeto, no. Era un dibujo, y esta es una tienda de
+ * importación: quien entra tiene que ver la pieza que le van a entregar, no
+ * una interpretación de ella.
  *
- * Se retiró junto con `GpuAssembly` y su dependencia de WebGL en la portada.
- * three.js sigue en el proyecto para el armado de la sección «Arma tu PC»,
- * donde el 3D sí aporta algo que una foto no puede: el orden del montaje.
+ * Se quitaron las dos cosas de golpe y la sección quedó muerta: una foto
+ * quieta y nada más. Vuelve el montaje, pero sobre la fotografía real —ver
+ * `PhotoAssembly`, que corta la imagen en franjas y las junta al desplazar—.
+ * Se recupera lo que valía y se deja fuera lo que sobraba.
+ *
+ * three.js sigue en el proyecto para «Arma tu PC», donde el 3D sí aporta algo
+ * que una foto no puede: el orden del montaje de una máquina entera.
  *
  * Las fichas técnicas salen del catálogo tipado, no están escritas acá: si
  * mañana cambia el largo o el consumo de la placa, esta sección cambia sola.
@@ -90,18 +93,11 @@ export function AssemblySection() {
 
         <div className="lg:col-span-8">
           <Reveal>
-            <div className="u-plate relative aspect-[4/3] overflow-hidden rounded-part border border-rule bg-surface-sunk lg:aspect-[16/11]">
-              <ProductPhoto
-                product={product}
-                sizes="(min-width: 1024px) 62vw, 100vw"
-                className="absolute inset-0"
-                imageClassName="h-full w-full object-contain p-8 lg:p-12"
-              />
-              <p className="u-label absolute bottom-4 left-4 flex items-center gap-2">
-                <span className="inline-block h-px w-6 bg-accent" aria-hidden="true" />
-                {t('assembly.hint')}
-              </p>
-            </div>
+            <PhotoAssembly
+              product={product}
+              hint={t('assembly.hint')}
+              className="u-plate aspect-[4/3] overflow-hidden rounded-part border border-rule bg-surface-sunk lg:aspect-[16/11]"
+            />
           </Reveal>
         </div>
       </div>

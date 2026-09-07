@@ -113,8 +113,8 @@ const es = {
   'assembly.eyebrow': 'La pieza mayor',
   'assembly.cta': 'Ver la ficha completa',
   'assembly.note':
-    'Fotografía del producto real, no un render. Si al llegar la unidad tuviera otra revisión de fábrica, te lo decimos antes de cerrar.',
-  'assembly.hint': 'Foto del producto real',
+    'Se monta con el desplazamiento, y lo que se arma es la fotografía del producto real, no un render. Si al llegar la unidad tuviera otra revisión de fábrica, te lo decimos antes de cerrar.',
+  'assembly.hint': 'Desplazá para montarla',
 
   // ─────────────────────────────────────────────────────────────────── catálogo
   'catalog.title': 'Catálogo',
@@ -465,8 +465,8 @@ const pt: Record<DictKey, string> = {
   'assembly.eyebrow': 'A peça maior',
   'assembly.cta': 'Ver a ficha completa',
   'assembly.note':
-    'Fotografia do produto real, não um render. Se a unidade chegar com outra revisão de fábrica, avisamos antes de fechar.',
-  'assembly.hint': 'Foto do produto real',
+    'Monta-se com a rolagem, e o que se arma é a fotografia do produto real, não um render. Se a unidade chegar com outra revisão de fábrica, avisamos antes de fechar.',
+  'assembly.hint': 'Role para montá-la',
 
   'catalog.title': 'Catálogo',
   'catalog.eyebrow': 'Manifesto de peças',

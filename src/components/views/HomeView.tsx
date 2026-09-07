@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic'
 import { useRef } from 'react'
 
 import { FieldPatch } from '@/components/background/FieldPatch'
-import { ComponentDims } from '@/components/render/ComponentRender'
+import { PhotoDims } from '@/components/home/PhotoDims'
 import { ProductPhoto } from '@/components/product/ProductPhoto'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { AssemblySection } from '@/components/home/AssemblySection'
@@ -175,16 +175,14 @@ export function HomeView() {
                 priority
                 sizes="(min-width: 1280px) 58vw, (min-width: 1024px) 50vw, 92vw"
               />
-              <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-                <ComponentDims
-                  dims={[
-                    HERO_GPU.compat.kind === 'gpu' ? `${HERO_GPU.compat.lengthMm} mm` : '',
-                    HERO_GPU.compat.kind === 'gpu' ? `${HERO_GPU.compat.tgpW} W` : '',
-                    HERO_GPU.compat.kind === 'gpu' ? HERO_GPU.compat.bus : '',
-                  ].filter(Boolean)}
-                  className="h-full w-full"
-                />
-              </div>
+              <PhotoDims
+                {...(HERO_GPU.compat.kind === 'gpu'
+                  ? {
+                      main: `${HERO_GPU.compat.lengthMm} mm`,
+                      notes: [`${HERO_GPU.compat.tgpW} W`, HERO_GPU.compat.bus],
+                    }
+                  : { notes: [] })}
+              />
               <span className="u-sweep" aria-hidden="true" />
             </div>
           </div>
