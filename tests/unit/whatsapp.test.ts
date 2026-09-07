@@ -22,14 +22,14 @@ describe('importes y datos del pedido', () => {
   it('conserva cantidades, SKU, número y datos del cliente separados del resumen', () => {
     const message = orderMessage(order)
     expect(message).toContain('*Pedido SI-1042*')
-    expect(message).toContain('1. *GeForce RTX 5080 16 GB*')
-    expect(message).toContain('Código: SI-VGA-0112')
-    expect(message).toContain('Cantidad: 2 u.')
-    expect(message).toContain('Total del artículo: Gs. 18.485.000')
-    expect(message).toContain('*TOTAL DE LAS PIEZAS: Gs. 18.485.000*')
-    expect(message).toContain('Nombre: Ana Giménez')
-    expect(message).toContain('Teléfono: +595 981 111 222')
-    expect(message).toContain('Ciudad / Dirección: Av. España 1234, Asunción')
+    expect(message).toContain('🛒 2 × *GeForce RTX 5080 16 GB*')
+    expect(message).toContain('· SI-VGA-0112')
+    expect(message).toContain('2 ×')
+    expect(message).toContain('— Gs. 18.485.000')
+    expect(message).toContain('*Total: Gs. 18.485.000*')
+    expect(message).toContain('👤 Ana Giménez')
+    expect(message).toContain('· +595 981 111 222')
+    expect(message).toContain('📍 Asunción · Av. España 1234')
   })
   it('incluye variantes sin perder los códigos', () => {
     expect(productMessage({ ...product, variantLabel: 'Blanco' })).toContain('(Var: Blanco)')
@@ -40,16 +40,15 @@ describe('importes y datos del pedido', () => {
     expect(orderMessage({ ...order, couponCode: 'sky10', discountUsd: 0 })).not.toContain('Cupón (')
     const message = orderMessage({ ...order, couponCode: 'sky10', discountUsd: 249.8, totalUsd: 2248.2 })
     expect(message).toContain('Cupón (SKY10): −Gs. 1.849.000')
-    expect(message).toContain('*TOTAL DE LAS PIEZAS: Gs. 16.637.000*')
+    expect(message).toContain('*Total: Gs. 16.637.000*')
   })
   it('el envío no promete una tarifa ni se confunde con el total', () => {
-    expect(orderMessage(order)).toContain('Envío a coordinar, no incluido en el total de las piezas.')
+    expect(orderMessage(order)).toContain('Envío a coordinar, no incluido.')
     expect(orderMessage(order)).not.toMatch(/gratis|bonificado/i)
   })
   it('el retiro no aparece como un envío ni arrastra la dirección anterior', () => {
     const message = orderMessage({ ...order, deliveryMode: 'pickup', zoneName: 'Retiro en el local' })
-    expect(message).toContain('🏬 *RETIRO EN EL LOCAL*')
-    expect(message).toContain('Coordinamos el horario')
+    expect(message).toContain('🏬 Retiro en el local')
     expect(message).not.toMatch(/Envío|Ciudad \/ Dirección|Av. España/)
   })
   it('omite número y notas vacíos', () => {
@@ -57,7 +56,7 @@ describe('importes y datos del pedido', () => {
     expect(message).not.toContain('*Pedido SI-')
     expect(message).not.toContain('*NOTAS*')
     expect(message).not.toContain('undefined')
-    expect(orderMessage({ ...order, customer: { ...order.customer, notes: ' Tocar timbre ' } })).toContain('📝 *NOTAS*\nTocar timbre')
+    expect(orderMessage({ ...order, customer: { ...order.customer, notes: ' Tocar timbre ' } })).toContain('📝 Tocar timbre')
   })
 })
 
@@ -74,8 +73,8 @@ describe('idioma y estructura', () => {
       expect(message).not.toContain('\uFFFD')
     }
     expect(direct).toContain(locale === 'pt' ? '*PRODUTO*' : '*PRODUCTO*')
-    expect(checkout).toContain(locale === 'pt' ? '*MEU PEDIDO*' : '*MI PEDIDO*')
-    expect(checkout).toContain(locale === 'pt' ? 'Quantidade: 2' : 'Cantidad: 2')
+    expect(checkout).toContain('*Pedido SI-1042*')
+    expect(checkout).toContain('🛒 2 ×')
     expect(checkout).toContain(locale === 'pt' ? 'Frete a combinar' : 'Envío a coordinar')
     expect(direct).toContain('/' + locale + '/producto/')
     expect(DICTIONARY[locale]['wa.generic']).toBe(greeting)
@@ -116,5 +115,22 @@ describe('enlaces', () => {
     ['+55 45 99999 8888', '5545999998888'],
   ])('normaliza %s sin perder el país', (raw, expected) => {
     expect(waPhone(raw)).toBe(expected)
+  })
+})
+
+describe('pedido compacto', () => {
+  it('evita encabezados, subtotal redundante y ciudad duplicada', () => {
+    const message = orderMessage(order)
+    expect(message.split('\n').length).toBeLessThanOrEqual(10)
+    expect(message.length).toBeLessThan(520)
+    expect(message).not.toContain('Subtotal:')
+    expect(message).not.toMatch(/RESUMEN|DATOS DE/)
+    expect(message.match(/Asunción/g)).toHaveLength(1)
+  })
+  it('conserva todas las líneas y descuentos sin código', () => {
+    const message = orderMessage({ ...order, lines: [...order.lines, { name: 'Cable', sku: 'SI-CAB-1', qty: 3, subtotalUsd: 10 }], discountUsd: 100, totalUsd: 2408 })
+    expect(message).toContain('🛒 3 × *Cable* · SI-CAB-1')
+    expect(message).toContain('Descuento: −Gs. 740.000')
+    expect(message).toContain('Subtotal:')
   })
 })

@@ -70,3 +70,10 @@ export function supabaseAdmin() {
     auth: { persistSession: false, autoRefreshToken: false },
   })
 }
+
+/** Reautenticación aislada: comprobar una clave nunca reemplaza las cookies del operador. */
+export function supabasePasswordCheck() {
+  return createClient<Database>(URL, ANON, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  })
+}

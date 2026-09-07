@@ -164,6 +164,7 @@
 }
 
 .a-nav a {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 0.625rem;
@@ -492,3 +493,41 @@ textarea.a-field {
     transition: none;
   }
 }
+
+/* Configuración: misma distribución de cuenta, contraseña y usuarios en móvil y escritorio. */
+.a-settings { max-width: 1280px; margin: 0 auto; display: grid; gap: 24px; }
+.a-settings-intro { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 4px; }
+.a-account-heading { display: flex; align-items: center; gap: 12px; padding: 18px 24px; border-bottom: 1px solid var(--rule); }
+.a-account-heading h2 { font-size: 16px; font-weight: 600; }
+.a-account-heading svg { flex: none; color: var(--fg-mid); }
+.a-account-count { margin-left: auto; font-size: 12px; color: var(--fg-mid); }
+.a-account-body { padding: 24px; }
+.a-account-divider { border-top: 1px solid var(--rule); }
+.a-account-subtitle { font-size: 15px; font-weight: 600; margin-bottom: 20px; }
+.a-account-footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 20px; }
+.a-account-footer .a-hint { max-width: 64ch; margin: 0; }
+.a-account-footer .a-btn { flex-shrink: 0; }
+.a-account-profile dd { overflow-wrap: anywhere; font-size: 14px; }
+.a-users-table td:last-child, .a-users-table th:last-child { text-align: right; }
+.a-users-table th { position: static; padding: 14px 24px; }
+.a-users-table td { padding: 16px 24px; }
+.a-settings .a-label { font-family: var(--font-display); font-size: 12px; text-transform: none; letter-spacing: 0; }
+.a-settings .a-hint { color: var(--fg-mid); }
+.a-settings .a-btn { font-family: var(--font-display); font-size: 13px; text-transform: none; letter-spacing: 0; min-height: 44px; }
+.a-settings .a-btn:disabled { opacity: 1; background: transparent; color: var(--fg-low); border-color: var(--rule); }
+.a-settings .a-field:disabled { color: var(--fg-mid); opacity: 1; }
+.a-settings .a-tag--ok { color: var(--fg-hi); }
+.a-settings .a-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (min-width: 1100px) { .a-account-create { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 640px) and (max-width: 1099px) { .a-account-create { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 639px) {
+  .a-account-heading { padding: 16px; }
+  .a-account-body { padding: 16px; }
+  .a-account-footer { align-items: stretch; flex-direction: column; gap: 12px; }
+  .a-settings .a-field { font-size: 16px; }
+  .a-settings-intro { align-items: flex-start; }
+  .a-users-table { min-width: 760px; }
+}
+
+.a-users-scroll-hint { display: none; }
+@media (max-width: 639px) { .a-users-scroll-hint { display: block; padding: 0 16px 12px; } }

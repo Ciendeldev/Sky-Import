@@ -2,6 +2,7 @@ import 'server-only'
 
 import { cache } from 'react'
 import { supabaseServer, hasSupabase } from '@/lib/supabase/server'
+import { panelRole, USERNAME_PATTERN, type PanelRole } from './account-policy'
 
 /**
  * SESIÓN DE ADMINISTRADOR
@@ -26,15 +27,16 @@ export interface AdminSession {
   username: string
   fullName: string | null
   email: string
+  role: PanelRole
 }
 
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME ?? 'Cielo'
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'cielo@skyimport.local'
 
 /**
- * Traduce el nombre de usuario del panel al correo de la cuenta. Hoy hay un
- * único administrador; el día que haya varios, esto pasa a ser una consulta a
- * `admin_users` y nada más cambia.
+ * Traduce el usuario al correo interno. La cuenta original conserva el
+ * correo configurado. Las nuevas usan un correo
+ * interno determinista: Supabase garantiza su unicidad incluso con altas simultáneas.
  */
 export function emailForUsername(username: string): string | null {
   const limpio = username.trim()
@@ -42,6 +44,7 @@ export function emailForUsername(username: string): string | null {
   if (limpio.toLowerCase() === ADMIN_USERNAME.toLowerCase()) return ADMIN_EMAIL
   // Quien escriba el correo entero también entra: es útil y no abre nada.
   if (limpio.includes('@')) return limpio.toLowerCase()
+  if (USERNAME_PATTERN.test(limpio)) return limpio.toLowerCase() + '@users.skyimport.local'
   return null
 }
 
@@ -74,6 +77,7 @@ export const getAdminSession = cache(async (): Promise<AdminSession | null> => {
     username: admin.username,
     fullName: admin.full_name,
     email: user.email ?? '',
+    role: panelRole(user.app_metadata),
   }
 })
 
@@ -86,3 +90,10 @@ export async function requireAdmin(): Promise<AdminSession> {
 
 /** El nombre de usuario configurado, para mostrarlo en la pantalla de acceso. */
 export const adminUsernameHint = ADMIN_USERNAME
+
+/** El rol se relee de Auth validado; los datos editables del perfil no autorizan. */
+export async function requireModerator(): Promise<AdminSession> {
+  const session = await requireAdmin()
+  if (session.role !== 'moderator') throw new Error('NO_AUTORIZADO')
+  return session
+}

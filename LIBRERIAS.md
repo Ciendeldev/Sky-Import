@@ -165,3 +165,7 @@
 | TanStack Table | Datos | MIT | ⚠️ | Cuando el panel lo justifique |
 
 Leyenda: ✅ verificada en este proyecto · ⚠️ con condiciones · ❌ incompatible
+
+## Configuración de cuentas — 2026-09-07
+
+Formularios nativos React 19 con useActionState, tabla HTML y CSS del panel. Se mantiene el descarte de shadcn/Radix: no hace falta un contrato ARIA complejo; etiquetas, foco, estados pendientes y avisos usan HTML nativo. Cero dependencias, motor adicional o costo de licencia. Compatible con Next 16 y el presupuesto de 650 kB, que se verifica antes de publicar.

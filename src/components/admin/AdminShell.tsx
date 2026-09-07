@@ -25,6 +25,7 @@ const SECCIONES = [
   { href: '/admin/pedidos', label: 'Pedidos', icono: 'pedidos' },
   { href: '/admin/cupones', label: 'Cupones', icono: 'cupones' },
   { href: '/admin/precios', label: 'Precios', icono: 'precios' },
+  { href: '/admin/configuracion', label: 'Configuración', icono: 'configuracion' },
 ] as const satisfies readonly { href: string; label: string; icono: IconoPanel }[]
 
 export function AdminShell({

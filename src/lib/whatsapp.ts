@@ -99,7 +99,7 @@ export interface OrderMessageInput {
   deliveryMode?: 'shipping' | 'pickup'
   lines: OrderLineInput[]
   subtotalUsd: number
-  /** Descuento en USD. Si es 0 o no hay código, la línea del cupón no se imprime. */
+  /** Descuento en USD. Si es 0 no se imprime; el código del cupón es opcional. */
   discountUsd?: number
   couponCode?: string
   /** Nombre de la zona tal como se le mostró al cliente. */
@@ -120,54 +120,43 @@ export interface OrderMessageInput {
 }
 
 export function orderMessage(input: OrderMessageInput): string {
-  const {
-    lines, subtotalUsd, discountUsd = 0, couponCode, zoneName, totalUsd,
-    customer, orderNumber, locale = 'es', deliveryMode = 'shipping',
-  } = input
+  const { customer, locale = 'es', discountUsd = 0, couponCode } = input
   const pt = locale === 'pt'
-  const pickup = deliveryMode === 'pickup'
-  const fullName = [customer.firstName.trim(), customer.lastName.trim()].filter(Boolean).join(' ')
+  const heading = input.orderNumber ? `*Pedido ${input.orderNumber}*` : `*${pt ? 'Meu pedido' : 'Mi pedido'}*`
   const out = [
-    pt ? 'Olá, equipe da *Sky Import*! 👋' : '¡Hola, equipo de *Sky Import*! 👋',
-    pt ? 'Escolhi minhas peças no site e gostaria de confirmar o pedido.' : 'Ya elegí mis piezas en la web y quiero confirmar el pedido.',
+    `${pt ? 'Olá' : '¡Hola'}, Sky Import! 👋 ${heading}`,
+    '',
+    ...input.lines.map((line) => {
+      const variant = line.variantLabel ? ` (Var: ${line.variantLabel})` : ''
+      return `🛒 ${line.qty} × *${line.name}*${variant} · ${line.sku} — Gs. ${pyg(line.subtotalUsd)}`
+    }),
+    '',
   ]
-  if (orderNumber) out.push('', `🧾 *Pedido ${orderNumber}*`)
-  out.push('', pt ? '🛒 *MEU PEDIDO*' : '🛒 *MI PEDIDO*')
-
-  lines.forEach((line, i) => {
-    if (i > 0) out.push('')
-    const titulo = line.variantLabel ? `*${line.name}* (Var: ${line.variantLabel})` : `*${line.name}*`
-    out.push(`${i + 1}. ${titulo}`)
-    out.push(`   ${DOT} Código: ${line.sku}`)
-    out.push(`   ${DOT} ${pt ? 'Quantidade' : 'Cantidad'}: ${line.qty} u.`)
-    out.push(`   ${DOT} ${pt ? 'Total do item' : 'Total del artículo'}: Gs. ${pyg(line.subtotalUsd)}`)
-  })
-
-  out.push('', pt ? '💰 *RESUMO*' : '💰 *RESUMEN*')
-  out.push(`Subtotal: Gs. ${pyg(subtotalUsd)}`)
-  if (discountUsd > 0 && couponCode) {
-    out.push(`${pt ? 'Cupom' : 'Cupón'} (${couponCode.toUpperCase()}): −Gs. ${pyg(discountUsd)}`)
+  if (discountUsd > 0) {
+    out.push(`Subtotal: Gs. ${pyg(input.subtotalUsd)}`)
+    const label = couponCode?.trim()
+      ? `${pt ? 'Cupom' : 'Cupón'} (${couponCode.trim().toUpperCase()})`
+      : pt ? 'Desconto' : 'Descuento'
+    out.push(`${label}: −Gs. ${pyg(discountUsd)}`)
   }
-  out.push(`*${pt ? 'TOTAL DAS PEÇAS' : 'TOTAL DE LAS PIEZAS'}: Gs. ${pyg(totalUsd)}*`)
-
-  out.push('', pt ? '👤 *DADOS DE CONTATO*' : '👤 *DATOS DE CONTACTO*')
-  out.push(`${DOT} ${pt ? 'Nome' : 'Nombre'}: ${fullName}`)
-  out.push(`${DOT} ${pt ? 'Telefone' : 'Teléfono'}: ${customer.phone.trim()}`)
-
-  if (pickup) {
-    out.push('', pt ? '🏬 *RETIRADA NA LOJA*' : '🏬 *RETIRO EN EL LOCAL*', zoneName)
-    out.push(pt ? 'Combinamos o horário por aqui.' : 'Coordinamos el horario por acá.')
+  const fullName = [customer.firstName.trim(), customer.lastName.trim()].filter(Boolean).join(' ')
+  out.push(`💰 *Total: Gs. ${pyg(input.totalUsd)}*`, `👤 ${fullName} · ${customer.phone.trim()}`)
+  if (input.deliveryMode === 'pickup') {
+    out.push(pt ? '🏬 Retirada na loja' : '🏬 Retiro en el local')
   } else {
-    out.push('', pt ? '🚚 *DADOS DE ENTREGA*' : '🚚 *DATOS DE ENTREGA*')
-    out.push(`${DOT} ${pt ? 'Destino' : 'Zona'}: ${zoneName}`)
-    const destino = [customer.address, customer.city].map((v) => v?.trim()).filter(Boolean).join(', ')
-    if (destino) out.push(`${DOT} ${pt ? 'Cidade / Endereço' : 'Ciudad / Dirección'}: ${destino}`)
-    out.push(pt ? 'Frete a combinar, não incluído no total das peças.' : 'Envío a coordinar, no incluido en el total de las piezas.')
+    const seen = new Set<string>()
+    const destination = [input.zoneName, customer.city, customer.address].map(v => v?.trim()).filter((part): part is string => {
+      if (!part) return false
+      const key = part.replace(/\s+/g, ' ').toLowerCase()
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    if (destination.length) out.push(`📍 ${destination.join(' · ')}`)
+    out.push(pt ? '🚚 Frete a combinar, não incluído.' : '🚚 Envío a coordinar, no incluido.')
   }
-  if (customer.notes?.trim()) out.push('', pt ? '📝 *OBSERVAÇÕES*' : '📝 *NOTAS*', customer.notes.trim())
-  out.push('', pt
-    ? 'Podem confirmar a disponibilidade e me passar as instruções de pagamento? Obrigado! 🙌'
-    : '¿Me confirman la disponibilidad y me pasan los pasos para el pago? ¡Gracias! 🙌')
+  if (customer.notes?.trim()) out.push(`📝 ${customer.notes.trim()}`)
+  out.push('', pt ? 'Podem confirmar o estoque e como pagar? 🙌' : '¿Me confirman disponibilidad y cómo pagar? 🙌')
   return out.join('\n')
 }
 

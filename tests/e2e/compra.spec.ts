@@ -155,19 +155,19 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
   expect(url.searchParams.get('phone')).toBe(WHATSAPP)
 
   const mensaje = url.searchParams.get('text') ?? ''
-  expect(mensaje).toContain('*MI PEDIDO*')
-  expect(mensaje).toContain('1. ')
-  expect(mensaje).toContain('· Cantidad: 2 u.')
-  expect(mensaje).toContain('*DATOS DE ENTREGA*')
-  expect(mensaje).toContain('· Nombre: Ana Giménez')
-  expect(mensaje).toContain('· Teléfono: +595 981 111 222')
+  expect(mensaje).toContain('*Pedido SI-PRUEBA*')
+  expect(mensaje).toContain('🛒 2 × *GeForce RTX 5070 12 GB*')
+  expect(mensaje).toContain('· SI-VGA-0124 — Gs.')
+  expect(mensaje).toContain('📍 ')
+  expect(mensaje).toContain('👤 Ana Giménez')
+  expect(mensaje).toContain('· +595 981 111 222')
   expect(mensaje).toContain('Av. España 1234')
-  expect(mensaje).toContain('📝 *NOTAS*\nTocar timbre')
-  expect(mensaje).toContain(`Zona: ${zonaElegida}`)
-  expect(mensaje).toContain('Envío a coordinar, no incluido en el total de las piezas.')
+  expect(mensaje).toContain('📝 Tocar timbre')
+  expect(mensaje).toContain(`📍 ${zonaElegida}`)
+  expect(mensaje).toContain('Envío a coordinar, no incluido.')
   expect(mensaje).toContain('👋')
   expect(mensaje).not.toContain('\uFFFD')
-  expect(mensaje).toContain('*TOTAL DE LAS PIEZAS: Gs.')
+  expect(mensaje).toContain('*Total: Gs.')
   // Sin cupón aplicado, esa línea no se imprime.
   expect(mensaje).not.toContain('Cupón (')
 
@@ -233,7 +233,7 @@ test('la tienda se indexa y el panel no', async ({ page }) => {
 })
 
 test('el panel exige sesión', async ({ page }) => {
-  await page.goto('/admin')
+  await page.goto('/admin/configuracion')
   // Sin sesión, cualquier ruta del panel lleva a la pantalla de acceso.
   await expect(page).toHaveURL(/\/admin\/acceso$/)
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Panel de administración')

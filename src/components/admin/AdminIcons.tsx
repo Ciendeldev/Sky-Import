@@ -79,12 +79,17 @@ function Precios() {
   )
 }
 
+function Configuracion() {
+  return <svg {...COMUN}><path d="M6 2h4l.5 2 1.8 1 1.8-.5 2 3.5-1.4 1.5v2l1.4 1.5-2 3.5-1.8-.5-1.8 1L10 18H6l-.5-2-1.8-1-1.8.5-2-3.5L1.3 10V8L-.1 6.5l2-3.5 1.8.5 1.8-1Z" transform="translate(2 0) scale(.75)" /><circle cx="8" cy="7.5" r="2" /></svg>
+}
+
 export const ICONOS = {
   tablero: Tablero,
   productos: Productos,
   pedidos: Pedidos,
   cupones: Cupones,
   precios: Precios,
+  configuracion: Configuracion,
 } as const
 
 export type IconoPanel = keyof typeof ICONOS

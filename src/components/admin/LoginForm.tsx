@@ -67,8 +67,7 @@ export function LoginForm() {
       <SubmitButton />
 
       <p className="a-hint mt-5">
-        Si perdiste el acceso, se restablece corriendo{' '}
-        <code className="a-num">scripts/crear-admin.mjs</code> con la clave de servicio.
+        Si perdiste el acceso, pedile al moderador que restablezca tu contraseña.
       </p>
     </form>
   )
