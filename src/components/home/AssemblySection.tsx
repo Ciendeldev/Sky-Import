@@ -1,32 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { PhotoAssembly } from '@/components/home/PhotoAssembly'
+import { AssemblyVisual } from '@/components/home/AssemblyVisual'
 import { Price } from '@/components/ui/Price'
 import { Reveal } from '@/components/ui/Reveal'
 import { PRODUCT_BY_SLUG } from '@/lib/catalog/products'
 import { useI18n } from '@/lib/i18n/context'
 
-/**
- * LA PIEZA MÁS CARA DEL CATÁLOGO, EN GRANDE
- *
- * Acá vivía un despiece 3D de una placa construida con geometría de código:
- * siete capas que se separaban con el scroll. La INTERACCIÓN era lo mejor de
- * la portada; el objeto, no. Era un dibujo, y esta es una tienda de
- * importación: quien entra tiene que ver la pieza que le van a entregar, no
- * una interpretación de ella.
- *
- * Se quitaron las dos cosas de golpe y la sección quedó muerta: una foto
- * quieta y nada más. Vuelve el montaje, pero sobre la fotografía real —ver
- * `PhotoAssembly`, que corta la imagen en franjas y las junta al desplazar—.
- * Se recupera lo que valía y se deja fuera lo que sobraba.
- *
- * three.js sigue en el proyecto para «Arma tu PC», donde el 3D sí aporta algo
- * que una foto no puede: el orden del montaje de una máquina entera.
- *
- * Las fichas técnicas salen del catálogo tipado, no están escritas acá: si
- * mañana cambia el largo o el consumo de la placa, esta sección cambia sola.
- */
+/** Despiece reversible con scroll; la ficha y los precios siguen viniendo del catálogo. */
 
 /** Las especificaciones que deciden si la placa entra en una máquina. */
 const CLAVES = ['16 GB GDDR7', 'PCIe 5.0 ×16', '360 W', '850 W', '336 mm', '3'] as const
@@ -48,7 +29,7 @@ export function AssemblySection() {
   return (
     <section className="u-page border-t border-rule py-24 lg:py-32" aria-labelledby="destacada">
       <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
-        <div className="lg:col-span-4">
+        <div className="self-start lg:sticky lg:top-24 lg:col-span-4">
           <Reveal>
             <p className="u-eyebrow">{t('assembly.eyebrow')}</p>
             <h2 id="destacada" className="u-display mt-5 text-[clamp(1.9rem,4vw,3rem)]">
@@ -92,13 +73,7 @@ export function AssemblySection() {
         </div>
 
         <div className="lg:col-span-8">
-          <Reveal>
-            <PhotoAssembly
-              product={product}
-              hint={t('assembly.hint')}
-              className="u-plate aspect-[4/3] overflow-hidden rounded-part border border-rule bg-surface-sunk lg:aspect-[16/11]"
-            />
-          </Reveal>
+          <AssemblyVisual product={product} />
         </div>
       </div>
     </section>

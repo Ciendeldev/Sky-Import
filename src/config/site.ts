@@ -52,7 +52,9 @@ export const CONTACT = {
 export const hasWhatsapp = CONTACT.whatsapp.length > 0
 
 export function whatsappLink(message: string): string {
-  return `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(message)}`
+  // El enlace corto wa.me altera caracteres astrales durante la redirección.
+  // La URL oficial directa conserva el texto al entregarlo a la app y a WhatsApp Web.
+  return `https://api.whatsapp.com/send?phone=${CONTACT.whatsapp}&text=${encodeURIComponent(message)}`
 }
 
 /**

@@ -1,45 +1,11 @@
-/**
- * PLANTILLAS DE WHATSAPP
- *
- * El único cierre de venta de la tienda. No hay pasarela: el pedido se arma
- * acá, se codifica con `encodeURIComponent` y se abre en la conversación.
- *
- * Dos formatos, y ninguno más:
- *
- *   · `productMessage` — compra directa desde la ficha, saltándose el carrito.
- *   · `orderMessage`   — pedido completo desde el checkout, con datos de entrega.
- *
- * Reglas que este módulo respeta:
- *
- *   1. **Todo importe va en guaraníes.** Es la moneda en la que se cierra la
- *      operación por WhatsApp, sin importar en cuál esté mirando la tienda.
- *   2. **El USD sigue siendo la fuente.** Cada monto entra en dólares y se
- *      convierte con la tasa vigente, una sola vez, acá.
- *   3. **Las líneas vacías no se imprimen.** Cupón, notas y dirección
- *      desaparecen del mensaje si no aplican, en vez de dejar un campo con un
- *      guion que el vendedor tiene que interpretar.
- *   4. Es un módulo **puro**: no toca el DOM, no lee estado global y no abre
- *      ventanas. Devuelve texto. Quien lo abre es el componente.
- *   5. **Ningún emoji. Solo caracteres del plano básico.**
- *
- *      Los mensajes llegaban con un rombo con interrogación en el lugar de
- *      cada emoji. El código fuente estaba limpio y el paquete compilado
- *      también —se comprobaron los dos, byte a byte—, así que lo que se rompe
- *      está en el traspaso del enlace del navegador a la aplicación: fuera de
- *      este proyecto y fuera de su alcance.
- *
- *      Pero la captura del cliente dejó una pista que sí sirve. El filete y el
- *      punto medio llegaron PERFECTOS, y todos los emojis llegaron rotos. Los
- *      dos primeros viven en el plano básico —tres bytes o menos en UTF-8—;
- *      los emojis, fuera de él. Así que la regla no es una corazonada: entra
- *      solo lo que ya demostró sobrevivir el viaje.
- *
- *      La estructura la llevan la negrita de WhatsApp, la sangría y los
- *      filetes. Un mensaje de venta que llega con veinte rombos negros da
- *      peor impresión que uno sobrio que llega intacto en cualquier teléfono.
+/** Plantillas de venta: bloques breves, emojis Unicode y negritas nativas.
+ * Importes derivados del USD y codificación UTF-8 una sola vez al crear el enlace.
+ * La vista previa externa puede sustituir emojis; el enlace oficial directo
+ * conserva el texto completo que reciben la aplicación y WhatsApp Web.
+ * Se generan en el idioma del cliente; envío y disponibilidad se confirman en la conversación.
  */
 
-import { CONTACT, SITE } from '@/config/site'
+import { SITE, whatsappLink } from '@/config/site'
 import { convert } from '@/lib/money'
 import type { Locale } from '@/lib/i18n/locales'
 
@@ -65,28 +31,11 @@ export function pyg(usd: number): string {
   return groupThousands(convert(usd, 'PYG'))
 }
 
-/**
- * Numeración de las líneas del pedido.
- *
- * Eran teclas de emoji, que son tres codepoints cada una y llegaban
- * rotas. Un número y un punto se leen igual y no se rompen en ningún lado.
- */
-function keycap(index: number): string {
-  return `${index + 1}.`
-}
-
-const RULE = '━━━━━━━━━━━━━━━━━━'
-
-/**
- * Viñeta de dato. Punto medio (U+00B7): late en latín-1 y llegó intacto en la
- * captura del cliente, que es toda la prueba que hay de que un carácter
- * sobrevive el viaje hasta WhatsApp.
- */
 const DOT = '·'
 
-/** Enlace `wa.me` con el mensaje ya codificado. */
+/** Una única ruta de salida evita que los CTA codifiquen el texto de formas distintas. */
 export function whatsappUrl(message: string): string {
-  return `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(message)}`
+  return whatsappLink(message)
 }
 
 /** URL pública y absoluta de una ficha — la que se pega en el mensaje. */
@@ -111,22 +60,26 @@ export interface ProductMessageInput {
 
 export function productMessage(input: ProductMessageInput): string {
   const { name, sku, slug, qty, unitPriceUsd, variantLabel, locale = 'es' } = input
+  const pt = locale === 'pt'
   const titulo = variantLabel ? `${name} (Var: ${variantLabel})` : name
 
   return [
-    '¡Hola! Me interesa este producto de *Sky Import*',
+    pt ? 'Olá, equipe da *Sky Import*! 👋' : '¡Hola, equipo de *Sky Import*! 👋',
+    pt ? 'Encontrei esta peça no site e gostaria de comprar:' : 'Vi esta pieza en la web y me gustaría comprarla:',
     '',
-    '*PRODUCTO*',
-    RULE,
+    pt ? '🖥️ *PRODUTO*' : '🖥️ *PRODUCTO*',
     `*${titulo}*`,
     `${DOT} Código: ${sku}`,
-    `${DOT} Cantidad: ${qty} u.`,
-    `${DOT} Precio: Gs. ${pyg(unitPriceUsd)}`,
-    `${DOT} Link: ${productUrl(slug, locale)}`,
-    RULE,
-    `*TOTAL: Gs. ${pyg(unitPriceUsd * qty)}*`,
+    `${DOT} ${pt ? 'Quantidade' : 'Cantidad'}: ${qty} u.`,
+    `${DOT} ${pt ? 'Preço unitário' : 'Precio unitario'}: Gs. ${pyg(unitPriceUsd)}`,
     '',
-    '¿Me confirman si tienen disponible para coordinar la entrega?',
+    `💰 *TOTAL: Gs. ${pyg(unitPriceUsd * qty)}*`,
+    '',
+    `🔗 ${productUrl(slug, locale)}`,
+    '',
+    pt
+      ? 'Podem confirmar a disponibilidade e me orientar sobre o pagamento e a entrega? Obrigado! 🙌'
+      : '¿Me confirman la disponibilidad y cómo coordinamos el pago y la entrega? ¡Gracias! 🙌',
   ].join('\n')
 }
 
@@ -142,6 +95,8 @@ export interface OrderLineInput {
 }
 
 export interface OrderMessageInput {
+  locale?: Locale
+  deliveryMode?: 'shipping' | 'pickup'
   lines: OrderLineInput[]
   subtotalUsd: number
   /** Descuento en USD. Si es 0 o no hay código, la línea del cupón no se imprime. */
@@ -166,61 +121,53 @@ export interface OrderMessageInput {
 
 export function orderMessage(input: OrderMessageInput): string {
   const {
-    lines,
-    subtotalUsd,
-    discountUsd = 0,
-    couponCode,
-    zoneName,
-    totalUsd,
-    customer,
-    orderNumber,
+    lines, subtotalUsd, discountUsd = 0, couponCode, zoneName, totalUsd,
+    customer, orderNumber, locale = 'es', deliveryMode = 'shipping',
   } = input
-
-  const out: string[] = ['¡Hola! Quiero confirmar este pedido de *Sky Import*']
-
-  if (orderNumber) out.push('', `Pedido ${orderNumber}`)
-
-  out.push('', '*MI PEDIDO*', RULE)
+  const pt = locale === 'pt'
+  const pickup = deliveryMode === 'pickup'
+  const fullName = [customer.firstName.trim(), customer.lastName.trim()].filter(Boolean).join(' ')
+  const out = [
+    pt ? 'Olá, equipe da *Sky Import*! 👋' : '¡Hola, equipo de *Sky Import*! 👋',
+    pt ? 'Escolhi minhas peças no site e gostaria de confirmar o pedido.' : 'Ya elegí mis piezas en la web y quiero confirmar el pedido.',
+  ]
+  if (orderNumber) out.push('', `🧾 *Pedido ${orderNumber}*`)
+  out.push('', pt ? '🛒 *MEU PEDIDO*' : '🛒 *MI PEDIDO*')
 
   lines.forEach((line, i) => {
-    // Una línea en blanco entre piezas: en WhatsApp, sin ella, el bloque se
-    // lee como un párrafo continuo y los códigos se pierden.
     if (i > 0) out.push('')
-    const titulo = line.variantLabel
-      ? `*${line.name}* (Var: ${line.variantLabel})`
-      : `*${line.name}*`
-    out.push(`${keycap(i)} ${titulo}`)
+    const titulo = line.variantLabel ? `*${line.name}* (Var: ${line.variantLabel})` : `*${line.name}*`
+    out.push(`${i + 1}. ${titulo}`)
     out.push(`   ${DOT} Código: ${line.sku}`)
-    out.push(`   ${DOT} Cantidad: ${line.qty} u.  —  Gs. ${pyg(line.subtotalUsd)}`)
+    out.push(`   ${DOT} ${pt ? 'Quantidade' : 'Cantidad'}: ${line.qty} u.`)
+    out.push(`   ${DOT} ${pt ? 'Total do item' : 'Total del artículo'}: Gs. ${pyg(line.subtotalUsd)}`)
   })
 
-  out.push(RULE)
+  out.push('', pt ? '💰 *RESUMO*' : '💰 *RESUMEN*')
   out.push(`Subtotal: Gs. ${pyg(subtotalUsd)}`)
-
-  // El cupón solo existe en el mensaje si de verdad descontó algo.
   if (discountUsd > 0 && couponCode) {
-    out.push(`Cupón (${couponCode.toUpperCase()}): −Gs. ${pyg(discountUsd)}`)
+    out.push(`${pt ? 'Cupom' : 'Cupón'} (${couponCode.toUpperCase()}): −Gs. ${pyg(discountUsd)}`)
   }
+  out.push(`*${pt ? 'TOTAL DAS PEÇAS' : 'TOTAL DE LAS PIEZAS'}: Gs. ${pyg(totalUsd)}*`)
 
-  // El envío no lleva importe: depende del peso y del destino, y se cierra en
-  // esta misma conversación. El total se rotula por lo que de verdad es —las
-  // piezas— para que nadie lo lea como el importe final a pagar.
-  out.push(`Envío a ${zoneName}: lo coordinamos por acá`)
-  out.push(`*TOTAL DE LAS PIEZAS: Gs. ${pyg(totalUsd)}*`)
+  out.push('', pt ? '👤 *DADOS DE CONTATO*' : '👤 *DATOS DE CONTACTO*')
+  out.push(`${DOT} ${pt ? 'Nome' : 'Nombre'}: ${fullName}`)
+  out.push(`${DOT} ${pt ? 'Telefone' : 'Teléfono'}: ${customer.phone.trim()}`)
 
-  out.push('', RULE, '*DATOS DE ENTREGA*')
-  out.push(`${DOT} Nombre: ${customer.firstName} ${customer.lastName}`.trimEnd())
-  out.push(`${DOT} Teléfono: ${customer.phone}`)
-
-  // Dirección y ciudad viajan juntas en una línea; en retiro por el local no
-  // hay dirección que poner, así que se imprime la zona y nada más.
-  const destino = [customer.address, customer.city].map((v) => v?.trim()).filter(Boolean).join(', ')
-  out.push(`${DOT} Ciudad / Dirección: ${destino || zoneName}`)
-
-  if (customer.notes?.trim()) out.push(`${DOT} Notas: ${customer.notes.trim()}`)
-
-  out.push('', '¿Me confirman el pedido y coordinamos la entrega?')
-
+  if (pickup) {
+    out.push('', pt ? '🏬 *RETIRADA NA LOJA*' : '🏬 *RETIRO EN EL LOCAL*', zoneName)
+    out.push(pt ? 'Combinamos o horário por aqui.' : 'Coordinamos el horario por acá.')
+  } else {
+    out.push('', pt ? '🚚 *DADOS DE ENTREGA*' : '🚚 *DATOS DE ENTREGA*')
+    out.push(`${DOT} ${pt ? 'Destino' : 'Zona'}: ${zoneName}`)
+    const destino = [customer.address, customer.city].map((v) => v?.trim()).filter(Boolean).join(', ')
+    if (destino) out.push(`${DOT} ${pt ? 'Cidade / Endereço' : 'Ciudad / Dirección'}: ${destino}`)
+    out.push(pt ? 'Frete a combinar, não incluído no total das peças.' : 'Envío a coordinar, no incluido en el total de las piezas.')
+  }
+  if (customer.notes?.trim()) out.push('', pt ? '📝 *OBSERVAÇÕES*' : '📝 *NOTAS*', customer.notes.trim())
+  out.push('', pt
+    ? 'Podem confirmar a disponibilidade e me passar as instruções de pagamento? Obrigado! 🙌'
+    : '¿Me confirman la disponibilidad y me pasan los pasos para el pago? ¡Gracias! 🙌')
   return out.join('\n')
 }
 

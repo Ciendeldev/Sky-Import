@@ -38,9 +38,9 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
   const comprar = page.getByTestId('comprar-whatsapp')
   await expect(comprar).toBeVisible()
   const enlaceDirecto = await comprar.getAttribute('href')
-  expect(enlaceDirecto).toContain(`https://wa.me/${WHATSAPP}`)
+  expect(enlaceDirecto).toContain(`https://api.whatsapp.com/send?phone=${WHATSAPP}`)
 
-  const mensajeDirecto = decodeURIComponent(new URL(enlaceDirecto!).searchParams.get('text') ?? '')
+  const mensajeDirecto = new URL(enlaceDirecto!).searchParams.get('text') ?? ''
   expect(mensajeDirecto).toContain('*PRODUCTO*')
   expect(mensajeDirecto).toContain('SI-VGA-0124')
   expect(mensajeDirecto).toContain('/es/producto/geforce-rtx-5070-12gb')
@@ -97,7 +97,7 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
   // La petición a wa.me se corta antes de salir: la prueba comprueba QUÉ se
   // manda, no que WhatsApp esté en pie. Sin esto, el resultado dependería de la
   // red del que corre las pruebas.
-  await context.route('https://wa.me/**', (route) =>
+  await context.route('https://api.whatsapp.com/send**', (route) =>
     route.fulfill({ status: 200, contentType: 'text/html', body: 'ok' }),
   )
 
@@ -142,19 +142,19 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
   if (pestañaPromesa) {
     const pestaña = await pestañaPromesa
     // La pestaña nace en `about:blank` y navega un instante después.
-    await pestaña.waitForURL(/wa\.me/, { timeout: 10_000 })
+    await pestaña.waitForURL(/api\.whatsapp\.com/, { timeout: 10_000 })
     destino = pestaña.url()
     await pestaña.close()
   } else {
-    await page.waitForURL(/wa\.me/, { timeout: 10_000 })
+    await page.waitForURL(/api\.whatsapp\.com/, { timeout: 10_000 })
     destino = page.url()
   }
 
   const url = new URL(destino)
-  expect(url.hostname).toBe('wa.me')
-  expect(url.pathname).toBe(`/${WHATSAPP}`)
+  expect(url.hostname).toBe('api.whatsapp.com')
+  expect(url.searchParams.get('phone')).toBe(WHATSAPP)
 
-  const mensaje = decodeURIComponent(url.searchParams.get('text') ?? '')
+  const mensaje = url.searchParams.get('text') ?? ''
   expect(mensaje).toContain('*MI PEDIDO*')
   expect(mensaje).toContain('1. ')
   expect(mensaje).toContain('· Cantidad: 2 u.')
@@ -162,8 +162,11 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
   expect(mensaje).toContain('· Nombre: Ana Giménez')
   expect(mensaje).toContain('· Teléfono: +595 981 111 222')
   expect(mensaje).toContain('Av. España 1234')
-  expect(mensaje).toContain('· Notas: Tocar timbre')
-  expect(mensaje).toContain(`Envío a ${zonaElegida}: lo coordinamos por acá`)
+  expect(mensaje).toContain('📝 *NOTAS*\nTocar timbre')
+  expect(mensaje).toContain(`Zona: ${zonaElegida}`)
+  expect(mensaje).toContain('Envío a coordinar, no incluido en el total de las piezas.')
+  expect(mensaje).toContain('👋')
+  expect(mensaje).not.toContain('\uFFFD')
   expect(mensaje).toContain('*TOTAL DE LAS PIEZAS: Gs.')
   // Sin cupón aplicado, esa línea no se imprime.
   expect(mensaje).not.toContain('Cupón (')

@@ -39,12 +39,14 @@
 - **Qué aporta:** el armado de la PC pieza por pieza en «Arma tu PC», con su
   prueba de encendido, y el fondo de haces. Geometría generada en código, sin
   modelos ni texturas importadas.
-- **Se retiró de la portada el 2026-09-06.** Ahí vivía `GpuAssembly`, un
-  despiece 3D de una placa de video. Estaba bien hecho, pero enseñaba un
-  **dibujo** en una tienda de importación, donde lo que el cliente necesita ver
-  es la pieza que le van a entregar. La sección pasó a la fotografía real del
-  producto. En el armador se queda, porque ahí el 3D aporta algo que una foto
-  no puede: el orden del montaje y el resultado de encender.
+- **Recuperada en la portada el 2026-09-07 por pedido del cliente.** Despiece
+  reversible de GPU con scroll nativo y panel sticky. Se reutiliza three.js
+  (MIT, compatible con React 19 porque se monta en un efecto), sin dependencia
+  ni motor nuevo: todas las actualizaciones usan `onFrame` de `motion.ts`.
+  Carga diferida; foto real de respaldo y sin WebGL con movimiento reducido.
+  Escena decorativa, sin controles de foco. GSAP y Motion siguen descartados:
+  duplicarían el motor y aumentarían el bundle sin resolver una carencia actual.
+  Se verifica el peso con `npm run size`.
 - **Instalada como:** `npm install three @types/three`
 - **Versión:** 0.185.1 · **Licencia:** MIT
 - **Se usa en:** `src/components/three/GpuAssembly.tsx`,

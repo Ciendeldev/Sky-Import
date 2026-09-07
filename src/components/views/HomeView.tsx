@@ -47,6 +47,17 @@ for (const product of PRODUCTS) {
 const HERO_GPU = PRODUCTS.find((product) => product.slug === 'geforce-rtx-5070-ti-16gb') ?? PRODUCTS[0]!
 
 /**
+ * Cuánto aire transparente trae la foto del héroe alrededor de la pieza, en
+ * porcentaje del lado. Sale de `npm run medir -- geforce-rtx-5070-ti-16gb`.
+ *
+ * Va acá, pegado a la elección de la placa, y no escondido en el componente de
+ * las cotas: quien cambie la pieza tiene que ver en la misma pantalla que hay
+ * un número que se mide con ella. Sin esto, el metro del primer viewport dice
+ * «304 mm» abarcando un tercio más de lo que mide la tarjeta.
+ */
+const HERO_TRIM = { x: 12.5, bottom: 29 } as const
+
+/**
  * Cada categoría se representa con la fotografía de una pieza real suya, no con
  * un icono. Un dibujo genérico de «gabinete» no dice nada que la foto de un
  * gabinete concreto no diga mejor.
@@ -181,6 +192,8 @@ export function HomeView() {
                 sizes="(min-width: 1280px) 58vw, (min-width: 1024px) 50vw, 92vw"
               />
               <PhotoDims
+                trimX={HERO_TRIM.x}
+                baseY={HERO_TRIM.bottom}
                 {...(HERO_GPU.compat.kind === 'gpu'
                   ? {
                       main: `${HERO_GPU.compat.lengthMm} mm`,

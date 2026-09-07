@@ -67,7 +67,7 @@ test('un cupón válido descuenta del total', async ({ page, context }) => {
   await expect(resumen).toContainText('US$ 557')
 
   // Y viaja al mensaje de WhatsApp con su línea propia.
-  await context.route('https://wa.me/**', (route) =>
+  await context.route('https://api.whatsapp.com/send**', (route) =>
     route.fulfill({ status: 200, contentType: 'text/html', body: 'ok' }),
   )
   await context.route('**/rest/v1/rpc/place_order', (route) =>
@@ -89,11 +89,11 @@ test('un cupón válido descuenta del total', async ({ page, context }) => {
   let destino: string
   if (nueva) {
     const pestaña = await nueva
-    await pestaña.waitForURL(/wa\.me/, { timeout: 10_000 })
+    await pestaña.waitForURL(/api\.whatsapp\.com/, { timeout: 10_000 })
     destino = pestaña.url()
     await pestaña.close()
   } else {
-    await page.waitForURL(/wa\.me/, { timeout: 10_000 })
+    await page.waitForURL(/api\.whatsapp\.com/, { timeout: 10_000 })
     destino = page.url()
   }
 

@@ -113,8 +113,10 @@ const es = {
   'assembly.eyebrow': 'La pieza mayor',
   'assembly.cta': 'Ver la ficha completa',
   'assembly.note':
-    'Se monta con el desplazamiento, y lo que se arma es la fotografía del producto real, no un render. Si al llegar la unidad tuviera otra revisión de fábrica, te lo decimos antes de cerrar.',
-  'assembly.hint': 'Desplazá para montarla',
+    'Explorá las capas de una gráfica: carcasa, ventiladores, disipador y circuito. Vista 3D ilustrativa; las fotos del modelo están en su ficha.',
+  'assembly.hint': 'Desplazá para desarmarla y volver a montarla',
+  'assembly.closed': 'Montada',
+  'assembly.open': 'Despiece',
 
   // ─────────────────────────────────────────────────────────────────── catálogo
   'catalog.title': 'Catálogo',
@@ -272,7 +274,7 @@ const es = {
    * Corto a propósito. Un texto largo puesto en boca del cliente se lee falso,
    * y lo primero que hace es borrarlo.
    */
-  'wa.fabMessage': '¡Hola! Estoy en la web de Sky Import y quiero hacer una consulta.',
+  'wa.fabMessage': '¡Hola, equipo de *Sky Import*! 👋\nEstuve mirando sus componentes y quiero darle un upgrade a mi PC. 💻\n¿Me ayudan a elegir las piezas?',
   'cart.total': 'Total',
   'cart.remove': 'Quitar',
   'cart.removed': 'quitado del carrito',
@@ -356,10 +358,10 @@ const es = {
   'intro.skip': 'Omitir',
   'intro.label': 'Sky Import — animación de entrada',
 
-  'wa.productMessage': 'Hola, quiero consultar por',
+  'wa.productMessage': '¡Hola, equipo de *Sky Import*! 👋 Quería consultar la disponibilidad de',
   'wa.cartIntro': 'Hola, quiero consultar por este pedido:',
   'wa.cartTotal': 'Total',
-  'wa.generic': 'Hola, quiero hacer una consulta sobre componentes.',
+  'wa.generic': '¡Hola, equipo de *Sky Import*! 👋\nEstuve mirando sus componentes y quiero darle un upgrade a mi PC. 💻\n¿Me ayudan a elegir las piezas?',
 } as const
 
 export type DictKey = keyof typeof es
@@ -465,8 +467,10 @@ const pt: Record<DictKey, string> = {
   'assembly.eyebrow': 'A peça maior',
   'assembly.cta': 'Ver a ficha completa',
   'assembly.note':
-    'Monta-se com a rolagem, e o que se arma é a fotografia do produto real, não um render. Se a unidade chegar com outra revisão de fábrica, avisamos antes de fechar.',
-  'assembly.hint': 'Role para montá-la',
+    'Explore as camadas de uma placa: carcaça, ventoinhas, dissipador e circuito. Vista 3D ilustrativa; as fotos do modelo estão na ficha.',
+  'assembly.hint': 'Role para desmontar e montar novamente',
+  'assembly.closed': 'Montada',
+  'assembly.open': 'Desmontada',
 
   'catalog.title': 'Catálogo',
   'catalog.eyebrow': 'Manifesto de peças',
@@ -596,7 +600,7 @@ const pt: Record<DictKey, string> = {
     'O custo do frete depende do peso e do destino. Fechamos com você na conversa, antes de pagar qualquer coisa.',
   'checkout.totalWithoutShipping': 'Total das peças',
   'wa.fabLabel': 'Fale conosco pelo WhatsApp',
-  'wa.fabMessage': 'Olá! Estou no site da Sky Import e quero fazer uma consulta.',
+  'wa.fabMessage': 'Olá, equipe da *Sky Import*! 👋\nEstava olhando os componentes e quero dar um upgrade no meu PC. 💻\nPodem me ajudar a escolher as peças?',
   'cart.total': 'Total',
   'cart.remove': 'Remover',
   'cart.removed': 'removido do carrinho',
@@ -677,10 +681,10 @@ const pt: Record<DictKey, string> = {
   'intro.skip': 'Pular',
   'intro.label': 'Sky Import — animação de entrada',
 
-  'wa.productMessage': 'Olá, quero consultar sobre',
+  'wa.productMessage': 'Olá, equipe da *Sky Import*! 👋 Gostaria de consultar a disponibilidade de',
   'wa.cartIntro': 'Olá, quero consultar sobre este pedido:',
   'wa.cartTotal': 'Total',
-  'wa.generic': 'Olá, quero fazer uma consulta sobre componentes.',
+  'wa.generic': 'Olá, equipe da *Sky Import*! 👋\nEstava olhando os componentes e quero dar um upgrade no meu PC. 💻\nPodem me ajudar a escolher as peças?',
 }
 
 export const DICTIONARY: Record<Locale, Record<DictKey, string>> = { es, pt }

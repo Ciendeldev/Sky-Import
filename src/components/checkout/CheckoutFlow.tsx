@@ -193,6 +193,8 @@ export function CheckoutFlow() {
     const orderNumber = outcome.status === 'registrado' ? outcome.number : null
 
     const mensaje = orderMessage({
+      locale,
+      deliveryMode: zone?.requiresAddress === false ? 'pickup' : 'shipping',
       lines: resolved.map((l) => ({
         name: l.product.name,
         sku: l.variant?.sku ?? l.product.ref,

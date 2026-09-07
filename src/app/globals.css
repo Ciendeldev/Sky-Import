@@ -2767,3 +2767,21 @@ html[data-pointer='hidden'] [contenteditable='true'] {
   opacity: 0.6;
   pointer-events: none;
 }
+
+/* Despiece: el recorrido vive fuera del panel sticky; no bloquea el scroll. */
+.gpu-scroll { height: 190svh; position: relative; }
+.gpu-scroll__stage {
+  position: sticky;
+  top: 5.5rem;
+  height: min(68svh, 620px);
+  min-height: 280px;
+  overflow: hidden;
+}
+.gpu-scroll[data-static="true"] { height: auto; }
+@media (min-width: 1024px) {
+  .gpu-scroll { height: 210svh; }
+  .gpu-scroll__stage { height: min(76svh, 720px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gpu-scroll { height: auto; }
+}

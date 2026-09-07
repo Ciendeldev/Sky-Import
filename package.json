@@ -23,6 +23,7 @@
     "admin:crear": "node --env-file=.env.local scripts/crear-admin.mjs",
     "hooks": "lefthook install",
     "docs:srs": "node scripts/render-diagramas.mjs && node scripts/generar-srs.mjs",
+    "medir": "node scripts/medir-foto.mjs",
     "verify": "npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
