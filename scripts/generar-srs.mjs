@@ -400,10 +400,10 @@ const RF = [
     sintaxis:
       'Cuando el administrador registre una nueva tasa de cambio [Condición], el módulo de configuración [Sujeto] deberá persistir y propagar [Acción] dicho valor a la totalidad de la tienda y de los mensajes generados [Objeto], sin necesidad de un nuevo despliegue [Restricción].',
     descripcion:
-      'Centraliza la tasa de guaraníes y reales por dólar, el mes de referencia y el umbral de aviso de últimas unidades. El costo del envío no figura en el sistema: se acuerda por la vía de mensajería. No existe ninguna segunda copia de estos valores en el código de la aplicación.',
+      'Centraliza la tasa de guaraníes y reales por dólar, el mes de referencia y el umbral de aviso de últimas unidades. El costo del envío no figura en el sistema: se acuerda por la vía de mensajería. No existe ninguna segunda copia de estos valores en el código de la aplicación. El sistema rechaza toda tasa fuera de un rango de plausibilidad: la notación local del guaraní emplea el punto como separador de millar, y un campo numérico lo descarta, de modo que «7.400» se registraría como «7» y dividiría por mil la totalidad de los precios publicados.',
     pre: [
       '1. Existe una sesión de administrador activa.',
-      '2. Ambas tasas son números mayores que cero.',
+      '2. El guaraní por dólar se sitúa entre 1000 y 20000, y el real entre 1 y 50.',
     ],
     post: [
       '1. INSERT ... ON CONFLICT DO UPDATE sobre la tabla settings para las claves «fx» y «rules».',
@@ -450,6 +450,85 @@ const RF = [
     rnf: 'RNF02 (Control de acceso), RNF04 (Integridad), RNF10 (Trazabilidad)',
     prioridad:
       'Alta. Caso de prueba: un pedido recién generado figura con estado «Iniciado por WhatsApp» y su total coincide con el comunicado al cliente.',
+  },
+  {
+    id: 'RF17',
+    nombre: 'Alta de cuentas de administración',
+    sintaxis:
+      'Cuando el moderador registre una nueva cuenta [Condición], el módulo de configuración [Sujeto] deberá crear [Acción] una identidad de administrador con su nombre de usuario y contraseña [Objeto], sin capacidad de otorgar el rol de moderación [Restricción].',
+    descripcion:
+      'El panel distingue dos perfiles. El administrador opera la tienda —catálogo, existencias, precios, cupones y pedidos— y no accede a la gestión de cuentas. El moderador suma la potestad de crear usuarios, restablecer contraseñas ajenas y retirar accesos. El rol reside en los metadatos que el proveedor de autenticación reserva al servidor, nunca en un campo editable ni en el formulario, de modo que toda cuenta creada desde el panel nace como administrador.',
+    pre: [
+      '1. Existe una sesión activa cuyo rol verificado es el de moderador.',
+      '2. El nombre de usuario no está en uso y la contraseña alcanza los doce caracteres.',
+    ],
+    post: [
+      '1. Alta de la identidad en el servicio de autenticación, con correo interno determinista.',
+      '2. INSERT sobre admin_users estableciendo la pertenencia al panel.',
+      '3. Si la pertenencia no llega a registrarse, se elimina la identidad recién creada por esa misma llamada.',
+    ],
+    rnf: 'RNF02 (Control de acceso), RNF04 (Integridad), RNF15 (Separación de funciones)',
+    prioridad:
+      'Alta. Caso de prueba: la operación invocada desde una sesión de administrador, eludiendo la interfaz, es rechazada por el servidor y no crea identidad alguna.',
+  },
+  {
+    id: 'RF18',
+    nombre: 'Retiro y restitución del acceso',
+    sintaxis:
+      'Cuando el moderador retire el acceso de una cuenta [Condición], el sistema [Sujeto] deberá impedir [Acción] tanto el ingreso al panel como toda escritura sobre la base de datos [Objeto], de forma reversible y sin eliminar el registro histórico [Restricción].',
+    descripcion:
+      'La baja de un colaborador no elimina su cuenta: se marca la fecha de retiro y se conserva la fila, de modo que el rastro de quién administró cada operación permanece íntegro y la decisión puede revertirse. La comprobación reside también en la función de autorización que consultan las políticas de seguridad a nivel de fila, de manera que la credencial vigente en el navegador deja de habilitar escrituras de inmediato, sin esperar su caducidad. Ninguna cuenta puede retirarse a sí misma ni retirar a otro moderador.',
+    pre: [
+      '1. Existe una sesión activa cuyo rol verificado es el de moderador.',
+      '2. La cuenta afectada es distinta de la propia y no ostenta el rol de moderación.',
+    ],
+    post: [
+      '1. UPDATE sobre admin_users.revoked_at, con marca temporal al retirar y valor nulo al restituir.',
+      '2. La función is_admin() deja de reconocer a la cuenta, y con ella la totalidad de las políticas de escritura.',
+      '3. La identidad y la contraseña se conservan intactas en el servicio de autenticación.',
+    ],
+    rnf: 'RNF02 (Control de acceso), RNF10 (Trazabilidad), RNF15 (Separación de funciones)',
+    prioridad:
+      'Alta. Caso de prueba verificado sobre la base de datos: con el acceso retirado, la autenticación sigue siendo válida, is_admin() devuelve falso y la escritura queda bloqueada.',
+  },
+  {
+    id: 'RF19',
+    nombre: 'Cambio de la contraseña propia',
+    sintaxis:
+      'Cuando un usuario del panel modifique su contraseña [Condición], el módulo de configuración [Sujeto] deberá exigir [Acción] la contraseña vigente antes de aceptar la nueva [Objeto], sin interrumpir la sesión en curso [Restricción].',
+    descripcion:
+      'Disponible para ambos perfiles sobre la propia cuenta. La contraseña vigente se comprueba contra el servicio de autenticación mediante un cliente aislado y sin cookies, cuya sesión temporal se cierra al terminar, de modo que la comprobación no reemplaza ni invalida la sesión del navegador. Ninguna contraseña figura en el repositorio ni en los registros del sistema.',
+    pre: [
+      '1. Existe una sesión de panel activa.',
+      '2. La nueva contraseña tiene entre doce y ciento veintiocho caracteres, difiere de la vigente y coincide con su repetición.',
+    ],
+    post: [
+      '1. Actualización de la credencial en el servicio de autenticación.',
+      '2. Cierre de la sesión auxiliar empleada para la comprobación.',
+    ],
+    rnf: 'RNF02 (Control de acceso), RNF14 (Privacidad)',
+    prioridad:
+      'Alta. Caso de prueba: una contraseña vigente incorrecta, o una identidad distinta de la de la sesión, no producen actualización alguna.',
+  },
+  {
+    id: 'RF20',
+    nombre: 'Baja de pedidos con restitución de existencias',
+    sintaxis:
+      'Cuando el moderador elimine un pedido [Condición], el módulo de pedidos [Sujeto] deberá devolver [Acción] las unidades comprometidas al inventario y suprimir el registro con sus líneas [Objeto], en una única transacción [Restricción].',
+    descripcion:
+      'Destinado a los registros que no constituyeron una venta. La restitución es imprescindible porque el alta del pedido descuenta las unidades y la disponibilidad del catálogo se deriva de ese valor: una supresión simple dejaría el inventario declarando existencias inferiores a las reales de forma permanente. Las unidades no se devuelven si el pedido consta como entregado, pues en tal caso la mercadería salió efectivamente del local. La confirmación exige transcribir el número del pedido, dado que la operación es irreversible.',
+    pre: [
+      '1. Existe una sesión activa cuyo rol verificado es el de moderador.',
+      '2. El pedido existe y su número ha sido transcrito literalmente.',
+    ],
+    post: [
+      '1. UPDATE sobre products.units y product_variants.units por cada línea, salvo en pedidos entregados.',
+      '2. DELETE sobre orders; las líneas se suprimen por integridad referencial en cascada.',
+      '3. Ambas operaciones se ejecutan en la misma transacción de base de datos.',
+    ],
+    rnf: 'RNF02 (Control de acceso), RNF04 (Integridad), RNF15 (Separación de funciones)',
+    prioridad:
+      'Media-Alta. Caso de prueba verificado sobre la base real: la baja de un pedido de una unidad restituyó las existencias de cero a uno y suprimió sus líneas en cascada.',
   },
 ]
 
@@ -726,9 +805,15 @@ const doc = new Document({
           ['Tipo de Usuario / Rol', 'Formación / Nivel Técnico', 'Módulos / Permisos Autorizados', 'Actividades Principales'],
           [
             [
-              'Administrador (titular del comercio)',
+              'Moderador (titular del comercio)',
               'Usuario avanzado, con experiencia media en sistemas de gestión. No requiere conocimientos de programación.',
-              'Acceso total: inventario, variantes, precios, tasa de cambio, cupones y pedidos. Verificado por pertenencia a la tabla admin_users.',
+              'Cuanto alcanza el administrador, y además el alta de cuentas, el restablecimiento de contraseñas ajenas, el retiro y la restitución de accesos, y la baja de pedidos. El rol reside en los metadatos que el proveedor de autenticación reserva al servidor, de modo que no puede otorgarse desde la aplicación.',
+              'Gobierno del personal con acceso al panel y limpieza de registros que no constituyeron una venta, además de la operación ordinaria de la tienda.',
+            ],
+            [
+              'Administrador (personal del comercio)',
+              'Usuario con formación operativa. No requiere conocimientos de programación.',
+              'Inventario, variantes, precios, tasa de cambio, cupones y pedidos. Verificado por pertenencia vigente a la tabla admin_users. Sin acceso a la gestión de cuentas ni a la baja de pedidos, restricción comprobada en el servidor y no únicamente ocultando controles.',
               'Carga y actualización del catálogo, ajuste de existencias, definición de precios y tasa, generación de cupones y seguimiento de pedidos.',
             ],
             [
@@ -873,9 +958,9 @@ const doc = new Document({
           [
             ['RNF01', 'Seguridad informática', 'Las credenciales se almacenan de forma irreversible y las políticas de acceso se aplican en el motor de base de datos, no solo en la aplicación.', 'Seguridad a nivel de fila activa en las 8 tablas. Verificación: una consulta anónima a las tablas de cupones, pedidos y usuarios administrativos devuelve un conjunto vacío.', 'Alta (Mandatorio)'],
             ['RNF02', 'Control de acceso', 'El acceso al panel exige sesión válida y pertenencia explícita al registro de administradores.', 'Prueba automatizada: toda ruta del panel sin sesión redirige a la pantalla de acceso.', 'Alta'],
-            ['RNF03', 'Rendimiento', 'Las páginas públicas se generan de forma estática y se regeneran periódicamente.', '99 páginas generadas estáticamente en la compilación. Volumen de cliente: 601 kB comprimidos sobre un presupuesto de 650 kB.', 'Alta'],
+            ['RNF03', 'Rendimiento', 'Las páginas públicas se generan de forma estática y se regeneran periódicamente.', '100 páginas generadas estáticamente en la compilación. Volumen de cliente: 637,2 kB comprimidos sobre un presupuesto de 650 kB.', 'Alta'],
             ['RNF04', 'Integridad de datos', 'Los importes del pedido se recalculan en el servidor y el stock se descuenta en la misma transacción.', 'El cliente transmite identificadores y cantidades, nunca importes. Prueba: un pedido que excede las existencias se revierte por completo.', 'Alta (Mandatorio)'],
-            ['RNF05', 'Accesibilidad', 'La interfaz cumple la norma WCAG 2.1 en nivel AA.', 'Auditoría automatizada con axe-core sobre 10 rutas en ambos idiomas: 0 infracciones.', 'Alta'],
+            ['RNF05', 'Accesibilidad', 'La interfaz cumple la norma WCAG 2.1 en nivel AA.', 'Auditoría con axe-core sobre 10 rutas públicas en ambos idiomas y las 8 pantallas del panel de administración: 0 infracciones.', 'Alta'],
             ['RNF06', 'Internacionalización', 'La totalidad del texto visible existe en español y portugués, conmutables sin recarga.', 'El diccionario portugués está tipado de forma que la ausencia de una clave impide la compilación.', 'Alta'],
             ['RNF07', 'Usabilidad', 'Objetivo táctil mínimo de 44 píxeles, respeto de la preferencia de movimiento reducido y mensajes de error explícitos.', 'Prueba automatizada de navegación por teclado, gestión del foco en diálogos y ausencia de contenido invisible con movimiento reducido.', 'Alta'],
             ['RNF08', 'Compatibilidad', 'Funcionamiento correcto en navegadores de escritorio y móviles vigentes.', 'Batería de pruebas ejecutada en dos perfiles de dispositivo: escritorio y móvil.', 'Media-Alta'],
@@ -883,7 +968,8 @@ const doc = new Document({
             ['RNF10', 'Trazabilidad', 'Todo pedido queda registrado antes de abrir la conversación, con su estado, importes y tasa históricos.', 'Numeración correlativa por secuencia de base de datos. El pedido se persiste aun cuando el cliente no envíe el mensaje.', 'Alta'],
             ['RNF11', 'Disponibilidad', 'Continuidad del servicio durante el horario comercial.', 'Nivel objetivo del 99.9 % de lunes a sábado, de 08:00 a 20:00.', 'Alta'],
             ['RNF12', 'Fiabilidad y respaldo', 'Resguardo periódico de la información ante fallos.', 'Copias de seguridad automáticas diarias provistas por la plataforma de base de datos.', 'Alta'],
-            ['RNF13', 'Mantenibilidad', 'Código verificado de forma automatizada y decisiones estructurales documentadas.', '72 pruebas unitarias y 35 pruebas de extremo a extremo. Verificación de tipos y análisis estático sin advertencias. Registro de decisiones en docs/adr/.', 'Media-Alta'],
+            ['RNF13', 'Mantenibilidad', 'Código verificado de forma automatizada y decisiones estructurales documentadas.', '119 pruebas unitarias y 97 pruebas de extremo a extremo en perfiles de escritorio y móvil. Verificación de tipos y análisis estático sin advertencias. Registro de decisiones en docs/adr/, con once decisiones documentadas.', 'Media-Alta'],
+            ['RNF15', 'Separación de funciones', 'Las operaciones sobre cuentas y la baja de pedidos quedan reservadas al moderador, y la restricción se comprueba en el servidor y en la base de datos, no ocultando controles.', 'Prueba verificada: la operación de alta de cuentas, invocada directamente desde una sesión de administrador y eludiendo la interfaz, es rechazada. La política de borrado de pedidos exige el rol de moderación a nivel de fila.', 'Alta'],
             ['RNF14', 'Privacidad', 'Se recolecta únicamente el dato imprescindible para concretar la entrega.', 'No se solicita documento de identidad, fecha de nacimiento ni dato de pago alguno. No existe ningún campo donde introducirlos.', 'Alta'],
           ],
           [900, 1700, 2400, 2626, 1400],
@@ -906,12 +992,12 @@ const doc = new Document({
             ['categories', 'Categorías del catálogo, con su denominación bilingüe y orden de presentación.', 'PK: slug'],
             ['products', 'Productos, con precio en dólares, existencias, ficha técnica y datos de compatibilidad.', 'PK: id · UNIQUE: slug, ref · FK: category_slug'],
             ['product_variants', 'Variantes de un producto, con SKU, ejes, precio y existencias propias.', 'PK: id · UNIQUE: sku · FK: product_id'],
-            ['shipping_zones', 'Zonas de entrega con costo y umbral de bonificación.', 'PK: id · UNIQUE: slug'],
+            ['shipping_zones', 'Destinos de entrega. No llevan tarifa: el envío se acuerda por la vía de mensajería.', 'PK: id · UNIQUE: slug'],
             ['coupons', 'Cupones de descuento, con vigencia, compra mínima y límite de usos.', 'PK: id · UNIQUE: código en mayúsculas · CHECK: porcentaje ≤ 100'],
             ['orders', 'Pedidos registrados, con estado, importes y tasa de cambio históricos.', 'PK: id · UNIQUE: number (secuencia) · FK: zone_slug'],
             ['order_items', 'Líneas de cada pedido, con copia del nombre, SKU y precio del momento.', 'PK: id · FK: order_id, product_id, variant_id · CHECK: qty > 0'],
             ['settings', 'Configuración por clave: tasa de cambio, umbrales comerciales y contacto.', 'PK: key'],
-            ['admin_users', 'Usuarios habilitados para administrar. Consultada por las políticas de seguridad.', 'PK: user_id · UNIQUE: username'],
+            ['admin_users', 'Usuarios habilitados para administrar. Consultada por las políticas de seguridad. La columna revoked_at retira el acceso sin eliminar la fila, conservando el rastro de quién administró.', 'PK: user_id · UNIQUE: username'],
           ],
           [1900, 3626, 3500],
         ),
@@ -920,9 +1006,11 @@ const doc = new Document({
         tabla(
           ['Función', 'Tipo', 'Finalidad'],
           [
-            ['is_admin()', 'STABLE, SECURITY DEFINER', 'Determina si la sesión vigente pertenece a un administrador. Invocada por las políticas de seguridad de todas las tablas.'],
+            ['is_admin()', 'STABLE, SECURITY DEFINER', 'Determina si la sesión vigente pertenece a un administrador con acceso vigente. Invocada por las políticas de seguridad de todas las tablas: una cuenta retirada deja de escribir aunque conserve su credencial.'],
+            ['is_moderator()', 'STABLE, SECURITY DEFINER', 'Añade a lo anterior la exigencia del rol de moderación, leído de los metadatos reservados al servidor. Gobierna la baja de pedidos a nivel de fila.'],
             ['validate_coupon(código, subtotal)', 'STABLE, SECURITY DEFINER', 'Valida un cupón y devuelve el descuento ya calculado, sin exponer el listado de cupones.'],
             ['place_order(líneas, cliente, zona, cupón)', 'VOLATILE, SECURITY DEFINER', 'Registra el pedido de forma atómica: relee precios, aplica cupón, descuenta existencias y persiste pedido y líneas.'],
+            ['delete_order(pedido)', 'VOLATILE, SECURITY DEFINER', 'Suprime un pedido devolviendo sus unidades al inventario en la misma transacción, salvo que conste como entregado. Exige el rol de moderación.'],
             ['touch_updated_at()', 'TRIGGER', 'Actualiza la marca temporal de modificación en cada escritura.'],
           ],
           [2600, 2200, 4226],
@@ -944,11 +1032,13 @@ const doc = new Document({
           [
             ['Verificación de tipos', 'Totalidad del código fuente en modo estricto', 'Sin errores'],
             ['Análisis estático', 'Totalidad del código fuente', 'Sin advertencias'],
-            ['Pruebas unitarias', '93 casos sobre dominio, carrito, compatibilidad, búsqueda, moneda, arranque del configurador, mensajería y material gráfico', '93 correctas'],
-            ['Pruebas de extremo a extremo', '85 casos en perfiles de escritorio y móvil', '85 correctas'],
-            ['Auditoría de accesibilidad', '10 rutas en ambos idiomas, norma WCAG 2.1 AA', '0 infracciones'],
-            ['Presupuesto de código de cliente', 'Totalidad del JavaScript transferido', '619 kB de 650 kB'],
-            ['Compilación de producción', 'Generación estática del sitio', '99 páginas generadas'],
+            ['Pruebas unitarias', '119 casos sobre dominio, carrito, compatibilidad, búsqueda, moneda, tasa de cambio, cuentas del panel, arranque del configurador, mensajería y material gráfico', '119 correctas'],
+            ['Pruebas de extremo a extremo', '97 casos en perfiles de escritorio y móvil', '97 correctas'],
+            ['Prueba de gestión de cuentas', 'Alta, restablecimiento y límites de rol, sobre identidades efímeras eliminadas al concluir', 'Correcta'],
+            ['Auditoría de accesibilidad', '10 rutas públicas en ambos idiomas y 8 pantallas del panel, norma WCAG 2.1 AA', '0 infracciones'],
+            ['Barrido de errores del cliente', '100 rutas públicas: consola, excepciones, peticiones fallidas e imágenes rotas', '0 incidencias'],
+            ['Presupuesto de código de cliente', 'Totalidad del JavaScript transferido', '637,2 kB de 650 kB'],
+            ['Compilación de producción', 'Generación estática del sitio', '100 páginas generadas'],
           ],
           [2600, 4426, 2000],
         ),

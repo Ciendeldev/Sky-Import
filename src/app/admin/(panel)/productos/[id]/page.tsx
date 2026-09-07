@@ -6,6 +6,17 @@ import { VariantEditor } from '@/components/admin/VariantEditor'
 
 export const dynamic = 'force-dynamic'
 
+/**
+ * El título lleva el nombre de la pieza. Sin esto heredaba el del layout y las
+ * 74 fichas abrían pestañas idénticas —«Panel · Sky Import»—, imposibles de
+ * distinguir cuando se editan varias a la vez, que es justo cómo se usa.
+ */
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const product = await getProduct(id)
+  return { title: `${product?.name ?? 'Pieza'} · Panel Sky Import` }
+}
+
 export default async function EditarProductoPage({
   params,
 }: {

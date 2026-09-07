@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { listPanelAccounts } from '@/lib/admin/account-actions'
 import { OwnPasswordForm, UserManagement, AccountSectionTitle } from '@/components/admin/AccountSettings'
 
-export const metadata = { title: 'Configuración · Sky Import' }
+export const metadata = { title: 'Configuración · Panel Sky Import' }
 
 export default async function ConfigurationPage() {
   const session = await getAdminSession()
