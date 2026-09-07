@@ -2741,29 +2741,17 @@ html[data-pointer='hidden'] [contenteditable='true'] {
 
 /* ═════════════════════════════════════════ la placa que abre la tienda ══════
  *
- * Dos capas de movimiento, las dos lentas a propósito: esto tiene que dar la
- * impresión de una pieza suspendida y encendida, no de un banner parpadeando.
- * Encima ya corren el parallax del scroll y el barrido de luz cada siete
- * segundos; una tercera cosa rápida acá volvería la portada un carrusel.
+ * SIN MOVIMIENTO, y es una decisión, no un olvido.
  *
- *   · La levitación: nueve segundos de ida y vuelta, seis píxeles de recorrido
- *     y un grado y medio de giro. Apenas se nota mirando fijo; se nota si uno
- *     aparta la vista y vuelve, que es exactamente el punto.
+ * Se probaron seis: levitación, deriva, respiración, paralaje al puntero,
+ * latido del halo y quieta. Ganó quieta, y con razón: encima de la placa ya
+ * corren el barrido de luz cada siete segundos y el paralaje del scroll.
+ * Sumar una tercera cosa moviéndose convierte el primer viewport en un cartel
+ * de neón, y una fotografía que flota deja de leerse como fotografía.
  *
- *   · El halo: el cian de la casa detrás de la placa, respirando en once
- *     segundos. Va DETRÁS de la foto y desenfocado, así que nunca compite con
- *     el producto ni le cambia el color. Es lo que insinúa que la pieza está
- *     alimentada.
- *
- * Los dos ciclos son primos entre sí —9 y 11— para que no vuelvan a
- * coincidir: si coincidieran, el ojo encontraría el patrón y se acabó la
- * ilusión de que la cosa está viva.
+ * Queda el halo, pero fijo: es la luz que insinúa que la pieza está
+ * alimentada, no una animación.
  */
-
-.u-hero-art {
-  animation: hero-levita 9s var(--ease-rail) infinite;
-  will-change: transform;
-}
 
 .u-hero-art__halo {
   position: absolute;
@@ -2772,44 +2760,10 @@ html[data-pointer='hidden'] [contenteditable='true'] {
   border-radius: 50%;
   background: radial-gradient(
     closest-side,
-    color-mix(in oklab, var(--accent) 26%, transparent),
+    color-mix(in oklab, var(--accent) 24%, transparent),
     transparent 72%
   );
   filter: blur(38px);
-  animation: hero-respira 11s var(--ease-rail) infinite;
+  opacity: 0.6;
   pointer-events: none;
-}
-
-@keyframes hero-levita {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
-  50% {
-    transform: translate3d(0, -6px, 0) rotate(-1.5deg);
-  }
-}
-
-@keyframes hero-respira {
-  0%,
-  100% {
-    opacity: 0.45;
-    transform: scale(0.94);
-  }
-  50% {
-    opacity: 0.85;
-    transform: scale(1.04);
-  }
-}
-
-/* Quien pidió que la pantalla se quede quieta no negocia: se queda quieta. */
-@media (prefers-reduced-motion: reduce) {
-  .u-hero-art,
-  .u-hero-art__halo {
-    animation: none;
-  }
-
-  .u-hero-art__halo {
-    opacity: 0.55;
-  }
 }

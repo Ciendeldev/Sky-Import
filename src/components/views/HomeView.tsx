@@ -165,11 +165,16 @@ export function HomeView() {
               primero que se ve de la tienda, así que carga con prioridad y sus
               cotas se superponen encima en vez de sustituirla. */}
           <div className="relative lg:col-span-6 xl:col-span-7 lg:-mr-[6vw]">
-            <div ref={heroArt} className="u-hero-art relative aspect-[4/3] rounded-part">
+            <div ref={heroArt} className="relative aspect-[4/3] rounded-part">
               {/* El halo respira detrás de la placa. No es un fondo: es la luz
                   que insinúa que la pieza está encendida. Va detrás de la foto
                   y no la toca. */}
               <span className="u-hero-art__halo" aria-hidden="true" />
+              {/* La placa está QUIETA, y es una decisión. Se probaron seis
+                  movimientos en un banco aparte —levitar, derivar, respirar,
+                  seguir al puntero, latir el halo— y ganó no moverse: encima
+                  ya corren el barrido de luz y el paralaje del scroll, y una
+                  fotografía que flota deja de leerse como fotografía. */}
               <ProductPhoto
                 product={HERO_GPU}
                 priority

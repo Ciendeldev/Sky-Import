@@ -14,9 +14,14 @@
  * de la pieza que decían describir. Una cota que no coincide con lo que mide
  * es peor que no poner cota: dice un número y señala otra cosa.
  *
- * Acá las cotas se cuelgan del CUADRADO que de verdad ocupa la foto —mismo
- * alto que el marco menos su relleno, ancho igual al alto, centrado— y no del
- * marco. Es HTML y no SVG a propósito: así el cuadrado se calcula con
+ * Acá las cotas se cuelgan del CUADRADO que de verdad ocupa la foto y no del
+ * marco. En la portada la imagen no lleva relleno: entra con `object-contain`
+ * ocupando el alto ENTERO, así que su cuadrado mide exactamente el alto del
+ * marco y va centrado. (Un primer intento le descontó un relleno que no
+ * existe; el cuadrado salía más chico y la línea de medida quedaba trepada
+ * sobre la placa en vez de por debajo.)
+ *
+ * Es HTML y no SVG a propósito: así el cuadrado se calcula con
  * `aspect-square` y sigue a la imagen sola, sin que nadie tenga que mantener
  * dos geometrías en paralelo.
  */
@@ -31,24 +36,28 @@ export function PhotoDims({
 }) {
   return (
     <div
-      // `inset-y` replica el relleno de la foto; `aspect-square` le da el
-      // ancho exacto del cuadrado que la imagen ocupa dentro del marco.
-      className="pointer-events-none absolute inset-y-8 left-1/2 aspect-square -translate-x-1/2 lg:inset-y-12"
+      // La foto ocupa el alto entero del marco; `aspect-square` le da el ancho
+      // exacto de ese cuadrado, y `left-1/2` lo centra igual que el navegador
+      // centra una imagen con `object-contain`.
+      className="pointer-events-none absolute inset-y-0 left-1/2 aspect-square -translate-x-1/2"
       aria-hidden="true"
     >
       {notes.slice(0, 2).map((note, i) => (
         <p
           key={note}
           className="absolute left-0 flex items-center gap-3 font-mono text-[0.8125rem] tracking-[0.08em] text-fg-low"
-          style={{ top: `${6 + i * 9}%` }}
+          style={{ top: `${5 + i * 7}%` }}
         >
           <span className="inline-block h-px w-5 bg-current" />
           {note}
         </p>
       ))}
 
+      {/* La medida va bien abajo, no pegada a la placa: la tarjeta no llena su
+          cuadrado —la foto trae margen transparente arriba y abajo— así que una
+          medida a media altura se le monta encima. Al 2 % del borde queda holgada. */}
       {main ? (
-        <div className="absolute inset-x-0 bottom-[6%] flex items-center gap-3 text-accent">
+        <div className="absolute inset-x-0 bottom-[2%] flex items-center gap-3 text-accent">
           <span className="h-2.5 w-px bg-current" />
           <span className="h-px flex-1 bg-current" />
           <span className="font-mono text-[0.8125rem] tracking-[0.1em] tabular-nums">{main}</span>
