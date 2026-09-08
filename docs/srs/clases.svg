@@ -1,0 +1,260 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="1420" viewBox="0 0 1560 1420" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="1560" height="1420" fill="#ffffff"/>
+
+  <text x="780" y="46" text-anchor="middle" font-size="27" font-weight="700" fill="#12181f">
+    Diagrama de clases — modelo de datos de Sky Import
+  </text>
+  <text x="780" y="76" text-anchor="middle" font-size="16" fill="#5b6875">
+    Entidades persistentes, sus atributos principales y las relaciones entre ellas · UML 2.5
+  </text>
+
+  <defs>
+    <marker id="rombo" markerWidth="16" markerHeight="12" refX="1" refY="6" orient="auto">
+      <path d="M0,6 L7,1 L15,6 L7,11 z" fill="#2f3a45"/>
+    </marker>
+    <marker id="rombov" markerWidth="16" markerHeight="12" refX="1" refY="6" orient="auto">
+      <path d="M0,6 L7,1 L15,6 L7,11 z" fill="#ffffff" stroke="#2f3a45" stroke-width="1.3"/>
+    </marker>
+  </defs>
+
+  <!-- ══════════ categories ══════════ -->
+  <g>
+    <rect x="50" y="140" width="330" height="164" rx="4" fill="#ffffff" stroke="#3a6ea5" stroke-width="2"/>
+    <rect x="50" y="140" width="330" height="42" rx="4" fill="#eef4fb" stroke="#3a6ea5" stroke-width="2"/>
+    <text x="215" y="160" text-anchor="middle" font-size="11" fill="#5b6875" font-style="italic">«entidad»</text>
+    <text x="215" y="176" text-anchor="middle" font-size="15" font-weight="700" fill="#1d3a5c">categories</text>
+    <line x1="50" y1="182" x2="380" y2="182" stroke="#3a6ea5" stroke-width="2"/>
+    <g font-size="12.5" fill="#2f3a45">
+      <text x="66" y="202">«PK» slug : text</text>
+      <text x="66" y="222">name_es, name_pt : text</text>
+      <text x="66" y="242">shape : text</text>
+      <text x="66" y="262">sort_order : integer</text>
+      <text x="66" y="282">active : boolean</text>
+    </g>
+    <text x="66" y="298" font-size="11" fill="#7a8794">10 columnas · Apéndice A</text>
+  </g>
+
+  <!-- ══════════ products ══════════ -->
+  <g>
+    <rect x="470" y="140" width="380" height="284" rx="4" fill="#ffffff" stroke="#3a6ea5" stroke-width="2"/>
+    <rect x="470" y="140" width="380" height="42" rx="4" fill="#eef4fb" stroke="#3a6ea5" stroke-width="2"/>
+    <text x="660" y="160" text-anchor="middle" font-size="11" fill="#5b6875" font-style="italic">«entidad»</text>
+    <text x="660" y="176" text-anchor="middle" font-size="15" font-weight="700" fill="#1d3a5c">products</text>
+    <line x1="470" y1="182" x2="850" y2="182" stroke="#3a6ea5" stroke-width="2"/>
+    <g font-size="12.5" fill="#2f3a45">
+      <text x="486" y="202">«PK» id : uuid</text>
+      <text x="486" y="222">«UQ» slug, ref : text</text>
+      <text x="486" y="242">«FK» category_slug : text</text>
+      <text x="486" y="262">name, brand, model : text</text>
+      <text x="486" y="282">price_usd : numeric(12,2)</text>
+      <text x="486" y="302">list_price_usd : numeric(12,2)</text>
+      <text x="486" y="322">units : integer  ≥ 0</text>
+      <text x="486" y="342">min_stock : integer</text>
+      <text x="486" y="362">specs, compat, images : jsonb</text>
+      <text x="486" y="382">featured, active : boolean</text>
+    </g>
+    <text x="486" y="404" font-size="11" fill="#7a8794">22 columnas · el precio vive en dólares</text>
+    <text x="486" y="418" font-size="11" fill="#7a8794">y la disponibilidad se deriva de units</text>
+  </g>
+
+  <!-- ══════════ product_variants ══════════ -->
+  <g>
+    <rect x="950" y="140" width="360" height="244" rx="4" fill="#ffffff" stroke="#3a6ea5" stroke-width="2"/>
+    <rect x="950" y="140" width="360" height="42" rx="4" fill="#eef4fb" stroke="#3a6ea5" stroke-width="2"/>
+    <text x="1130" y="160" text-anchor="middle" font-size="11" fill="#5b6875" font-style="italic">«entidad»</text>
+    <text x="1130" y="176" text-anchor="middle" font-size="15" font-weight="700" fill="#1d3a5c">product_variants</text>
+    <line x1="950" y1="182" x2="1310" y2="182" stroke="#3a6ea5" stroke-width="2"/>
+    <g font-size="12.5" fill="#2f3a45">
+      <text x="966" y="202">«PK» id : uuid</text>
+      <text x="966" y="222">«FK» product_id : uuid</text>
+      <text x="966" y="242">«UQ» sku : text</text>
+      <text x="966" y="262">label_es, label_pt : text</text>
+      <text x="966" y="282">attributes : jsonb</text>
+      <text x="966" y="302">price_usd : numeric(12,2)</text>
+      <text x="966" y="322">units : integer  ≥ 0</text>
+      <text x="966" y="342">sort_order, active</text>
+    </g>
+    <text x="966" y="366" font-size="11" fill="#7a8794">Los ejes van en jsonb: en componentes</text>
+    <text x="966" y="378" font-size="11" fill="#7a8794">no hay talla ni color fijos (ADR-003)</text>
+  </g>
+
+  <!-- ══════════ shipping_zones ══════════ -->
+  <g>
+    <rect x="50" y="520" width="330" height="184" rx="4" fill="#ffffff" stroke="#5b6875" stroke-width="2"/>
+    <rect x="50" y="520" width="330" height="42" rx="4" fill="#eef1f4" stroke="#5b6875" stroke-width="2"/>
+    <text x="215" y="540" text-anchor="middle" font-size="11" fill="#5b6875" font-style="italic">«entidad»</text>
+    <text x="215" y="556" text-anchor="middle" font-size="15" font-weight="700" fill="#2f3a45">shipping_zones</text>
+    <line x1="50" y1="562" x2="380" y2="562" stroke="#5b6875" stroke-width="2"/>
+    <g font-size="12.5" fill="#2f3a45">
+      <text x="66" y="582">«PK» id : uuid</text>
+      <text x="66" y="602">«UQ» slug : text</text>
+      <text x="66" y="622">name_es, name_pt : text</text>
+      <text x="66" y="642">requires_address : boolean</text>
+      <text x="66" y="662">active : boolean</text>
+    </g>
+    <text x="66" y="684" font-size="11" fill="#7a8794">Son destinos, no tarifas: el envío</text>
+    <text x="66" y="696" font-size="11" fill="#7a8794">se acuerda por la conversación.</text>
+  </g>
+
+  <!-- ══════════ orders ══════════ -->
+  <g>
+    <rect x="470" y="520" width="380" height="344" rx="4" fill="#ffffff" stroke="#b5762f" stroke-width="2"/>
+    <rect x="470" y="520" width="380" height="42" rx="4" fill="#fdf1e3" stroke="#b5762f" stroke-width="2"/>
+    <text x="660" y="540" text-anchor="middle" font-size="11" fill="#7a4d12" font-style="italic">«entidad»</text>
+    <text x="660" y="556" text-anchor="middle" font-size="15" font-weight="700" fill="#7a4d12">orders</text>
+    <line x1="470" y1="562" x2="850" y2="562" stroke="#b5762f" stroke-width="2"/>
+    <g font-size="12.5" fill="#2f3a45">
+      <text x="486" y="582">«PK» id : uuid</text>
+      <text x="486" y="602">«UQ» number : text  «SI-1000»</text>
+      <text x="486" y="622">status : order_status</text>
+      <text x="486" y="642">first_name, last_name, phone : text</text>
+      <text x="486" y="662">«FK» zone_slug : text</text>
+      <text x="486" y="682">zone_name, address, notes : text</text>
+      <text x="486" y="702">coupon_code : text</text>
+      <text x="486" y="722">subtotal_usd, discount_usd</text>
+      <text x="486" y="742">total_usd : numeric(12,2)</text>
+      <text x="486" y="762">fx_pyg : numeric(12,2)</text>
+      <text x="486" y="782">total_pyg : numeric(14,0)</text>
+      <text x="486" y="802">admin_note : text</text>
+      <text x="486" y="822">locale : text · created_at, updated_at</text>
+    </g>
+    <text x="486" y="846" font-size="11" fill="#7a8794">Congela importes y tasa del momento:</text>
+    <text x="486" y="858" font-size="11" fill="#7a8794">un pedido viejo sigue diciendo la verdad.</text>
+  </g>
+
+  <!-- ══════════ order_items ══════════ -->
+  <g>
+    <rect x="950" y="520" width="360" height="264" rx="4" fill="#ffffff" stroke="#b5762f" stroke-width="2"/>
+    <rect x="950" y="520" width="360" height="42" rx="4" fill="#fdf1e3" stroke="#b5762f" stroke-width="2"/>
+    <text x="1130" y="540" text-anchor="middle" font-size="11" fill="#7a4d12" font-style="italic">«entidad»</text>
+    <text x="1130" y="556" text-anchor="middle" font-size="15" font-weight="700" fill="#7a4d12">order_items</text>
+    <line x1="950" y1="562" x2="1310" y2="562" stroke="#b5762f" stroke-width="2"/>
+    <g font-size="12.5" fill="#2f3a45">
+      <text x="966" y="582">«PK» id : uuid</text>
+      <text x="966" y="602">«FK» order_id : uuid</text>
+      <text x="966" y="622">«FK» product_id : uuid  [0..1]</text>
+      <text x="966" y="642">«FK» variant_id : uuid  [0..1]</text>
+      <text x="966" y="662">sku, name, variant_label : text</text>
+      <text x="966" y="682">qty : integer  &gt; 0</text>
+      <text x="966" y="702">unit_price_usd : numeric(12,2)</text>
+      <text x="966" y="722">subtotal_usd : numeric(12,2)</text>
+    </g>
+    <text x="966" y="746" font-size="11" fill="#7a8794">Copia el nombre y el precio del momento:</text>
+    <text x="966" y="758" font-size="11" fill="#7a8794">si el producto se borra, la línea sobrevive.</text>
+  </g>
+
+  <!-- ══════════ coupons ══════════ -->
+  <g>
+    <rect x="50" y="880" width="330" height="224" rx="4" fill="#ffffff" stroke="#2c7a54" stroke-width="2"/>
+    <rect x="50" y="880" width="330" height="42" rx="4" fill="#eaf3ee" stroke="#2c7a54" stroke-width="2"/>
+    <text x="215" y="900" text-anchor="middle" font-size="11" fill="#1f4a35" font-style="italic">«entidad»</text>
+    <text x="215" y="916" text-anchor="middle" font-size="15" font-weight="700" fill="#1f4a35">coupons</text>
+    <line x1="50" y1="922" x2="380" y2="922" stroke="#2c7a54" stroke-width="2"/>
+    <g font-size="12.5" fill="#2f3a45">
+      <text x="66" y="942">«PK» id : uuid</text>
+      <text x="66" y="962">«UQ» code : text</text>
+      <text x="66" y="982">kind : coupon_kind</text>
+      <text x="66" y="1002">value : numeric(12,2)</text>
+      <text x="66" y="1022">min_purchase_usd : numeric(12,2)</text>
+      <text x="66" y="1042">starts_at, expires_at : timestamptz</text>
+      <text x="66" y="1062">max_uses, used_count : integer</text>
+      <text x="66" y="1082">active : boolean</text>
+    </g>
+  </g>
+
+  <!-- ══════════ settings ══════════ -->
+  <g>
+    <rect x="470" y="960" width="380" height="144" rx="4" fill="#ffffff" stroke="#5b6875" stroke-width="2"/>
+    <rect x="470" y="960" width="380" height="42" rx="4" fill="#eef1f4" stroke="#5b6875" stroke-width="2"/>
+    <text x="660" y="980" text-anchor="middle" font-size="11" fill="#5b6875" font-style="italic">«entidad»</text>
+    <text x="660" y="996" text-anchor="middle" font-size="15" font-weight="700" fill="#2f3a45">settings</text>
+    <line x1="470" y1="1002" x2="850" y2="1002" stroke="#5b6875" stroke-width="2"/>
+    <g font-size="12.5" fill="#2f3a45">
+      <text x="486" y="1022">«PK» key : text  «fx» · «rules»</text>
+      <text x="486" y="1042">value : jsonb</text>
+      <text x="486" y="1062">updated_at : timestamptz</text>
+      <text x="486" y="1082">updated_by : uuid</text>
+    </g>
+  </g>
+
+  <!-- ══════════ admin_users ══════════ -->
+  <g>
+    <rect x="950" y="880" width="360" height="184" rx="4" fill="#ffffff" stroke="#2c7a54" stroke-width="2"/>
+    <rect x="950" y="880" width="360" height="42" rx="4" fill="#eaf3ee" stroke="#2c7a54" stroke-width="2"/>
+    <text x="1130" y="900" text-anchor="middle" font-size="11" fill="#1f4a35" font-style="italic">«entidad»</text>
+    <text x="1130" y="916" text-anchor="middle" font-size="15" font-weight="700" fill="#1f4a35">admin_users</text>
+    <line x1="950" y1="922" x2="1310" y2="922" stroke="#2c7a54" stroke-width="2"/>
+    <g font-size="12.5" fill="#2f3a45">
+      <text x="966" y="942">«PK,FK» user_id : uuid</text>
+      <text x="966" y="962">«UQ» username : text</text>
+      <text x="966" y="982">full_name : text</text>
+      <text x="966" y="1002">revoked_at : timestamptz  [0..1]</text>
+    </g>
+    <text x="966" y="1026" font-size="11" fill="#7a8794">La contraseña NO vive acá: está en el</text>
+    <text x="966" y="1038" font-size="11" fill="#7a8794">servicio de autenticación. revoked_at nulo</text>
+    <text x="966" y="1050" font-size="11" fill="#7a8794">significa acceso vigente.</text>
+  </g>
+
+  <!-- ══════════ ENTIDAD EXTERNA ══════════ -->
+  <g>
+    <rect x="950" y="1130" width="360" height="96" rx="4" fill="#f7f9fb" stroke="#5b6875" stroke-width="2" stroke-dasharray="8 5"/>
+    <text x="1130" y="1152" text-anchor="middle" font-size="11" fill="#5b6875" font-style="italic">«esquema externo · auth»</text>
+    <text x="1130" y="1172" text-anchor="middle" font-size="15" font-weight="700" fill="#2f3a45">auth.users</text>
+    <text x="1130" y="1194" text-anchor="middle" font-size="12" fill="#40546b">Identidad, correo y contraseña cifrada</text>
+    <text x="1130" y="1212" text-anchor="middle" font-size="12" fill="#40546b">app_metadata.panel_role: el rol vive acá</text>
+  </g>
+
+  <!-- ══════════ RELACIONES ══════════ -->
+  <g stroke="#2f3a45" stroke-width="1.8" fill="none">
+    <!-- categories 1..* products -->
+    <line x1="380" y1="222" x2="470" y2="222"/>
+    <!-- products 1..* product_variants -->
+    <line x1="850" y1="222" x2="950" y2="222" marker-start="url(#rombov)"/>
+    <!-- products ..* order_items (referencia débil) -->
+    <path d="M850 342 C 900 342, 906 500, 950 610" stroke-dasharray="7 5"/>
+    <!-- product_variants 0..1 order_items -->
+    <line x1="1130" y1="384" x2="1130" y2="520"/>
+    <!-- shipping_zones 1..* orders -->
+    <line x1="380" y1="640" x2="470" y2="640"/>
+    <!-- orders composición order_items -->
+    <line x1="850" y1="640" x2="950" y2="640" marker-start="url(#rombo)"/>
+    <!-- coupons ..* orders (por código, no por clave foránea) -->
+    <path d="M380 962 C 430 962, 448 860, 470 800" stroke-dasharray="7 5"/>
+    <!-- admin_users -> auth.users -->
+    <line x1="1130" y1="1064" x2="1130" y2="1130"/>
+  </g>
+
+  <!-- multiplicidades y roles -->
+  <g font-size="12" fill="#2f3a45">
+    <text x="386" y="214">1</text><text x="452" y="214">0..*</text>
+    <text x="874" y="214">1</text><text x="922" y="214">0..*</text>
+    <text x="1136" y="404">0..1</text><text x="1136" y="512">0..*</text>
+    <text x="386" y="632">1</text><text x="452" y="632">0..*</text>
+    <text x="874" y="632">1</text><text x="922" y="632">1..*</text>
+    <text x="1136" y="1090">1</text><text x="1136" y="1124">1</text>
+  </g>
+  <g font-size="11.5" fill="#5b6875" font-style="italic">
+    <text x="392" y="240">clasifica</text>
+    <text x="866" y="240">se despliega en</text>
+    <text x="862" y="440">referencia débil</text>
+    <text x="862" y="456">on delete set null</text>
+    <text x="1144" y="452">se vendió esta</text>
+    <text x="392" y="658">se entrega en</text>
+    <text x="858" y="658">contiene · on delete cascade</text>
+    <text x="392" y="900">se aplica por código,</text>
+    <text x="392" y="916">no por clave foránea</text>
+    <text x="1144" y="1100">extiende</text>
+  </g>
+
+  <!-- leyenda -->
+  <rect x="50" y="1160" width="800" height="180" rx="8" fill="#f7f9fb" stroke="#c8d2dc" stroke-width="1.4"/>
+  <text x="72" y="1188" font-size="13" font-weight="700" fill="#12181f" letter-spacing="1.2">REFERENCIAS</text>
+  <g font-size="12.5" fill="#40546b">
+    <text x="72" y="1214">«PK» clave primaria    ·    «FK» clave foránea    ·    «UQ» restricción de unicidad</text>
+    <text x="72" y="1238">Rombo lleno · composición: al borrar el pedido se borran sus líneas en cascada</text>
+    <text x="72" y="1262">Rombo hueco · agregación: la variante pertenece al producto pero se lista aparte</text>
+    <text x="72" y="1286">Trazo cortado · referencia que puede quedar en nulo sin invalidar la fila</text>
+    <text x="72" y="1310" fill="#7a8794">Se listan los atributos con significado comercial. La relación completa de columnas,</text>
+    <text x="72" y="1326" fill="#7a8794">con sus tipos y restricciones, está en el Apéndice A.</text>
+  </g>
+</svg>
