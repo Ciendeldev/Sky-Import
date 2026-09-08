@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1460" height="544" viewBox="0 0 1460 544" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="1460" height="544" fill="#ffffff"/>
+  <defs>
+    <marker id="f-llena" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 z" fill="#2f3a45"/>
+    </marker>
+    <marker id="f-abierta" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8" fill="none" stroke="#5b6875" stroke-width="1.4"/>
+    </marker>
+  </defs>
+
+  <text x="30" y="42" font-size="21" font-weight="700" fill="#12181f">RF07 · Verificación de compatibilidad entre componentes</text>
+  <text x="30" y="68" font-size="13.5" fill="#5b6875">Quién arma un equipo y cómo el sistema le avisa qué no encaja.</text>
+  <line x1="30" y1="84" x2="1430" y2="84" stroke="#c8d2dc" stroke-width="1.4"/>
+
+  
+  <rect x="30" y="108" width="470" height="384" rx="6" fill="#f7f9fb" stroke="#c8d2dc" stroke-width="1.4"/>
+  <text x="46" y="134" font-size="12.5" font-weight="700" fill="#12181f" letter-spacing="1.2">CASO DE USO — QUIÉN LA USA</text>
+  
+    <g stroke="#3a6ea5" stroke-width="2.2" fill="none">
+      <circle cx="108" cy="170" r="17" fill="#eef4fb"/>
+      <line x1="108" y1="187" x2="108" y2="232"/>
+      <line x1="80" y1="202" x2="136" y2="202"/>
+      <line x1="108" y1="232" x2="86" y2="268"/>
+      <line x1="108" y1="232" x2="130" y2="268"/>
+    </g>
+  <text x="108" y="290" text-anchor="middle" font-size="13" font-weight="700" fill="#1d3a5c">Cliente</text>
+  <text x="108" y="308" text-anchor="middle" font-size="11.5" fill="#5b6875">sin cuenta ni registro</text>
+  
+      <ellipse cx="368" cy="204" rx="118" ry="26" fill="#ffffff" stroke="#3a6ea5" stroke-width="1.8"/>
+      <text x="368" y="209" text-anchor="middle" font-size="12.5" fill="#1d3a5c">Armar un equipo</text>
+      <line x1="138" y1="208" x2="248" y2="204" stroke="#5b6875" stroke-width="1.3"/>
+      <ellipse cx="368" cy="266" rx="118" ry="26" fill="#ffffff" stroke="#3a6ea5" stroke-width="1.8"/>
+      <text x="368" y="271" text-anchor="middle" font-size="12.5" fill="#1d3a5c">Probar el encendido</text>
+      <line x1="138" y1="208" x2="248" y2="266" stroke="#5b6875" stroke-width="1.3"/>
+  
+  <rect x="524" y="108" width="906" height="384" rx="6" fill="#ffffff" stroke="#c8d2dc" stroke-width="1.4"/>
+  <text x="540" y="134" font-size="12.5" font-weight="700" fill="#12181f" letter-spacing="1.2">COMPORTAMIENTO — CÓMO RESPONDE EL SISTEMA</text>
+  
+      <rect x="500" y="152" width="168" height="40" rx="4" fill="#ffffff" stroke="#5b6875" stroke-width="1.6"/>
+      <text x="584" y="177" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2f3a45">Cliente</text>
+      <line x1="584" y1="192" x2="584" y2="468" stroke="#9dbad6" stroke-width="1.3" stroke-dasharray="6 5"/>
+      <rect x="893" y="152" width="168" height="40" rx="4" fill="#ffffff" stroke="#5b6875" stroke-width="1.6"/>
+      <text x="977" y="177" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2f3a45">Configurador</text>
+      <line x1="977" y1="192" x2="977" y2="468" stroke="#9dbad6" stroke-width="1.3" stroke-dasharray="6 5"/>
+      <rect x="1286" y="152" width="168" height="40" rx="4" fill="#ffffff" stroke="#5b6875" stroke-width="1.6"/>
+      <text x="1370" y="177" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2f3a45">Reglas de compatibilidad</text>
+      <line x1="1370" y1="192" x2="1370" y2="468" stroke="#9dbad6" stroke-width="1.3" stroke-dasharray="6 5"/>
+  <line x1="584" y1="226" x2="968" y2="226" stroke="#2f3a45" stroke-width="1.5" marker-end="url(#f-llena)"/><text x="780.5" y="218" text-anchor="middle" font-size="12" fill="#2f3a45">1. elige procesador y placa madre</text><line x1="977" y1="270" x2="1361" y2="270" stroke="#2f3a45" stroke-width="1.5" marker-end="url(#f-llena)"/><text x="1173.5" y="262" text-anchor="middle" font-size="12" fill="#2f3a45">2. compara zócalo, memoria, vatiaje y milímetros</text><line x1="1370" y1="314" x2="986" y2="314" stroke="#5b6875" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#f-abierta)"/><text x="1173.5" y="306" text-anchor="middle" font-size="12" fill="#5b6875">3. choques encontrados</text><line x1="977" y1="358" x2="593" y2="358" stroke="#5b6875" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#f-abierta)"/><text x="780.5" y="350" text-anchor="middle" font-size="12" fill="#5b6875">4. aviso en castellano llano, no en jerga</text><line x1="584" y1="402" x2="968" y2="402" stroke="#2f3a45" stroke-width="1.5" marker-end="url(#f-llena)"/><text x="780.5" y="394" text-anchor="middle" font-size="12" fill="#2f3a45">5. pide la prueba de encendido</text><line x1="977" y1="446" x2="593" y2="446" stroke="#5b6875" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#f-abierta)"/><text x="780.5" y="438" text-anchor="middle" font-size="12" fill="#5b6875">6. si el armado enciende, o qué le falta</text>
+  
+
+  <text x="30" y="524" font-size="12" fill="#7a8794">Solo lectura sobre los datos de compatibilidad del catálogo: verificar un armado no escribe nada en la base.</text>
+</svg>
