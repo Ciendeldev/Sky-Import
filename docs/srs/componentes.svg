@@ -1,0 +1,199 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="1080" viewBox="0 0 1560 1080" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="1560" height="1080" fill="#ffffff"/>
+
+  <text x="780" y="46" text-anchor="middle" font-size="27" font-weight="700" fill="#12181f">
+    Diagrama de componentes — Sky Import
+  </text>
+  <text x="780" y="76" text-anchor="middle" font-size="16" fill="#5b6875">
+    Estructura interna del sistema y sus dependencias · UML 2.5
+  </text>
+
+  <defs>
+    <marker id="dep" markerWidth="11" markerHeight="9" refX="10" refY="4.5" orient="auto">
+      <path d="M0,0 L11,4.5 L0,9" fill="none" stroke="#5b6875" stroke-width="1.6"/>
+    </marker>
+  </defs>
+
+  <!-- icono de componente reutilizable -->
+  <defs>
+    <g id="icono">
+      <rect x="0" y="0" width="17" height="13" fill="#ffffff" stroke="#5b6875" stroke-width="1.4"/>
+      <rect x="-4" y="2.5" width="8" height="3.5" fill="#ffffff" stroke="#5b6875" stroke-width="1.2"/>
+      <rect x="-4" y="7.5" width="8" height="3.5" fill="#ffffff" stroke="#5b6875" stroke-width="1.2"/>
+    </g>
+  </defs>
+
+  <!-- ═══════ NODO 1 · NAVEGADOR ═══════ -->
+  <rect x="40" y="128" width="352" height="530" rx="8" fill="#eef4fb" stroke="#3a6ea5" stroke-width="2.2"/>
+  <text x="216" y="156" text-anchor="middle" font-size="12" fill="#40546b" font-style="italic">«dispositivo»</text>
+  <text x="216" y="180" text-anchor="middle" font-size="17" font-weight="700" fill="#1d3a5c">Navegador del cliente</text>
+
+  <g>
+    <rect x="68" y="204" width="296" height="76" rx="5" fill="#ffffff" stroke="#3a6ea5" stroke-width="1.8"/>
+    <use href="#icono" x="330" y="212"/>
+    <text x="86" y="228" font-size="11.5" fill="#5b6875" font-style="italic">«componente»</text>
+    <text x="86" y="250" font-size="15" font-weight="700" fill="#1d3a5c">Vitrina y ficha de producto</text>
+    <text x="86" y="270" font-size="12.5" fill="#40546b">React 19 · páginas ya generadas</text>
+  </g>
+  <g>
+    <rect x="68" y="296" width="296" height="76" rx="5" fill="#ffffff" stroke="#3a6ea5" stroke-width="1.8"/>
+    <use href="#icono" x="330" y="304"/>
+    <text x="86" y="320" font-size="11.5" fill="#5b6875" font-style="italic">«componente»</text>
+    <text x="86" y="342" font-size="15" font-weight="700" fill="#1d3a5c">Carrito persistente</text>
+    <text x="86" y="362" font-size="12.5" fill="#40546b">Zustand · almacenamiento local</text>
+  </g>
+  <g>
+    <rect x="68" y="388" width="296" height="76" rx="5" fill="#ffffff" stroke="#3a6ea5" stroke-width="1.8"/>
+    <use href="#icono" x="330" y="396"/>
+    <text x="86" y="412" font-size="11.5" fill="#5b6875" font-style="italic">«componente»</text>
+    <text x="86" y="434" font-size="15" font-weight="700" fill="#1d3a5c">Configurador</text>
+    <text x="86" y="454" font-size="12.5" fill="#40546b">Compatibilidad · solo lectura</text>
+  </g>
+  <g>
+    <rect x="68" y="480" width="296" height="76" rx="5" fill="#ffffff" stroke="#3a6ea5" stroke-width="1.8"/>
+    <use href="#icono" x="330" y="488"/>
+    <text x="86" y="504" font-size="11.5" fill="#5b6875" font-style="italic">«componente»</text>
+    <text x="86" y="526" font-size="15" font-weight="700" fill="#1d3a5c">Motor de animación</text>
+    <text x="86" y="546" font-size="12.5" fill="#40546b">Un solo requestAnimationFrame</text>
+  </g>
+  <g>
+    <rect x="68" y="572" width="296" height="66" rx="5" fill="#ffffff" stroke="#3a6ea5" stroke-width="1.8"/>
+    <use href="#icono" x="330" y="580"/>
+    <text x="86" y="596" font-size="11.5" fill="#5b6875" font-style="italic">«componente»</text>
+    <text x="86" y="618" font-size="15" font-weight="700" fill="#1d3a5c">Panel de administración</text>
+  </g>
+
+  <!-- ═══════ NODO 2 · SERVIDOR ═══════ -->
+  <rect x="464" y="128" width="384" height="712" rx="8" fill="#f7f9fb" stroke="#12181f" stroke-width="2.2"/>
+  <text x="656" y="156" text-anchor="middle" font-size="12" fill="#5b6875" font-style="italic">«nodo de ejecución»</text>
+  <text x="656" y="180" text-anchor="middle" font-size="17" font-weight="700" fill="#12181f">Servidor Next.js · Vercel</text>
+
+  <g>
+    <rect x="492" y="204" width="328" height="76" rx="5" fill="#ffffff" stroke="#5b6875" stroke-width="1.8"/>
+    <use href="#icono" x="786" y="212"/>
+    <text x="510" y="228" font-size="11.5" fill="#5b6875" font-style="italic">«componente»</text>
+    <text x="510" y="250" font-size="15" font-weight="700" fill="#12181f">Generación del catálogo</text>
+    <text x="510" y="270" font-size="12.5" fill="#40546b">100 páginas estáticas · dos idiomas</text>
+  </g>
+  <g>
+    <rect x="492" y="296" width="328" height="76" rx="5" fill="#ffffff" stroke="#5b6875" stroke-width="1.8"/>
+    <use href="#icono" x="786" y="304"/>
+    <text x="510" y="320" font-size="11.5" fill="#5b6875" font-style="italic">«componente»</text>
+    <text x="510" y="342" font-size="15" font-weight="700" fill="#12181f">Acciones de servidor</text>
+    <text x="510" y="362" font-size="12.5" fill="#40546b">Catálogo, precios, cupones, pedidos</text>
+  </g>
+  <g>
+    <rect x="492" y="388" width="328" height="90" rx="5" fill="#fdf1e3" stroke="#b5762f" stroke-width="1.8"/>
+    <use href="#icono" x="786" y="396"/>
+    <text x="510" y="412" font-size="11.5" fill="#7a4d12" font-style="italic">«componente»</text>
+    <text x="510" y="434" font-size="15" font-weight="700" fill="#7a4d12">Guardia de sesión y rol</text>
+    <text x="510" y="454" font-size="12.5" fill="#5e4520">Valida contra Auth en cada petición</text>
+    <text x="510" y="470" font-size="12.5" fill="#5e4520">Rechaza cuentas con acceso retirado</text>
+  </g>
+  <g>
+    <rect x="492" y="494" width="328" height="90" rx="5" fill="#eaf3ee" stroke="#2c7a54" stroke-width="1.8"/>
+    <use href="#icono" x="786" y="502"/>
+    <text x="510" y="518" font-size="11.5" fill="#1f4a35" font-style="italic">«componente»</text>
+    <text x="510" y="540" font-size="15" font-weight="700" fill="#1f4a35">Gestión de cuentas</text>
+    <text x="510" y="560" font-size="12.5" fill="#3c5f4c">Alta, retiro de acceso y claves</text>
+    <text x="510" y="576" font-size="12.5" fill="#3c5f4c">Exige rol de moderador</text>
+  </g>
+  <g>
+    <rect x="492" y="600" width="328" height="76" rx="5" fill="#ffffff" stroke="#5b6875" stroke-width="1.8"/>
+    <use href="#icono" x="786" y="608"/>
+    <text x="510" y="624" font-size="11.5" fill="#5b6875" font-style="italic">«componente»</text>
+    <text x="510" y="646" font-size="15" font-weight="700" fill="#12181f">Redactor de mensajes</text>
+    <text x="510" y="666" font-size="12.5" fill="#40546b">Arma el texto del pedido y su enlace</text>
+  </g>
+  <g>
+    <rect x="492" y="692" width="328" height="76" rx="5" fill="#ffffff" stroke="#5b6875" stroke-width="1.8"/>
+    <use href="#icono" x="786" y="700"/>
+    <text x="510" y="716" font-size="11.5" fill="#5b6875" font-style="italic">«componente»</text>
+    <text x="510" y="738" font-size="15" font-weight="700" fill="#12181f">Conversión de moneda</text>
+    <text x="510" y="758" font-size="12.5" fill="#40546b">El dólar es la única fuente de verdad</text>
+  </g>
+  <text x="656" y="800" text-anchor="middle" font-size="12.5" fill="#7a8794">La clave de servicio jamás sale de este nodo.</text>
+  <text x="656" y="820" text-anchor="middle" font-size="12.5" fill="#7a8794">El navegador solo recibe la clave anónima.</text>
+
+  <!-- ═══════ NODO 3 · SUPABASE ═══════ -->
+  <rect x="920" y="128" width="384" height="530" rx="8" fill="#eaf3ee" stroke="#2c7a54" stroke-width="2.2"/>
+  <text x="1112" y="156" text-anchor="middle" font-size="12" fill="#3c5f4c" font-style="italic">«nodo de base de datos»</text>
+  <text x="1112" y="180" text-anchor="middle" font-size="17" font-weight="700" fill="#1f4a35">Supabase · PostgreSQL</text>
+
+  <g>
+    <rect x="948" y="204" width="328" height="76" rx="5" fill="#ffffff" stroke="#2c7a54" stroke-width="1.8"/>
+    <use href="#icono" x="1242" y="212"/>
+    <text x="966" y="228" font-size="11.5" fill="#3c5f4c" font-style="italic">«componente»</text>
+    <text x="966" y="250" font-size="15" font-weight="700" fill="#1f4a35">Autenticación</text>
+    <text x="966" y="270" font-size="12.5" fill="#3c5f4c">Contraseñas y rol en metadatos</text>
+  </g>
+  <g>
+    <rect x="948" y="296" width="328" height="90" rx="5" fill="#ffffff" stroke="#2c7a54" stroke-width="1.8"/>
+    <use href="#icono" x="1242" y="304"/>
+    <text x="966" y="320" font-size="11.5" fill="#3c5f4c" font-style="italic">«componente»</text>
+    <text x="966" y="342" font-size="15" font-weight="700" fill="#1f4a35">Políticas de seguridad por fila</text>
+    <text x="966" y="362" font-size="12.5" fill="#3c5f4c">is_admin() · is_moderator()</text>
+    <text x="966" y="378" font-size="12.5" fill="#3c5f4c">Última barrera, dentro de la base</text>
+  </g>
+  <g>
+    <rect x="948" y="402" width="328" height="106" rx="5" fill="#ffffff" stroke="#2c7a54" stroke-width="1.8"/>
+    <use href="#icono" x="1242" y="410"/>
+    <text x="966" y="426" font-size="11.5" fill="#3c5f4c" font-style="italic">«componente»</text>
+    <text x="966" y="448" font-size="15" font-weight="700" fill="#1f4a35">Funciones transaccionales</text>
+    <text x="966" y="468" font-size="12.5" fill="#3c5f4c">place_order() · validate_coupon()</text>
+    <text x="966" y="484" font-size="12.5" fill="#3c5f4c">delete_order()</text>
+    <text x="966" y="500" font-size="12.5" fill="#3c5f4c">Precio y existencias se releen acá</text>
+  </g>
+  <g>
+    <rect x="948" y="524" width="328" height="106" rx="5" fill="#ffffff" stroke="#2c7a54" stroke-width="1.8"/>
+    <use href="#icono" x="1242" y="532"/>
+    <text x="966" y="548" font-size="11.5" fill="#3c5f4c" font-style="italic">«componente»</text>
+    <text x="966" y="570" font-size="15" font-weight="700" fill="#1f4a35">Esquema relacional</text>
+    <text x="966" y="590" font-size="12.5" fill="#3c5f4c">products · variants · orders</text>
+    <text x="966" y="606" font-size="12.5" fill="#3c5f4c">coupons · settings · admin_users</text>
+    <text x="966" y="622" font-size="12.5" fill="#3c5f4c">categories · shipping_zones</text>
+  </g>
+
+  <!-- ═══════ SISTEMA EXTERNO ═══════ -->
+  <rect x="1000" y="720" width="304" height="120" rx="8" fill="#ffffff" stroke="#2c7a54" stroke-width="2.2" stroke-dasharray="8 5"/>
+  <text x="1152" y="750" text-anchor="middle" font-size="12" fill="#3c5f4c" font-style="italic">«sistema externo»</text>
+  <text x="1152" y="778" text-anchor="middle" font-size="18" font-weight="700" fill="#1f4a35">WhatsApp</text>
+  <text x="1152" y="802" text-anchor="middle" font-size="12.5" fill="#3c5f4c">Recibe el mensaje ya redactado.</text>
+  <text x="1152" y="822" text-anchor="middle" font-size="12.5" fill="#3c5f4c">No devuelve nada al sistema.</text>
+
+  <!-- ═══════ DEPENDENCIAS ═══════ -->
+  <g fill="none" stroke="#5b6875" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#dep)">
+    <line x1="366" y1="242" x2="488" y2="242"/>
+    <line x1="366" y1="606" x2="488" y2="430"/>
+    <line x1="366" y1="334" x2="488" y2="330"/>
+    <line x1="822" y1="242" x2="944" y2="470"/>
+    <line x1="822" y1="334" x2="944" y2="336"/>
+    <line x1="822" y1="432" x2="944" y2="242"/>
+    <line x1="822" y1="538" x2="944" y2="250"/>
+    <line x1="822" y1="730" x2="944" y2="560"/>
+  </g>
+  <!-- servidor → whatsapp -->
+  <path d="M700 776 C 700 830, 860 786, 996 782" fill="none" stroke="#2c7a54" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#dep)"/>
+  <!-- navegador → whatsapp (compra directa desde la ficha) -->
+  <path d="M216 646 C 216 940, 700 962, 1080 856" fill="none" stroke="#2c7a54" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#dep)"/>
+  <text x="600" y="978" font-size="12.5" fill="#3c5f4c">El cliente abre WhatsApp desde su propio navegador: el sistema nunca envía el mensaje por él.</text>
+
+  <!-- etiquetas de dependencia -->
+  <g font-size="11.5" fill="#5b6875" font-style="italic">
+    <text x="382" y="236">«usa»</text>
+    <text x="382" y="352">«usa»</text>
+    <text x="836" y="236">«consulta»</text>
+    <text x="836" y="330">«escribe con RLS»</text>
+    <text x="836" y="428">«valida»</text>
+  </g>
+
+  <!-- leyenda -->
+  <rect x="40" y="700" width="392" height="150" rx="8" fill="#f7f9fb" stroke="#c8d2dc" stroke-width="1.4"/>
+  <text x="60" y="728" font-size="13" font-weight="700" fill="#12181f" letter-spacing="1.2">REFERENCIAS</text>
+  <g font-size="12.5" fill="#40546b">
+    <text x="60" y="754">Línea discontinua con punta abierta · dependencia</text>
+    <text x="60" y="778">Recuadro con solapas · componente desplegable</text>
+    <text x="60" y="802">Marco exterior · nodo donde ese código se ejecuta</text>
+    <text x="60" y="828" fill="#7a8794">Naranja: control de acceso. Verde: rol de moderación.</text>
+  </g>
+</svg>

@@ -19,10 +19,17 @@
   </g>
 
   <g>
-    <rect x="40" y="300" width="180" height="86" rx="6" fill="#fdf1e3" stroke="#b5762f" stroke-width="2"/>
-    <text x="130" y="332" text-anchor="middle" font-size="16" font-weight="700" fill="#7a4d12">Administrador</text>
-    <text x="130" y="354" text-anchor="middle" font-size="13" fill="#5e4520">Usuario «Cielo»</text>
-    <text x="130" y="372" text-anchor="middle" font-size="13" fill="#5e4520">Sesión autenticada</text>
+    <rect x="40" y="286" width="180" height="82" rx="6" fill="#eaf3ee" stroke="#2c7a54" stroke-width="2"/>
+    <text x="130" y="314" text-anchor="middle" font-size="16" font-weight="700" fill="#1f4a35">Moderador</text>
+    <text x="130" y="334" text-anchor="middle" font-size="13" fill="#3c5f4c">Titular · usuario «Cielo»</text>
+    <text x="130" y="352" text-anchor="middle" font-size="13" fill="#3c5f4c">Gobierna las cuentas</text>
+  </g>
+
+  <g>
+    <rect x="40" y="386" width="180" height="82" rx="6" fill="#fdf1e3" stroke="#b5762f" stroke-width="2"/>
+    <text x="130" y="414" text-anchor="middle" font-size="16" font-weight="700" fill="#7a4d12">Administrador</text>
+    <text x="130" y="434" text-anchor="middle" font-size="13" fill="#5e4520">Personal del comercio</text>
+    <text x="130" y="452" text-anchor="middle" font-size="13" fill="#5e4520">Sesión autenticada</text>
   </g>
 
   <!-- ══ SISTEMA ══ -->
@@ -142,7 +149,8 @@
   </defs>
   <g stroke="#40546b" stroke-width="2" fill="none" marker-end="url(#f)">
     <path d="M220 193 L 313 193"/>
-    <path d="M220 343 L 313 480"/>
+    <path d="M220 327 L 313 468"/>
+    <path d="M220 427 L 313 492"/>
     <path d="M965 720 L 1058 260"/>
     <path d="M965 375 L 1058 400"/>
     <path d="M965 550 L 1058 545"/>

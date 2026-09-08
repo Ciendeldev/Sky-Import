@@ -792,7 +792,7 @@ const doc = new Document({
         bullet('Planeamiento Académico 2026 — Asignatura Taller de Lenguaje (Décimo Semestre, UNISAL).'),
 
         h2('1.6 Resumen del Documento'),
-        p('Este documento consta de cuatro secciones. La primera presenta los datos introductorios, el alcance y el personal involucrado. La segunda describe el contexto general del producto, los perfiles de usuario y las restricciones de diseño, e incorpora el diagrama de bloques y el diagrama de flujo del proceso principal. La tercera define de forma exhaustiva las interfaces externas, los dieciséis requisitos funcionales con sus precondiciones y postcondiciones SQL, y los requisitos no funcionales con sus métricas de verificación. La cuarta reúne la información complementaria de soporte.'),
+        p('Este documento consta de cuatro secciones. La primera presenta los datos introductorios, el alcance y el personal involucrado. La segunda describe el contexto general del producto, los perfiles de usuario y las restricciones de diseño, e incorpora el diagrama de bloques y el diagrama de flujo del proceso principal. La tercera define de forma exhaustiva las interfaces externas, los veintiún requisitos funcionales con sus precondiciones y postcondiciones SQL, los requisitos no funcionales con sus métricas de verificación y el modelado UML del sistema. La cuarta reúne la información complementaria de soporte.'),
         new Paragraph({ children: [new PageBreak()] }),
 
         // ═══════════════════════════════ 2 DESCRIPCIÓN GENERAL
@@ -1001,6 +1001,21 @@ const doc = new Document({
         bullet('Veracidad de la información comercial: los importes en guaraníes y reales se rotulan expresamente como referenciales y derivados de una tasa fija, sin constituir cotización en firme.'),
         bullet('Origen del material gráfico: las fotografías de producto proceden de material de prensa de los fabricantes. Su procedencia se documenta individualmente en el archivo public/products/SOURCES.md, con la página oficial y el archivo de origen de cada imagen.'),
         bullet('Ausencia de tratamiento de datos de pago: el sistema no solicita, no transmite y no almacena datos de tarjeta ni credenciales bancarias, por lo que no le resultan aplicables las exigencias de la norma PCI-DSS.'),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        h2('3.7 Modelado UML del Sistema'),
+        p('Los tres diagramas siguientes describen el sistema en notación UML 2.5 y se corresponden con lo especificado en los apartados anteriores: ningún elemento aparece en ellos que no esté antes enunciado como requisito. Cada caso de uso lleva la referencia del requisito funcional que lo define, de modo que el diagrama y el texto puedan contrastarse punto por punto.'),
+
+        p('El primero identifica quiénes usan el sistema y qué alcanza cada uno. Es la respuesta a una pregunta que el diagrama de bloques del apartado 2.1 no contesta: allí se ven las fronteras del sistema, pero no los actores ni sus permisos. Se distinguen tres, más un sistema externo. El cliente nunca se autentica, porque el sistema no le exige cuenta; el administrador opera la tienda; y el moderador es un administrador que además gobierna las cuentas del panel y da de baja pedidos. Esa relación se representa como una generalización de actores, y no como dos actores independientes, porque el moderador no tiene permisos distintos sino permisos adicionales.'),
+        ...imagen('casos-de-uso.png', 640, 484, 'Figura 3 — Diagrama de casos de uso. Los actores del sistema y las funciones que cada uno alcanza, referidas al requisito funcional que las define.'),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        p('El segundo muestra de qué partes está hecho el sistema y de cuáles depende cada una. Interesa especialmente dónde se ejecuta cada componente, porque de eso depende la seguridad: la clave de servicio de la base de datos vive únicamente en el nodo del servidor y jamás se transfiere al navegador, que solo recibe la clave anónima sometida a las políticas de seguridad por fila. Las funciones transaccionales figuran como componente propio de la base y no del servidor, porque es allí donde se releen los precios y se descuentan las existencias.'),
+        ...imagen('componentes.png', 640, 443, 'Figura 4 — Diagrama de componentes. Estructura interna del sistema, nodos de ejecución y dependencias entre partes.'),
+        new Paragraph({ children: [new PageBreak()] }),
+
+        p('El tercero describe el comportamiento del proceso central, que es el cierre de una venta, como una secuencia de acciones entre los participantes. Recoge los dos caminos que puede tomar el registro del pedido —existencias suficientes o insuficientes— y deja ver por qué el pedido se graba antes de abrir la conversación: de ese modo queda constancia comercial aunque el cliente no llegue a escribir, que era precisamente lo que el comercio no podía rastrear atendiendo solo por mensajería.'),
+        ...imagen('comportamiento.png', 640, 583, 'Figura 5 — Diagrama de comportamiento. Secuencia de acciones del cierre de venta, con sus fragmentos opcional y alternativo.'),
         new Paragraph({ children: [new PageBreak()] }),
 
         // ═══════════════════════════════ 4 APÉNDICES
