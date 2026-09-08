@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1460" height="642" viewBox="0 0 1460 642" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="1460" height="642" fill="#ffffff"/>
+  <defs>
+    <marker id="f-llena" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 z" fill="#2f3a45"/>
+    </marker>
+    <marker id="f-abierta" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8" fill="none" stroke="#5b6875" stroke-width="1.4"/>
+    </marker>
+  </defs>
+
+  <text x="30" y="42" font-size="21" font-weight="700" fill="#12181f">RF01 · Autenticación del administrador</text>
+  <text x="30" y="68" font-size="13.5" fill="#5b6875">Quién entra al panel y qué comprueba el sistema antes de dejarlo pasar. No lleva vista de componentes: la función no se explica mejor con ellos.</text>
+  <line x1="30" y1="84" x2="1430" y2="84" stroke="#c8d2dc" stroke-width="1.4"/>
+
+  
+  <rect x="30" y="108" width="470" height="482" rx="6" fill="#f7f9fb" stroke="#c8d2dc" stroke-width="1.4"/>
+  <text x="46" y="134" font-size="12.5" font-weight="700" fill="#12181f" letter-spacing="1.2">CASO DE USO — QUIÉN LA USA</text>
+  
+    <g stroke="#b5762f" stroke-width="2.2" fill="none">
+      <circle cx="108" cy="170" r="17" fill="#fdf1e3"/>
+      <line x1="108" y1="187" x2="108" y2="232"/>
+      <line x1="80" y1="202" x2="136" y2="202"/>
+      <line x1="108" y1="232" x2="86" y2="268"/>
+      <line x1="108" y1="232" x2="130" y2="268"/>
+    </g>
+  <text x="108" y="290" text-anchor="middle" font-size="13" font-weight="700" fill="#7a4d12">Administrador</text>
+  <text x="108" y="308" text-anchor="middle" font-size="11.5" fill="#5b6875">y también el moderador</text>
+  
+      <ellipse cx="368" cy="204" rx="118" ry="26" fill="#ffffff" stroke="#b5762f" stroke-width="1.8"/>
+      <text x="368" y="209" text-anchor="middle" font-size="12.5" fill="#7a4d12">Iniciar sesión en el panel</text>
+      <line x1="138" y1="208" x2="248" y2="204" stroke="#5b6875" stroke-width="1.3"/>
+  
+  <rect x="524" y="108" width="906" height="482" rx="6" fill="#ffffff" stroke="#c8d2dc" stroke-width="1.4"/>
+  <text x="540" y="134" font-size="12.5" font-weight="700" fill="#12181f" letter-spacing="1.2">COMPORTAMIENTO — CÓMO RESPONDE EL SISTEMA</text>
+  
+      <rect x="500" y="152" width="168" height="40" rx="4" fill="#ffffff" stroke="#5b6875" stroke-width="1.6"/>
+      <text x="584" y="177" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2f3a45">Operador</text>
+      <line x1="584" y1="192" x2="584" y2="566" stroke="#9dbad6" stroke-width="1.3" stroke-dasharray="6 5"/>
+      <rect x="696.5" y="152" width="168" height="40" rx="4" fill="#ffffff" stroke="#5b6875" stroke-width="1.6"/>
+      <text x="780.5" y="177" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2f3a45">Pantalla de acceso</text>
+      <line x1="780.5" y1="192" x2="780.5" y2="566" stroke="#9dbad6" stroke-width="1.3" stroke-dasharray="6 5"/>
+      <rect x="893" y="152" width="168" height="40" rx="4" fill="#ffffff" stroke="#5b6875" stroke-width="1.6"/>
+      <text x="977" y="177" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2f3a45">Servidor</text>
+      <line x1="977" y1="192" x2="977" y2="566" stroke="#9dbad6" stroke-width="1.3" stroke-dasharray="6 5"/>
+      <rect x="1089.5" y="152" width="168" height="40" rx="4" fill="#ffffff" stroke="#5b6875" stroke-width="1.6"/>
+      <text x="1173.5" y="177" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2f3a45">Autenticación</text>
+      <line x1="1173.5" y1="192" x2="1173.5" y2="566" stroke="#9dbad6" stroke-width="1.3" stroke-dasharray="6 5"/>
+      <rect x="1286" y="152" width="168" height="40" rx="4" fill="#ffffff" stroke="#5b6875" stroke-width="1.6"/>
+      <text x="1370" y="177" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2f3a45">admin_users</text>
+      <line x1="1370" y1="192" x2="1370" y2="566" stroke="#9dbad6" stroke-width="1.3" stroke-dasharray="6 5"/>
+  <line x1="584" y1="226" x2="771.5" y2="226" stroke="#2f3a45" stroke-width="1.5" marker-end="url(#f-llena)"/><text x="682.25" y="218" text-anchor="middle" font-size="12" fill="#2f3a45">1. escribe usuario y contraseña</text><line x1="780.5" y1="270" x2="968" y2="270" stroke="#2f3a45" stroke-width="1.5" marker-end="url(#f-llena)"/><text x="878.75" y="262" text-anchor="middle" font-size="12" fill="#2f3a45">2. signIn(usuario, contraseña)</text><path d="M977 304 h38 v22 h-38" fill="none" stroke="#2f3a45" stroke-width="1.5" marker-end="url(#f-llena)"/><text x="1023" y="306" text-anchor="start" font-size="12" fill="#2f3a45">3. traduce el usuario a su correo interno</text><line x1="977" y1="368" x2="1164.5" y2="368" stroke="#2f3a45" stroke-width="1.5" marker-end="url(#f-llena)"/><text x="1075.25" y="360" text-anchor="middle" font-size="12" fill="#2f3a45">4. verifica la contraseña</text><line x1="1173.5" y1="412" x2="986" y2="412" stroke="#5b6875" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#f-abierta)"/><text x="1075.25" y="404" text-anchor="middle" font-size="12" fill="#5b6875">5. sesión válida y rol del metadato</text><line x1="977" y1="456" x2="1361" y2="456" stroke="#2f3a45" stroke-width="1.5" marker-end="url(#f-llena)"/><text x="1173.5" y="448" text-anchor="middle" font-size="12" fill="#2f3a45">6. ¿pertenece al panel y sigue vigente?</text><line x1="1370" y1="500" x2="986" y2="500" stroke="#5b6875" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#f-abierta)"/><text x="1173.5" y="492" text-anchor="middle" font-size="12" fill="#5b6875">7. fila con revoked_at</text><line x1="977" y1="544" x2="789.5" y2="544" stroke="#5b6875" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#f-abierta)"/><text x="878.75" y="536" text-anchor="middle" font-size="12" fill="#5b6875">8. entra, o el motivo del rechazo</text>
+  
+
+  <text x="30" y="622" font-size="12" fill="#7a8794">La contraseña nunca llega al servidor de la tienda: viaja al servicio de autenticación y vuelve una sesión. Un acceso retirado se rechaza acá aunque la contraseña siga siendo correcta.</text>
+</svg>

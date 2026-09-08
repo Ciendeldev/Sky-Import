@@ -122,8 +122,28 @@ function requisito(rf) {
         fila('Prioridad / Criterio de Aceptación', rf.prioridad),
       ],
     }),
+    ...(rf.ficha
+      ? figura(
+          `rf-${rf.id.toLowerCase()}.png`,
+          640,
+          `Figura ${rf.ficha.numero} — ${rf.id}. Vistas de la función: quién la usa, cómo responde el sistema${rf.ficha.componentes ? ' y de qué componentes se sirve' : ''}.`,
+        )
+      : []),
     new Paragraph({ text: '', spacing: { after: 120 } }),
   ]
+}
+
+/** Ancho y alto de un PNG, leídos de su cabecera IHDR. Evita anotar a mano las
+ *  proporciones de cada figura, que es donde se cuelan las imágenes deformadas. */
+function medidaPng(archivo) {
+  const b = readFileSync(`${DIR}\\${archivo}`)
+  return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) }
+}
+
+/** Figura escalada al ancho del cuerpo del documento, conservando proporción. */
+function figura(archivo, ancho, pie) {
+  const m = medidaPng(archivo)
+  return imagen(archivo, ancho, Math.round((ancho * m.h) / m.w), pie)
 }
 
 function imagen(archivo, ancho, alto, pie) {
@@ -152,8 +172,9 @@ function imagen(archivo, ancho, alto, pie) {
 const RF = [
   {
     id: 'RF01',
+    ficha: { numero: 3, componentes: false },
     figuras:
-      'Figura 3, caso de uso «Iniciar sesión en el panel». Figura 4, componente «Guardia de sesión y rol». Figura 1, bloque «Control de acceso por rol».',
+      'Figura 9, caso de uso «Iniciar sesión en el panel». Figura 10, componente «Guardia de sesión y rol». Figura 1, bloque «Control de acceso por rol». Ficha completa de la función: Figura 3.',
     nombre: 'Autenticación del administrador',
     sintaxis:
       'Cuando el operador ingrese su nombre de usuario y contraseña [Condición], el módulo de seguridad [Sujeto] deberá verificar [Acción] las credenciales contra el servicio de autenticación de PostgreSQL [Objeto] en un tiempo de respuesta menor a 2 segundos [Restricción].',
@@ -176,8 +197,9 @@ const RF = [
   },
   {
     id: 'RF02',
+    ficha: { numero: 4, componentes: true },
     figuras:
-      'Figura 3, caso de uso «Consultar y filtrar el catálogo». Figura 2, primer bloque del recorrido. Figura 1, bloque «Catálogo».',
+      'Figura 9, caso de uso «Consultar y filtrar el catálogo». Figura 2, primer bloque del recorrido. Figura 1, bloque «Catálogo». Ficha completa de la función: Figura 4.',
     nombre: 'Consulta y filtrado del catálogo',
     sintaxis:
       'Cuando el cliente aplique uno o más filtros [Condición], el módulo de catálogo [Sujeto] deberá recalcular y presentar [Acción] el subconjunto de productos coincidentes [Objeto] sin recargar la página y en menos de 300 ms [Restricción].',
@@ -199,7 +221,7 @@ const RF = [
   {
     id: 'RF03',
     figuras:
-      'Figura 3, caso de uso «Buscar sin acentos ni mayúsculas». Figura 1, bloque «Catálogo · filtros y búsqueda».',
+      'Figura 9, caso de uso «Buscar sin acentos ni mayúsculas». Figura 1, bloque «Catálogo · filtros y búsqueda».',
     nombre: 'Búsqueda insensible a diacríticos',
     sintaxis:
       'Cuando el cliente introduzca un término de búsqueda sin tildes [Condición], el motor de búsqueda [Sujeto] deberá localizar [Acción] los productos cuyo nombre, modelo, marca o código de referencia coincidan [Objeto], ordenados por nivel de coincidencia [Restricción].',
@@ -217,7 +239,7 @@ const RF = [
   {
     id: 'RF04',
     figuras:
-      'Figura 3, caso de uso «Elegir variante de un producto». Figura 2, decisión «¿La pieza tiene variantes?».',
+      'Figura 9, caso de uso «Elegir variante de un producto». Figura 2, decisión «¿La pieza tiene variantes?».',
     nombre: 'Selección dinámica de variantes',
     sintaxis:
       'Cuando el cliente seleccione un valor distinto en cualquier eje de variante [Condición], la ficha de producto [Sujeto] deberá actualizar [Acción] la fotografía, el código SKU, el precio y la disponibilidad [Objeto] de forma inmediata y sin recargar la página [Restricción].',
@@ -239,7 +261,7 @@ const RF = [
   {
     id: 'RF05',
     figuras:
-      'Figura 3, caso de uso «Comprar una pieza directo». Figura 2, salida «FORMATO 1».',
+      'Figura 9, caso de uso «Comprar una pieza directo». Figura 2, salida «FORMATO 1».',
     nombre: 'Compra directa por WhatsApp',
     sintaxis:
       'Cuando el cliente accione el botón «Comprar por WhatsApp» en la ficha [Condición], el generador de mensajes [Sujeto] deberá componer y abrir [Acción] una conversación de WhatsApp con el detalle del producto codificado [Objeto], sin exigir el paso previo por el carrito [Restricción].',
@@ -259,8 +281,9 @@ const RF = [
   },
   {
     id: 'RF06',
+    ficha: { numero: 5, componentes: false },
     figuras:
-      'Figura 3, caso de uso «Gestionar el carrito». Figura 2, bloque «Agrega al carrito». Figura 5, pasos 3 y 4.',
+      'Figura 9, caso de uso «Gestionar el carrito». Figura 2, bloque «Agrega al carrito». Figura 11, pasos 3 y 4. Ficha completa de la función: Figura 5.',
     nombre: 'Gestión del carrito de compras',
     sintaxis:
       'Cuando el cliente agregue, modifique o elimine una línea [Condición], el módulo de carrito [Sujeto] deberá persistir [Acción] el estado resultante en el almacenamiento local del navegador [Objeto], conservándolo entre visitas [Restricción].',
@@ -278,7 +301,7 @@ const RF = [
   {
     id: 'RF07',
     figuras:
-      'Figura 3, caso de uso «Verificar compatibilidad». Figura 1, bloque «Configurador».',
+      'Figura 9, caso de uso «Verificar compatibilidad». Figura 1, bloque «Configurador».',
     nombre: 'Verificación de compatibilidad entre componentes',
     sintaxis:
       'Cuando el cliente seleccione dos o más piezas en el configurador [Condición], el motor de compatibilidad [Sujeto] deberá evaluar [Acción] las reglas de zócalo, generación de memoria, formato, dimensiones y potencia [Objeto], informando cada incompatibilidad en lenguaje llano [Restricción].',
@@ -296,7 +319,7 @@ const RF = [
   {
     id: 'RF08',
     figuras:
-      'Figura 3, caso de uso «Ver precio en tres monedas». Figura 5, paso 2. Figura 4, componente «Conversión de moneda».',
+      'Figura 9, caso de uso «Ver precio en tres monedas». Figura 11, paso 2. Figura 10, componente «Conversión de moneda».',
     nombre: 'Conversión y presentación multimoneda',
     sintaxis:
       'Cuando el cliente seleccione una moneda de visualización [Condición], el módulo de formato monetario [Sujeto] deberá convertir y presentar [Acción] todos los importes visibles [Objeto] aplicando la tasa vigente y el redondeo comercial correspondiente [Restricción].',
@@ -314,7 +337,7 @@ const RF = [
   {
     id: 'RF09',
     figuras:
-      'Figura 3, caso de uso «Aplicar cupón de descuento». Figura 2, decisión «¿Aplica cupón?». Figura 5, fragmento «opcional».',
+      'Figura 9, caso de uso «Aplicar cupón de descuento». Figura 2, decisión «¿Aplica cupón?». Figura 11, fragmento «opcional».',
     nombre: 'Validación y aplicación de cupón de descuento',
     sintaxis:
       'Cuando el cliente introduzca un código de cupón en el checkout [Condición], la función de validación alojada en la base de datos [Sujeto] deberá comprobar y calcular [Acción] el descuento aplicable [Objeto], sin exponer en ningún caso el listado de cupones existentes [Restricción].',
@@ -335,8 +358,9 @@ const RF = [
   },
   {
     id: 'RF10',
+    ficha: { numero: 6, componentes: true },
     figuras:
-      'Figura 3, caso de uso «Registrar el pedido». Figura 2, bloque «place_order». Figura 5, paso 8 y fragmento «alt».',
+      'Figura 9, caso de uso «Registrar el pedido». Figura 2, bloque «place_order». Figura 11, paso 8 y fragmento «alt». Ficha completa de la función: Figura 6.',
     nombre: 'Registro del pedido',
     sintaxis:
       'Cuando el cliente confirme el envío del pedido [Condición], la función transaccional de registro [Sujeto] deberá releer los precios, aplicar el descuento, descontar el stock y persistir el pedido [Acción] en las tablas de pedidos y líneas de pedido [Objeto], en una única transacción atómica [Restricción].',
@@ -361,8 +385,9 @@ const RF = [
   },
   {
     id: 'RF11',
+    ficha: { numero: 7, componentes: true },
     figuras:
-      'Figura 3, caso de uso «Generar mensaje del pedido», enlazado por «include» desde el registro. Figura 2, salida «FORMATO 2». Figura 5, pasos 11 a 14.',
+      'Figura 9, caso de uso «Generar mensaje del pedido», enlazado por «include» desde el registro. Figura 2, salida «FORMATO 2». Figura 11, pasos 11 a 14. Ficha completa de la función: Figura 7.',
     nombre: 'Generación del mensaje de pedido completo',
     sintaxis:
       'Cuando el registro del pedido haya concluido [Condición], el generador de mensajes [Sujeto] deberá componer [Acción] el mensaje de pedido con líneas numeradas, cupón, envío, total y datos de entrega [Objeto], codificado para su transmisión por la interfaz de WhatsApp [Restricción].',
@@ -381,7 +406,7 @@ const RF = [
   {
     id: 'RF12',
     figuras:
-      'Figura 3, caso de uso «Administrar productos y variantes». Figura 1, bloque «Inventario».',
+      'Figura 9, caso de uso «Administrar productos y variantes». Figura 1, bloque «Inventario».',
     nombre: 'Administración de productos y variantes',
     sintaxis:
       'Cuando el administrador autenticado confirme el formulario de producto [Condición], el módulo de inventario [Sujeto] deberá crear o actualizar [Acción] el registro correspondiente y sus variantes [Objeto], validando previamente unicidad de código y coherencia de precio [Restricción].',
@@ -405,7 +430,7 @@ const RF = [
   {
     id: 'RF13',
     figuras:
-      'Figura 3, caso de uso «Controlar existencias». Figura 1, bloque «Inventario». Figura 5, autollamada de descuento de unidades.',
+      'Figura 9, caso de uso «Controlar existencias». Figura 1, bloque «Inventario». Figura 11, autollamada de descuento de unidades.',
     nombre: 'Control de stock con alertas de mínimo',
     sintaxis:
       'Cuando las unidades de un producto activo desciendan hasta el umbral configurado o por debajo [Condición], el módulo de inventario [Sujeto] deberá señalar [Acción] dicho producto en el panel de alertas [Objeto], diferenciando el estado agotado del estado de últimas unidades [Restricción].',
@@ -424,7 +449,7 @@ const RF = [
   {
     id: 'RF14',
     figuras:
-      'Figura 3, caso de uso «Configurar precios y tasa». Figura 1, bloque «Precios».',
+      'Figura 9, caso de uso «Configurar precios y tasa». Figura 1, bloque «Precios».',
     nombre: 'Configuración de precios y tasa de cambio',
     sintaxis:
       'Cuando el administrador registre una nueva tasa de cambio [Condición], el módulo de configuración [Sujeto] deberá persistir y propagar [Acción] dicho valor a la totalidad de la tienda y de los mensajes generados [Objeto], sin necesidad de un nuevo despliegue [Restricción].',
@@ -446,7 +471,7 @@ const RF = [
   {
     id: 'RF15',
     figuras:
-      'Figura 3, caso de uso «Administrar cupones». Figura 1, bloque «Cupones».',
+      'Figura 9, caso de uso «Administrar cupones». Figura 1, bloque «Cupones».',
     nombre: 'Administración de cupones de descuento',
     sintaxis:
       'Cuando el administrador registre un cupón [Condición], el módulo de promociones [Sujeto] deberá almacenar [Acción] su código, tipo, valor, compra mínima, vigencia y límite de usos [Objeto], garantizando la unicidad del código con independencia de mayúsculas [Restricción].',
@@ -468,7 +493,7 @@ const RF = [
   {
     id: 'RF16',
     figuras:
-      'Figura 3, caso de uso «Seguir los pedidos». Figura 1, bloque «Pedidos».',
+      'Figura 9, caso de uso «Seguir los pedidos». Figura 1, bloque «Pedidos».',
     nombre: 'Seguimiento interno de pedidos',
     sintaxis:
       'Cuando el administrador consulte el historial [Condición], el módulo de pedidos [Sujeto] deberá presentar [Acción] la totalidad de los pedidos con su estado, importes, líneas y datos de entrega [Objeto], ordenados del más reciente al más antiguo [Restricción].',
@@ -486,8 +511,9 @@ const RF = [
   },
   {
     id: 'RF17',
+    ficha: { numero: 8, componentes: true },
     figuras:
-      'Figura 3, caso de uso «Crear cuentas del panel», alcanzable solo desde el actor Moderador. Figura 4, componente «Gestión de cuentas».',
+      'Figura 9, caso de uso «Crear cuentas del panel», alcanzable solo desde el actor Moderador. Figura 10, componente «Gestión de cuentas». Ficha completa de la función: Figura 8.',
     nombre: 'Alta de cuentas de administración',
     sintaxis:
       'Cuando el moderador registre una nueva cuenta [Condición], el módulo de configuración [Sujeto] deberá crear [Acción] una identidad de administrador con su nombre de usuario y contraseña [Objeto], sin capacidad de otorgar el rol de moderación [Restricción].',
@@ -509,7 +535,7 @@ const RF = [
   {
     id: 'RF18',
     figuras:
-      'Figura 3, caso de uso «Retirar y devolver acceso». Figura 4, componentes «Gestión de cuentas» y «Políticas de seguridad por fila».',
+      'Figura 9, caso de uso «Retirar y devolver acceso». Figura 10, componentes «Gestión de cuentas» y «Políticas de seguridad por fila».',
     nombre: 'Retiro y restitución del acceso',
     sintaxis:
       'Cuando el moderador retire el acceso de una cuenta [Condición], el sistema [Sujeto] deberá impedir [Acción] tanto el ingreso al panel como toda escritura sobre la base de datos [Objeto], de forma reversible y sin eliminar el registro histórico [Restricción].',
@@ -531,7 +557,7 @@ const RF = [
   {
     id: 'RF19',
     figuras:
-      'Figura 3, caso de uso «Cambiar la contraseña propia», alcanzable por ambos perfiles. Figura 4, componente «Autenticación».',
+      'Figura 9, caso de uso «Cambiar la contraseña propia», alcanzable por ambos perfiles. Figura 10, componente «Autenticación».',
     nombre: 'Cambio de la contraseña propia',
     sintaxis:
       'Cuando un usuario del panel modifique su contraseña [Condición], el módulo de configuración [Sujeto] deberá exigir [Acción] la contraseña vigente antes de aceptar la nueva [Objeto], sin interrumpir la sesión en curso [Restricción].',
@@ -552,7 +578,7 @@ const RF = [
   {
     id: 'RF20',
     figuras:
-      'Figura 3, caso de uso «Dar de baja pedidos». Figura 4, componente «Funciones transaccionales».',
+      'Figura 9, caso de uso «Dar de baja pedidos». Figura 10, componente «Funciones transaccionales».',
     nombre: 'Baja de pedidos con restitución de existencias',
     sintaxis:
       'Cuando el moderador elimine un pedido [Condición], el módulo de pedidos [Sujeto] deberá devolver [Acción] las unidades comprometidas al inventario y suprimir el registro con sus líneas [Objeto], en una única transacción [Restricción].',
@@ -574,7 +600,7 @@ const RF = [
   {
     id: 'RF21',
     figuras:
-      'Figura 3, caso de uso «Restablecer clave ajena». Figura 4, componentes «Gestión de cuentas» y «Autenticación».',
+      'Figura 9, caso de uso «Restablecer clave ajena». Figura 10, componentes «Gestión de cuentas» y «Autenticación».',
     nombre: 'Restablecimiento de la contraseña de otra cuenta',
     sintaxis:
       'Cuando un administrador pierda el acceso [Condición], el moderador [Sujeto] deberá poder asignarle [Acción] una contraseña nueva desde el panel [Objeto], sin conocer la anterior y sin poder aplicarlo sobre otro moderador [Restricción].',
@@ -987,6 +1013,7 @@ const doc = new Document({
 
         // ────────────────────────── 3.2 REQUISITOS FUNCIONALES
         h2('3.2 Requisitos Funcionales'),
+        p('Cada requisito se presenta en una ficha con su sintaxis formal, sus condiciones de entrada y de salida y la referencia a las figuras donde aparece representado. Los requisitos cuyo comportamiento no se agota en el enunciado llevan además su propia lámina de vistas: quién ejecuta la función, cómo responde el sistema paso a paso y, cuando aporta algo que el texto no dice, de qué componentes se sirve. No todas las funciones necesitan las tres vistas; la autenticación, por ejemplo, no se explica mejor enumerando sus componentes.'),
         p('Se especifican a continuación los dieciséis requisitos funcionales del sistema, redactados conforme a la sintaxis normalizada de ISO/IEC/IEEE 29148 y detallando para cada uno sus condiciones de entrada y sus condiciones de salida sobre la base de datos.'),
         ...RF.flatMap(requisito),
         new Paragraph({ children: [new PageBreak()] }),
@@ -1050,25 +1077,25 @@ const doc = new Document({
         p('Los tres diagramas siguientes describen el sistema en notación UML 2.5 y se corresponden con lo especificado en los apartados anteriores: ningún elemento aparece en ellos que no esté antes enunciado como requisito. Cada caso de uso lleva la referencia del requisito funcional que lo define, de modo que el diagrama y el texto puedan contrastarse punto por punto.'),
 
         p('El primero identifica quiénes usan el sistema y qué alcanza cada uno. Es la respuesta a una pregunta que el diagrama de bloques del apartado 2.1 no contesta: allí se ven las fronteras del sistema, pero no los actores ni sus permisos. Se distinguen tres, más un sistema externo. El cliente nunca se autentica, porque el sistema no le exige cuenta; el administrador opera la tienda; y el moderador es un administrador que además gobierna las cuentas del panel y da de baja pedidos. Esa relación se representa como una generalización de actores, y no como dos actores independientes, porque el moderador no tiene permisos distintos sino permisos adicionales.'),
-        ...imagen('casos-de-uso.png', 640, 484, 'Figura 3 — Diagrama de casos de uso. Los actores del sistema y las funciones que cada uno alcanza, referidas al requisito funcional que las define.'),
+        ...imagen('casos-de-uso.png', 640, 484, 'Figura 9 — Diagrama de casos de uso. Los actores del sistema y las funciones que cada uno alcanza, referidas al requisito funcional que las define.'),
         new Paragraph({ children: [new PageBreak()] }),
 
         p('El segundo muestra de qué partes está hecho el sistema y de cuáles depende cada una. Interesa especialmente dónde se ejecuta cada componente, porque de eso depende la seguridad: la clave de servicio de la base de datos vive únicamente en el nodo del servidor y jamás se transfiere al navegador, que solo recibe la clave anónima sometida a las políticas de seguridad por fila. Las funciones transaccionales figuran como componente propio de la base y no del servidor, porque es allí donde se releen los precios y se descuentan las existencias.'),
-        ...imagen('componentes.png', 640, 443, 'Figura 4 — Diagrama de componentes. Estructura interna del sistema, nodos de ejecución y dependencias entre partes.'),
+        ...imagen('componentes.png', 640, 443, 'Figura 10 — Diagrama de componentes. Estructura interna del sistema, nodos de ejecución y dependencias entre partes.'),
         new Paragraph({ children: [new PageBreak()] }),
 
         p('El tercero describe el comportamiento del proceso central, que es el cierre de una venta, como una secuencia de acciones entre los participantes. Recoge los dos caminos que puede tomar el registro del pedido —existencias suficientes o insuficientes— y deja ver por qué el pedido se graba antes de abrir la conversación: de ese modo queda constancia comercial aunque el cliente no llegue a escribir, que era precisamente lo que el comercio no podía rastrear atendiendo solo por mensajería.'),
-        ...imagen('comportamiento.png', 640, 583, 'Figura 5 — Diagrama de comportamiento. Secuencia de acciones del cierre de venta, con sus fragmentos opcional y alternativo.'),
+        ...imagen('comportamiento.png', 640, 583, 'Figura 11 — Diagrama de comportamiento. Secuencia de acciones del cierre de venta, con sus fragmentos opcional y alternativo.'),
         new Paragraph({ children: [new PageBreak()] }),
 
         p('El cuarto traslada el modelo de datos del Apéndice A a notación de clases, que es la forma en que se lleva un esquema relacional a UML: cada entidad persistente con sus atributos y, sobre todo, las relaciones entre ellas. Dos detalles del negocio quedan a la vista en la propia notación. Las líneas de un pedido cuelgan de él por composición, de modo que al darlo de baja se van con él; en cambio la referencia de una línea al producto es débil y admite quedar en nulo, porque el registro de lo vendido tiene que sobrevivir a la eliminación de la pieza del catálogo. Y el cupón se vincula al pedido por su código y no por clave foránea, para que el pedido conserve el código aplicado aunque el cupón se elimine después.'),
-        ...imagen('clases.png', 640, 583, 'Figura 6 — Diagrama de clases. Entidades persistentes, atributos con significado comercial y relaciones. La relación completa de columnas está en el Apéndice A.'),
+        ...imagen('clases.png', 640, 583, 'Figura 12 — Diagrama de clases. Entidades persistentes, atributos con significado comercial y relaciones. La relación completa de columnas está en el Apéndice A.'),
         new Paragraph({ children: [new PageBreak()] }),
 
         // ═══════════════════════════════ 4 APÉNDICES
         h1('4. Apéndices'),
         h2('4.1 Apéndice A — Modelo de datos preliminar'),
-        p('Relación de tablas del esquema relacional y su finalidad. Su representación gráfica, con las relaciones y multiplicidades, es la Figura 6 del apartado 3.7:'),
+        p('Relación de tablas del esquema relacional y su finalidad. Su representación gráfica, con las relaciones y multiplicidades, es la Figura 12 del apartado 3.7:'),
         tabla(
           ['Tabla', 'Finalidad', 'Claves y restricciones principales'],
           [
