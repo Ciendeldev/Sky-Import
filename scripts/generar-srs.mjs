@@ -530,6 +530,27 @@ const RF = [
     prioridad:
       'Media-Alta. Caso de prueba verificado sobre la base real: la baja de un pedido de una unidad restituyó las existencias de cero a uno y suprimió sus líneas en cascada.',
   },
+  {
+    id: 'RF21',
+    nombre: 'Restablecimiento de la contraseña de otra cuenta',
+    sintaxis:
+      'Cuando un administrador pierda el acceso [Condición], el moderador [Sujeto] deberá poder asignarle [Acción] una contraseña nueva desde el panel [Objeto], sin conocer la anterior y sin poder aplicarlo sobre otro moderador [Restricción].',
+    descripcion:
+      'Recupera el acceso de un colaborador sin recurrir a correo electrónico ni a la consola del proveedor: las cuentas del panel emplean un correo interno determinista que nadie consulta. La operación no exige la contraseña vigente —el moderador no la conoce ni debe conocerla—, por lo que queda acotada a cuentas de perfil administrador: ni la propia ni la de otro moderador pueden restablecerse por esta vía, de modo que nadie se apodera de una cuenta de igual jerarquía. La pantalla de acceso remite explícitamente a este procedimiento cuando alguien pierde su contraseña.',
+    pre: [
+      '1. Existe una sesión activa cuyo rol verificado es el de moderador.',
+      '2. La cuenta afectada pertenece al panel, es distinta de la propia y su perfil es el de administrador.',
+      '3. La contraseña nueva tiene entre doce y ciento veintiocho caracteres y coincide con su repetición.',
+    ],
+    post: [
+      '1. Actualización de la credencial en el servicio de autenticación, mediante la clave de servicio.',
+      '2. La contraseña anterior deja de habilitar el ingreso.',
+      '3. No se modifica la pertenencia al panel ni el estado de acceso de la cuenta.',
+    ],
+    rnf: 'RNF02 (Control de acceso), RNF14 (Privacidad), RNF15 (Separación de funciones)',
+    prioridad:
+      'Media-Alta. Caso de prueba verificado: tras el restablecimiento, la contraseña anterior es rechazada y la nueva es aceptada. Un intento sobre una cuenta de perfil moderador se deniega sin efectuar cambio alguno.',
+  },
 ]
 
 // ═══════════════════════════════════════════════════════ documento
