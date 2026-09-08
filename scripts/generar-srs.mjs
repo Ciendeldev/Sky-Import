@@ -240,7 +240,7 @@ const RF = [
     ],
     post: [
       '1. Operación de solo lectura: no se registra pedido ni se descuenta stock en esta vía.',
-      '2. Se abre la dirección wa.me con el mensaje codificado mediante encodeURIComponent.',
+      '2. Se abre la dirección oficial api.whatsapp.com/send con el mensaje codificado mediante encodeURIComponent. No se emplea el atajo wa.me: al redirigir altera los caracteres fuera del alfabeto latino básico y desfigura los emojis del mensaje.',
     ],
     rnf: 'RNF07 (Usabilidad), RNF08 (Compatibilidad móvil)',
     prioridad:
@@ -348,7 +348,7 @@ const RF = [
     pre: ['1. El pedido ha sido procesado, con o sin registro en la base de datos.'],
     post: [
       '1. Operación de solo lectura sobre los datos ya calculados.',
-      '2. Se abre la dirección wa.me con el contenido codificado mediante encodeURIComponent.',
+      '2. Se abre la dirección oficial api.whatsapp.com/send con el contenido codificado mediante encodeURIComponent.',
       '3. El carrito del cliente se vacía tras la apertura.',
     ],
     rnf: 'RNF06 (Internacionalización), RNF07 (Usabilidad)',
@@ -929,7 +929,7 @@ const doc = new Document({
             ['Entorno de ejecución del servidor', 'Node.js versión 24.19.0, fijada en el repositorio para garantizar reproducibilidad.'],
             ['Motor de base de datos', 'PostgreSQL 15 o superior, con la extensión pgcrypto habilitada.'],
             ['Servicio de autenticación', 'Servicio de identidad de la plataforma, con almacenamiento irreversible de credenciales.'],
-            ['Interfaz de mensajería', 'API de enlace de WhatsApp mediante el esquema wa.me con parámetros codificados.'],
+            ['Interfaz de mensajería', 'Enlace oficial de WhatsApp, api.whatsapp.com/send, con parámetros codificados. Se descartó el acortador wa.me porque su redirección altera los caracteres fuera del alfabeto latino básico.'],
           ],
           [2600, 6426],
         ),

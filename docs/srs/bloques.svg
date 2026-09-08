@@ -128,7 +128,7 @@
   <g>
     <rect x="1060" y="340" width="380" height="120" rx="6" fill="#e6f6ec" stroke="#1f8a4c" stroke-width="2"/>
     <text x="1250" y="370" text-anchor="middle" font-size="17" font-weight="700" fill="#12603a">WhatsApp</text>
-    <text x="1250" y="393" text-anchor="middle" font-size="13" fill="#25543c">API de enlace wa.me</text>
+    <text x="1250" y="393" text-anchor="middle" font-size="13" fill="#25543c">Enlace api.whatsapp.com/send</text>
     <text x="1250" y="416" text-anchor="middle" font-size="13" fill="#25543c">+595 994 222 542</text>
     <text x="1250" y="439" text-anchor="middle" font-size="13" fill="#25543c">Único canal de cierre de venta</text>
   </g>

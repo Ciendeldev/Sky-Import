@@ -135,15 +135,16 @@
   <!-- Formato 2 -->
   <rect x="472" y="1448" width="300" height="56" rx="4" fill="#e6f6ec" stroke="#1f8a4c" stroke-width="1.8"/>
   <text x="622" y="1472" text-anchor="middle" font-size="14" font-weight="700" fill="#12603a">FORMATO 2 — pedido completo</text>
-  <text x="622" y="1492" text-anchor="middle" font-size="12.5" fill="#25543c">Líneas, cupón, envío, total y datos de entrega</text>
+  <text x="622" y="1492" text-anchor="middle" font-size="12.5" fill="#25543c">Líneas, cupón, total de las piezas y datos de entrega</text>
 
   <path d="M622 1504 L 622 1542 L 434 1542" stroke="#3d4d5c" stroke-width="1.9" fill="none" marker-end="url(#a)"/>
 
   <!-- Apertura -->
-  <rect x="272" y="1544" width="320" height="58" rx="4" fill="#e6f6ec" stroke="#1f8a4c" stroke-width="1.8"/>
-  <text x="432" y="1568" text-anchor="middle" font-size="14" fill="#12603a">Se abre wa.me con el mensaje</text>
-  <text x="432" y="1588" text-anchor="middle" font-size="13" fill="#25543c">codificado con encodeURIComponent</text>
-  <line x1="432" y1="1602" x2="432" y2="1626" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
+  <rect x="272" y="1542" width="320" height="66" rx="4" fill="#e6f6ec" stroke="#1f8a4c" stroke-width="1.8"/>
+  <text x="432" y="1564" text-anchor="middle" font-size="14" fill="#12603a">Se abre api.whatsapp.com/send</text>
+  <text x="432" y="1582" text-anchor="middle" font-size="12.5" fill="#25543c">con el texto codificado una sola vez</text>
+  <text x="432" y="1598" text-anchor="middle" font-size="12" fill="#4a7a61">El atajo wa.me altera los emojis al redirigir</text>
+  <line x1="432" y1="1608" x2="432" y2="1628" stroke="#3d4d5c" stroke-width="1.9" marker-end="url(#a)"/>
 
   <!-- FIN -->
   <ellipse cx="432" cy="1660" rx="150" ry="32" fill="#dfe8f2" stroke="#3a6ea5" stroke-width="2.5"/>
