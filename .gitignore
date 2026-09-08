@@ -45,3 +45,7 @@ llave.txt
 
 # local reconstruction evidence
 /.img2threejs/
+
+# Transcripción del audio de la cátedra: pesada y ajena al código.
+.transcripcion/
+.e2e-noche.txt
