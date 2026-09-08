@@ -206,44 +206,45 @@
 
   <!-- ══════════ RELACIONES ══════════ -->
   <g stroke="#2f3a45" stroke-width="1.8" fill="none">
-    <!-- categories 1..* products -->
     <line x1="380" y1="222" x2="470" y2="222"/>
-    <!-- products 1..* product_variants -->
     <line x1="850" y1="222" x2="950" y2="222" marker-start="url(#rombov)"/>
-    <!-- products ..* order_items (referencia débil) -->
-    <path d="M850 342 C 900 342, 906 500, 950 610" stroke-dasharray="7 5"/>
-    <!-- product_variants 0..1 order_items -->
+    <!-- products ..* order_items: por la banda libre entre las dos filas, y entra
+         por arriba. Bajarla por el pasillo la hacía chocar con la composición. -->
+    <path d="M850 410 L 1250 410 L 1250 520" stroke-dasharray="7 5"/>
     <line x1="1130" y1="384" x2="1130" y2="520"/>
-    <!-- shipping_zones 1..* orders -->
     <line x1="380" y1="640" x2="470" y2="640"/>
-    <!-- orders composición order_items -->
-    <line x1="850" y1="640" x2="950" y2="640" marker-start="url(#rombo)"/>
-    <!-- coupons ..* orders (por código, no por clave foránea) -->
-    <path d="M380 962 C 430 962, 448 860, 470 800" stroke-dasharray="7 5"/>
-    <!-- admin_users -> auth.users -->
+    <line x1="850" y1="620" x2="950" y2="620" marker-start="url(#rombo)"/>
+    <path d="M380 940 L 424 940 L 424 800 L 470 800" stroke-dasharray="7 5"/>
     <line x1="1130" y1="1064" x2="1130" y2="1130"/>
   </g>
 
-  <!-- multiplicidades y roles -->
+  <!-- multiplicidades -->
   <g font-size="12" fill="#2f3a45">
-    <text x="386" y="214">1</text><text x="452" y="214">0..*</text>
-    <text x="874" y="214">1</text><text x="922" y="214">0..*</text>
-    <text x="1136" y="404">0..1</text><text x="1136" y="512">0..*</text>
-    <text x="386" y="632">1</text><text x="452" y="632">0..*</text>
-    <text x="874" y="632">1</text><text x="922" y="632">1..*</text>
+    <text x="386" y="214">1</text><text x="440" y="214">0..*</text>
+    <text x="874" y="214">1</text><text x="912" y="214">0..*</text>
+    <text x="858" y="402">1</text><text x="1258" y="512">0..*</text>
+    <text x="1090" y="400">0..1</text><text x="1090" y="512">0..*</text>
+    <text x="386" y="632">1</text><text x="440" y="632">0..*</text>
+    <text x="862" y="612">1</text><text x="916" y="612">1..*</text>
+    <text x="386" y="932">0..*</text><text x="440" y="792">0..*</text>
     <text x="1136" y="1090">1</text><text x="1136" y="1124">1</text>
   </g>
+
+  <!-- roles, todos en espacio libre -->
   <g font-size="11.5" fill="#5b6875" font-style="italic">
-    <text x="392" y="240">clasifica</text>
+    <text x="396" y="240">clasifica</text>
     <text x="866" y="240">se despliega en</text>
-    <text x="862" y="440">referencia débil</text>
-    <text x="862" y="456">on delete set null</text>
-    <text x="1144" y="452">se vendió esta</text>
-    <text x="392" y="658">se entrega en</text>
-    <text x="858" y="658">contiene · on delete cascade</text>
-    <text x="392" y="900">se aplica por código,</text>
-    <text x="392" y="916">no por clave foránea</text>
-    <text x="1144" y="1100">extiende</text>
+    <text x="396" y="658">se entrega en</text>
+    <text x="940" y="440">referencia débil · on delete set null</text>
+    <text x="1000" y="490">se vendió esta</text>
+    <text x="200" y="856">se aplica por código, no por clave foránea</text>
+  </g>
+  <g font-size="11.5" fill="#5b6875" font-style="italic" text-anchor="middle">
+    <text x="900" y="600">contiene</text>
+  </g>
+  <g font-size="11" fill="#7a8794" text-anchor="middle">
+    <text x="900" y="646">on delete</text>
+    <text x="900" y="660">cascade</text>
   </g>
 
   <!-- leyenda -->
