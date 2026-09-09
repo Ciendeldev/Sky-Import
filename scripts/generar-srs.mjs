@@ -935,6 +935,56 @@ const doc = new Document({
         ...imagen('bloques.png', 620, 413, 'Figura 1 — Diagrama de bloques del sistema Sky Import.'),
         new Paragraph({ children: [new PageBreak()] }),
 
+        h3('Posición frente a una tienda en línea convencional'),
+        p('Varias de las decisiones de alcance de este sistema son deliberadas y no carencias, de modo que conviene enunciarlas junto a su motivo. Una tienda en línea genérica resuelve un problema distinto: vender a un desconocido que paga en el acto. Sky Import vende en una ciudad de frontera donde la venta se cierra hablando, y el software se diseñó para acompañar esa forma de vender en lugar de sustituirla.'),
+        tabla(
+          ['Aspecto', 'Tienda en línea convencional', 'Sky Import y su motivo'],
+          [
+            [
+              'Cuenta de usuario',
+              'Exige registrarse, verificar un correo y recordar una contraseña antes de poder comprar.',
+              'No pide cuenta. El cliente completa cuatro datos en una sola pantalla y pasa a la conversación. Registrarse es la primera fricción que abandona a un comprador, y acá no aporta nada: el vínculo comercial ya existe por mensajería.',
+            ],
+            [
+              'Cobro',
+              'Procesa el pago en línea con tarjeta o pasarela, y la venta no existe hasta que el dinero ingresa.',
+              'No cobra. El importe se acuerda en la conversación y se salda en el local o por transferencia, que es como el comercio ya vende hoy. Evita además custodiar datos de pago.',
+            ],
+            [
+              'Carrito',
+              'Se guarda en el servidor, atado a la cuenta del usuario.',
+              'Vive en el navegador del cliente. Sobrevive a cerrar la pestaña sin necesitar cuenta, y el sistema no almacena carritos de nadie.',
+            ],
+            [
+              'Cierre de la venta',
+              'Confirma por correo electrónico y deriva a un centro de ayuda.',
+              'Abre WhatsApp con el pedido ya escrito: piezas, códigos, cantidades e importes. El cliente no transcribe nada y el vendedor no pregunta lo que ya está dicho.',
+            ],
+            [
+              'Pedidos no concretados',
+              'Se pierden: sin pago no queda registro.',
+              'Quedan registrados en el momento en que el cliente pulsa el botón, antes de abrir la conversación. Así hay seguimiento comercial aunque nunca llegue a escribir.',
+            ],
+            [
+              'Monedas',
+              'Publica en una sola moneda.',
+              'Publica en dólares, guaraníes y reales a la vez, derivadas de una tasa única. Ciudad del Este atiende a compradores de tres países y la conversión a mano era fuente de error.',
+            ],
+            [
+              'Idioma',
+              'Un idioma, o traducción automática.',
+              'Español y portugués, escritos, y la ausencia de una traducción impide compilar el proyecto. Buena parte de la clientela cruza desde Brasil.',
+            ],
+            [
+              'Compatibilidad entre piezas',
+              'No la verifica: el comprador arma bajo su responsabilidad.',
+              'La verifica antes de la compra y explica en castellano llano qué no encaja. Es la consulta que más tiempo consume por mensajería y la causa más común de devolución.',
+            ],
+          ],
+          [1700, 3200, 4126],
+        ),
+        p('En síntesis, lo que el sistema no hace no es una etapa pendiente sino el límite elegido: publica, calcula, verifica y deja constancia, y entrega el pedido armado a la persona que cierra la venta.', { spacing: { before: 160, after: 160 } }),
+
         h2('2.2 Funcionalidad del Producto'),
         p('El sistema se organiza lógicamente en las siguientes macro-funcionalidades:'),
         bullet('Módulo de Gestión de Acceso y Seguridad: autenticación del perfil administrador y control de permisos verificado por el motor de base de datos.'),
