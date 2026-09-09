@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="1600" height="1050" fill="#ffffff"/>
+
+  <defs>
+    <marker id="hueca" markerWidth="18" markerHeight="14" refX="17" refY="7" orient="auto">
+      <path d="M0,0 L17,7 L0,14 z" fill="#ffffff" stroke="#5b6875" stroke-width="2"/>
+    </marker>
+  </defs>
+
+  <text x="800" y="58" text-anchor="middle" font-size="34" font-weight="700" fill="#12181f">
+    Quiénes usan Sky Import
+  </text>
+  <text x="800" y="92" text-anchor="middle" font-size="19" fill="#5b6875">
+    Tres perfiles y lo que alcanza cada uno
+  </text>
+
+  <!-- ══ FRONTERA DEL SISTEMA ══ -->
+  <rect x="430" y="130" width="740" height="700" rx="14" fill="#f7f9fb" stroke="#12181f" stroke-width="3"/>
+  <text x="800" y="168" text-anchor="middle" font-size="19" font-weight="700" fill="#12181f" letter-spacing="3">SISTEMA</text>
+
+  <!-- ══ LO QUE HACE EL CLIENTE ══ -->
+  <ellipse cx="800" cy="256" rx="310" ry="54" fill="#ffffff" stroke="#3a6ea5" stroke-width="3"/>
+  <text x="800" y="250" text-anchor="middle" font-size="23" font-weight="600" fill="#1d3a5c">Elegir piezas y armar su equipo</text>
+  <text x="800" y="278" text-anchor="middle" font-size="16" fill="#7a8794">RF02 a RF09</text>
+
+  <ellipse cx="800" cy="396" rx="310" ry="54" fill="#ffffff" stroke="#3a6ea5" stroke-width="3"/>
+  <text x="800" y="390" text-anchor="middle" font-size="23" font-weight="600" fill="#1d3a5c">Cerrar la compra por WhatsApp</text>
+  <text x="800" y="418" text-anchor="middle" font-size="16" fill="#7a8794">RF05 · RF10 · RF11</text>
+
+  <!-- ══ LO QUE HACE EL ADMINISTRADOR ══ -->
+  <ellipse cx="800" cy="566" rx="310" ry="54" fill="#ffffff" stroke="#b5762f" stroke-width="3"/>
+  <text x="800" y="560" text-anchor="middle" font-size="23" font-weight="600" fill="#7a4d12">Administrar la tienda</text>
+  <text x="800" y="588" text-anchor="middle" font-size="16" fill="#9a8054">catálogo, precios, cupones y pedidos · RF12 a RF16</text>
+
+  <!-- ══ LO QUE SOLO HACE EL MODERADOR ══ -->
+  <ellipse cx="800" cy="712" rx="310" ry="54" fill="#ffffff" stroke="#2c7a54" stroke-width="3"/>
+  <text x="800" y="706" text-anchor="middle" font-size="23" font-weight="600" fill="#1f4a35">Gobernar las cuentas</text>
+  <text x="800" y="734" text-anchor="middle" font-size="16" fill="#6d8a7b">crear, quitar acceso y dar de baja pedidos · RF17 a RF21</text>
+
+  <!-- ══ CLIENTE ══ -->
+  <g stroke="#3a6ea5" stroke-width="4" fill="none">
+    <circle cx="190" cy="268" r="34" fill="#eef4fb"/>
+    <line x1="190" y1="302" x2="190" y2="392"/>
+    <line x1="132" y1="332" x2="248" y2="332"/>
+    <line x1="190" y1="392" x2="144" y2="464"/>
+    <line x1="190" y1="392" x2="236" y2="464"/>
+  </g>
+  <text x="190" y="512" text-anchor="middle" font-size="27" font-weight="700" fill="#1d3a5c">Cliente</text>
+  <text x="190" y="542" text-anchor="middle" font-size="18" fill="#40546b">Entra y compra</text>
+  <text x="190" y="566" text-anchor="middle" font-size="18" fill="#40546b">sin crear cuenta</text>
+
+  <!-- ══ ADMINISTRADOR ══ -->
+  <g stroke="#b5762f" stroke-width="4" fill="none">
+    <circle cx="1400" cy="420" r="32" fill="#fdf1e3"/>
+    <line x1="1400" y1="452" x2="1400" y2="542"/>
+    <line x1="1344" y1="482" x2="1456" y2="482"/>
+    <line x1="1400" y1="542" x2="1356" y2="614"/>
+    <line x1="1400" y1="542" x2="1444" y2="614"/>
+  </g>
+  <text x="1400" y="658" text-anchor="middle" font-size="25" font-weight="700" fill="#7a4d12">Administrador</text>
+  <text x="1400" y="684" text-anchor="middle" font-size="16" fill="#5e4520">Personal del comercio</text>
+
+  <!-- generalización, con sitio para su rótulo -->
+  <line x1="1400" y1="752" x2="1400" y2="704" stroke="#5b6875" stroke-width="2.5" marker-end="url(#hueca)"/>
+  <text x="1424" y="722" font-size="15" fill="#5b6875">hereda todo lo</text>
+  <text x="1424" y="742" font-size="15" fill="#5b6875">del administrador</text>
+
+  <!-- ══ MODERADOR ══ -->
+  <g stroke="#2c7a54" stroke-width="4" fill="none">
+    <circle cx="1400" cy="800" r="32" fill="#eaf3ee"/>
+    <line x1="1400" y1="832" x2="1400" y2="922"/>
+    <line x1="1344" y1="862" x2="1456" y2="862"/>
+    <line x1="1400" y1="922" x2="1356" y2="994"/>
+    <line x1="1400" y1="922" x2="1444" y2="994"/>
+  </g>
+  <text x="1400" y="1036" text-anchor="middle" font-size="25" font-weight="700" fill="#1f4a35">Moderador · vos</text>
+
+  <!-- ══ WHATSAPP ══ -->
+  <rect x="1250" y="196" width="300" height="106" rx="10" fill="#eaf3ee" stroke="#2c7a54" stroke-width="3"/>
+  <text x="1400" y="228" text-anchor="middle" font-size="15" fill="#3c5f4c" font-style="italic">sistema externo</text>
+  <text x="1400" y="262" text-anchor="middle" font-size="26" font-weight="700" fill="#1f4a35">WhatsApp</text>
+  <text x="1400" y="288" text-anchor="middle" font-size="16" fill="#3c5f4c">Donde se cierra la venta</text>
+
+  <!-- ══ LÍNEAS ══ -->
+  <g stroke="#5b6875" stroke-width="2.5" fill="none">
+    <line x1="252" y1="300" x2="486" y2="262"/>
+    <line x1="252" y1="352" x2="486" y2="386"/>
+    <line x1="1348" y1="470" x2="1114" y2="556"/>
+    <line x1="1348" y1="846" x2="1114" y2="722" stroke="#2c7a54"/>
+    <line x1="1110" y1="392" x2="1234" y2="292" stroke="#2c7a54"/>
+  </g>
+
+  <!-- pie -->
+  <text x="60" y="1006" font-size="17" fill="#5b6875">El detalle de los 21 requisitos y su diagrama completo están en el documento, apartado 3.7.</text>
+</svg>
