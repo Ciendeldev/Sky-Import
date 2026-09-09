@@ -868,7 +868,7 @@ const doc = new Document({
         tabla(
           ['El sistema SÍ hará (In-Scope)', 'El sistema NO hará (Out-Scope)'],
           [
-            ['1. Publicación del catálogo con ficha técnica, fotografía, variantes, disponibilidad y precio en tres monedas.', '1. Procesamiento de pagos electrónicos. No existe pasarela ni campo alguno donde introducir datos de tarjeta.'],
+            ['1. Publicación del catálogo con ficha técnica, fotografía, variantes, disponibilidad y precio en tres monedas.', '1. Cobro por cualquier medio electrónico: tarjeta de crédito o débito, pasarela de pagos, billetera con código QR o transferencia automatizada. No existe integración ni campo alguno donde introducir datos de pago.'],
             ['2. Verificación automática de compatibilidad entre componentes antes de la compra.', '2. Gestión de la logística de transporte y del seguimiento físico de los envíos.'],
             ['3. Gestión de existencias con alertas de stock mínimo y agotado.', '3. Liquidación de haberes del personal y contabilidad de la empresa.'],
             ['4. Registro de pedidos con seguimiento interno de estado y trazabilidad de importes.', '4. Emisión de documentos tributarios legales (facturación electrónica).'],
@@ -1001,6 +1001,46 @@ const doc = new Document({
             }),
           ],
         }),
+
+        h3('Medios de pago expresamente no implementados'),
+        p('La restricción anterior se detalla aquí medio por medio, porque enunciar «no procesa pagos» deja al lector suponiendo cuál de ellos sí. Ninguno de los siguientes está integrado, y ninguno figura como trabajo pendiente del alcance vigente: la transacción económica ocurre fuera del software.'),
+        tabla(
+          ['Medio de pago', 'Situación en el sistema', 'Qué ocurre en su lugar'],
+          [
+            [
+              'Tarjeta de crédito o débito',
+              'No implementado. No existe formulario, campo ni almacenamiento de datos de tarjeta en ninguna pantalla ni en el modelo de datos.',
+              'El cobro se acuerda en la conversación de WhatsApp y se concreta en el local.',
+            ],
+            [
+              'Pasarela de pagos (Pagopar, Bancard y equivalentes)',
+              'No integrada. El sistema no realiza llamada alguna a servicios de cobro ni recibe notificaciones de acreditación.',
+              'El estado del pedido lo actualiza el operador desde el panel, según lo que constate por fuera.',
+            ],
+            [
+              'Billetera electrónica con código QR',
+              'No implementado. El sistema no genera ni interpreta códigos QR de cobro.',
+              'Si el cliente paga por billetera, lo coordina por la conversación; el sistema no se entera.',
+            ],
+            [
+              'Transferencia bancaria automatizada',
+              'No implementada. No hay conciliación automática ni verificación de acreditación.',
+              'El operador confirma la transferencia por su cuenta y mueve el estado del pedido a mano.',
+            ],
+            [
+              'Financiación en cuotas',
+              'No implementada. El sistema no calcula intereses, planes ni vencimientos.',
+              'Cualquier acuerdo de cuotas es ajeno al software y no queda registrado en él.',
+            ],
+            [
+              'Emisión de comprobante tributario',
+              'No implementada. El pedido registrado no es una factura ni sustituye a ninguna.',
+              'La documentación legal se emite por los medios habituales del comercio.',
+            ],
+          ],
+          [2100, 3600, 3326],
+        ),
+        p('En consecuencia, el importe que el sistema calcula y transmite tiene valor informativo y de acuerdo comercial, no de cobro. El registro de un pedido no acredita pago alguno, y el estado «Confirmado» significa que el operador dio por firme la venta, no que el dinero haya ingresado.', { spacing: { before: 160, after: 160 } }),
 
         h2('2.5 Suposiciones y Dependencias'),
         p('El cumplimiento de los requisitos aquí descritos asume las siguientes condiciones:'),
