@@ -73,7 +73,7 @@ export const PRODUCTS: Product[] = [
     brand: 'NVIDIA',
     model: 'RTX 5080',
     category: 'tarjetas-graficas',
-    priceUsd: 1249,
+    priceUsd: 1724,
     units: 2,
     featured: true,
     arrivedRecently: true,
@@ -113,8 +113,8 @@ export const PRODUCTS: Product[] = [
     brand: 'NVIDIA',
     model: 'RTX 5070 Ti',
     category: 'tarjetas-graficas',
-    priceUsd: 849,
-    listPriceUsd: 929,
+    priceUsd: 1249,
+    listPriceUsd: 1367,
     units: 5,
     featured: true,
     blurb: L(
@@ -153,7 +153,7 @@ export const PRODUCTS: Product[] = [
     brand: 'NVIDIA',
     model: 'RTX 5070',
     category: 'tarjetas-graficas',
-    priceUsd: 619,
+    priceUsd: 819,
     units: 7,
     blurb: L(
       'GDDR7 en 192 bits y 250 W: entra en una fuente de 650 W y en casi cualquier gabinete de torre media. El punto donde 1440p deja de exigir concesiones.',
@@ -191,7 +191,7 @@ export const PRODUCTS: Product[] = [
     brand: 'AMD',
     model: 'RX 9070 XT',
     category: 'tarjetas-graficas',
-    priceUsd: 709,
+    priceUsd: 799,
     units: 4,
     featured: true,
     blurb: L(
@@ -308,7 +308,7 @@ export const PRODUCTS: Product[] = [
     brand: 'AMD',
     model: '9800X3D',
     category: 'procesadores',
-    priceUsd: 479,
+    priceUsd: 485,
     units: 3,
     featured: true,
     blurb: L(
@@ -332,7 +332,7 @@ export const PRODUCTS: Product[] = [
     brand: 'AMD',
     model: '7800X3D',
     category: 'procesadores',
-    priceUsd: 359,
+    priceUsd: 384,
     units: 5,
     blurb: L(
       'La generación anterior de la misma idea, en el mismo zócalo AM5. Sigue siendo la compra racional si la placa madre ya está elegida y el presupuesto se va a la placa de video.',
@@ -355,7 +355,7 @@ export const PRODUCTS: Product[] = [
     brand: 'AMD',
     model: '9600X',
     category: 'procesadores',
-    priceUsd: 229,
+    priceUsd: 195,
     units: 9,
     blurb: L(
       'Seis núcleos a 65 W en AM5. Sobra para jugar a 1080p y para trabajar, y deja margen de presupuesto donde de verdad se nota: memoria y almacenamiento.',
@@ -402,7 +402,7 @@ export const PRODUCTS: Product[] = [
     brand: 'Intel',
     model: 'i5-14600K',
     category: 'procesadores',
-    priceUsd: 239,
+    priceUsd: 285,
     units: 8,
     blurb: L(
       'Catorce núcleos en LGA1700, el zócalo con más placas baratas disponibles. Es la vía más económica para llegar a un equipo capaz sin estrenar plataforma.',
@@ -580,7 +580,7 @@ export const PRODUCTS: Product[] = [
     brand: 'Corsair',
     model: 'Vengeance DDR5 6000 CL30',
     category: 'memorias-ram',
-    priceUsd: 109,
+    priceUsd: 500,
     units: 12,
     featured: true,
     blurb: L(
@@ -625,7 +625,7 @@ export const PRODUCTS: Product[] = [
     brand: 'Kingston',
     model: 'FURY Beast DDR5 5600 CL36',
     category: 'memorias-ram',
-    priceUsd: 59,
+    priceUsd: 270,
     units: 14,
     blurb: L(
       '16 GB en dos módulos para un armado de entrada en DDR5. Deja las otras dos ranuras libres para duplicar más adelante sin tirar nada.',
@@ -671,8 +671,8 @@ export const PRODUCTS: Product[] = [
     brand: 'Samsung',
     model: '990 PRO NVMe',
     category: 'almacenamiento',
-    priceUsd: 169,
-    listPriceUsd: 189,
+    priceUsd: 464,
+    listPriceUsd: 519,
     units: 6,
     featured: true,
     blurb: L(
@@ -703,7 +703,7 @@ export const PRODUCTS: Product[] = [
     brand: 'Western Digital',
     model: 'SN850X NVMe',
     category: 'almacenamiento',
-    priceUsd: 99,
+    priceUsd: 320,
     units: 8,
     blurb: L(
       '7.300 MB/s en el mismo formato M.2 2280. La diferencia con el escalón de arriba se mide con software, no con el reloj.',
@@ -795,7 +795,7 @@ export const PRODUCTS: Product[] = [
     brand: 'Corsair',
     model: 'RM750e',
     category: 'fuentes',
-    priceUsd: 109,
+    priceUsd: 85,
     units: 8,
     featured: true,
     blurb: L(
