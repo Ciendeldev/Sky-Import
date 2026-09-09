@@ -42,6 +42,13 @@ const DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'docs', 'srs')
 const W = 9026
 const AZUL = '1F3864'
 const GRIS = 'F2F4F7'
+// El azul profundo de la marca de la tienda. En pantalla la casa usa un cian
+// claro que sobre papel se pierde; esta es su variante para fondo blanco, ya
+// declarada en la hoja de estilos del sitio como `--color-sky-deep`.
+const SKY = '0B6E97'
+// Sombreado alterno de filas. Muy tenue a propósito: en tablas de veinte filas
+// la banda cebra guía el ojo, pero si se nota compite con el contenido.
+const CEBRA = 'F7F9FB'
 
 // ─────────────────────────────────────────────────────────────── utilidades
 
@@ -49,7 +56,14 @@ const p = (text, opts = {}) =>
   new Paragraph({ spacing: { after: 120, line: 276 }, ...opts, children: [new TextRun({ text, ...opts.run })] })
 
 const h1 = (text) =>
-  new Paragraph({ text, heading: HeadingLevel.HEADING_1, spacing: { before: 360, after: 180 } })
+  new Paragraph({
+    text,
+    heading: HeadingLevel.HEADING_1,
+    spacing: { before: 400, after: 200 },
+    // Un filete bajo cada capítulo. En noventa páginas es lo que permite
+    // reconocer dónde empieza una sección sin leer el título.
+    border: { bottom: { style: BorderStyle.SINGLE, size: 12, color: SKY, space: 6 } },
+  })
 const h2 = (text) =>
   new Paragraph({ text, heading: HeadingLevel.HEADING_2, spacing: { before: 280, after: 140 } })
 const h3 = (text) =>
@@ -70,7 +84,7 @@ function cell(text, { w, bold = false, fill, align, size = 20 } = {}) {
         new Paragraph({
           alignment: align,
           spacing: { after: 40, line: 260 },
-          children: [new TextRun({ text: String(l), bold, size, color: bold && fill ? '1F3864' : '1A232C' })],
+          children: [new TextRun({ text: String(l), bold, size, color: bold ? '1F3864' : '1A232C' })],
         }),
     ),
   })
@@ -84,11 +98,13 @@ function tabla(encabezados, filas, anchos) {
     rows: [
       new TableRow({
         tableHeader: true,
-        children: encabezados.map((h, i) => cell(h, { w: anchos[i], bold: true, fill: 'DCE3EF' })),
+        children: encabezados.map((h, i) => cell(h, { w: anchos[i], bold: true, fill: 'D6E4EC' })),
       }),
       ...filas.map(
-        (fila) =>
-          new TableRow({ children: fila.map((c, i) => cell(c, { w: anchos[i] })) }),
+        (fila, n) =>
+          new TableRow({
+            children: fila.map((c, i) => cell(c, { w: anchos[i], fill: n % 2 ? CEBRA : undefined })),
+          }),
       ),
     ],
   })
@@ -144,6 +160,22 @@ function medidaPng(archivo) {
 function figura(archivo, ancho, pie) {
   const m = medidaPng(archivo)
   return imagen(archivo, ancho, Math.round((ancho * m.h) / m.w), pie)
+}
+
+/** Imagen sin numerar. Un logotipo no es una figura y no lleva pie. */
+function sello(archivo, ancho) {
+  const m = medidaPng(archivo)
+  return new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { after: 0 },
+    children: [
+      new ImageRun({
+        type: 'png',
+        data: readFileSync(`${DIR}\\${archivo}`),
+        transformation: { width: ancho, height: Math.round((ancho * m.h) / m.w) },
+      }),
+    ],
+  })
 }
 
 function imagen(archivo, ancho, alto, pie) {
@@ -709,56 +741,68 @@ const doc = new Document({
       },
       children: [
         // ─────────────────────────────────────────────────── PORTADA
-        new Paragraph({ text: '', spacing: { after: 900 } }),
+        // Se compone de arriba abajo: la institución que recibe el trabajo, el
+        // título de lo que se entrega, la marca del cliente para el que se hizo
+        // y, al pie, los datos de identificación. El orden importa: quien
+        // corrige busca primero la cátedra y el autor, no el subtítulo.
+        new Paragraph({ text: '', spacing: { after: 340 } }),
+        sello('unisal.png', 108),
         new Paragraph({
           alignment: AlignmentType.CENTER,
-          spacing: { after: 60 },
-          children: [new TextRun({ text: 'UNIVERSIDAD SAN LORENZO (UNISAL)', bold: true, size: 26, color: AZUL })],
+          spacing: { before: 200, after: 40 },
+          children: [new TextRun({ text: 'UNIVERSIDAD SAN LORENZO', bold: true, size: 30, color: AZUL, characterSpacing: 60 })],
         }),
         new Paragraph({
           alignment: AlignmentType.CENTER,
-          spacing: { after: 700 },
-          children: [new TextRun({ text: 'FACULTAD DE INGENIERÍA EN INFORMÁTICA', bold: true, size: 22, color: '2E5B8C' })],
+          spacing: { after: 30 },
+          children: [new TextRun({ text: 'FACULTAD DE INGENIERÍA EN INFORMÁTICA', bold: true, size: 21, color: '2E5B8C', characterSpacing: 40 })],
+        }),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 620 },
+          children: [new TextRun({ text: 'Taller de Lenguaje · Asignatura 135 · Décimo Semestre', size: 19, color: '5B6875' })],
+        }),
+
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 40 },
+          children: [new TextRun({ text: 'ESPECIFICACIÓN DE REQUISITOS', size: 40, bold: true, color: '12181F', characterSpacing: 30 })],
         }),
         new Paragraph({
           alignment: AlignmentType.CENTER,
           spacing: { after: 120 },
-          children: [new TextRun({ text: 'Especificación de Requisitos de Software', size: 44, bold: true, color: '12181F' })],
-        }),
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          spacing: { after: 460 },
-          children: [new TextRun({ text: '(SRS)', size: 32, color: '5B6875' })],
-        }),
-        new Paragraph({
-          alignment: AlignmentType.CENTER,
-          spacing: { after: 700 },
-          border: { top: { style: BorderStyle.SINGLE, size: 12, color: AZUL }, bottom: { style: BorderStyle.SINGLE, size: 12, color: AZUL } },
-          children: [new TextRun({ text: '  SKY IMPORT  ', size: 40, bold: true, color: AZUL })],
+          children: [new TextRun({ text: 'DE SOFTWARE', size: 40, bold: true, color: '12181F', characterSpacing: 30 })],
         }),
         new Paragraph({
           alignment: AlignmentType.CENTER,
           spacing: { after: 500 },
-          children: [
-            new TextRun({ text: 'Plataforma de comercio electrónico de componentes informáticos', size: 22, color: '40546B' }),
-            new TextRun({ text: ' con cierre de venta asistido y panel de administración', size: 22, color: '40546B' }),
-          ],
+          children: [new TextRun({ text: 'IEEE 830-1998  ·  ISO/IEC/IEEE 29148:2011', size: 19, color: SKY, characterSpacing: 30 })],
         }),
+
+        // La marca del cliente, entre dos filetes: es el sujeto del documento.
         new Paragraph({
           alignment: AlignmentType.CENTER,
-          spacing: { after: 180 },
-          children: [new TextRun({ text: 'Basado en los estándares IEEE 830-1998 e ISO/IEC/IEEE 29148:2011', size: 20, italics: true, color: '5B6875' })],
+          spacing: { before: 0, after: 0 },
+          border: { top: { style: BorderStyle.SINGLE, size: 10, color: SKY, space: 14 } },
+          children: [new TextRun({ text: '', size: 2 })],
         }),
-        new Paragraph({ text: '', spacing: { after: 600 } }),
+        sello('marca.png', 300),
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { before: 60, after: 0 },
+          border: { bottom: { style: BorderStyle.SINGLE, size: 10, color: SKY, space: 14 } },
+          children: [new TextRun({ text: 'Componentes para PC · Ciudad del Este, Paraguay', size: 19, color: '40546B' })],
+        }),
+
+        new Paragraph({ text: '', spacing: { after: 620 } }),
         tabla(
           ['Campo', 'Detalle'],
           [
-            ['Proyecto', 'Sky Import — Componentes para PC, Ciudad del Este'],
             ['Autor / Estudiante', 'Cielo Medina'],
-            ['Cátedra / Semestre', 'Taller de Lenguaje (Asignatura 135) | Décimo Semestre'],
-            ['Fecha de Entrega', '6 de septiembre de 2026'],
             ['Docente Evaluador', 'Adrian Lopez'],
-            ['Versión del Documento', '1.0 — Versión Final Hito 1'],
+            ['Cliente del sistema', 'Sky Import — Ciudad del Este, Paraguay'],
+            ['Fecha de Entrega', '12 de octubre de 2026'],
+            ['Versión del Documento', '2.0 — Final, con modelado UML completo'],
           ],
           [2800, 6226],
         ),
@@ -1044,7 +1088,7 @@ const doc = new Document({
             ['RP03', 'Tiempo de verificación de credenciales de acceso.', 'Inferior a 2 segundos.'],
             ['RP04', 'Tiempo de registro de un pedido completo, incluyendo descuento de existencias.', 'Inferior a 3 segundos.'],
             ['RP05', 'Conexiones concurrentes soportadas sin degradación apreciable.', 'Hasta 60 conexiones simultáneas al motor de base de datos.'],
-            ['RP06', 'Volumen de código de cliente transferido al navegador.', 'No superior a 650 kB comprimidos. Medición vigente: 601 kB.'],
+            ['RP06', 'Volumen de código de cliente transferido al navegador.', 'No superior a 650 kB comprimidos. Medición vigente: 637,2 kB.'],
             ['RP07', 'Latencia de propagación de un cambio del panel a la tienda pública.', 'Hasta 60 segundos, por regeneración estática incremental.'],
           ],
           [1500, 4526, 3000],

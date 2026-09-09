@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="280" viewBox="0 0 1000 280" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="1000" height="280" fill="#ffffff"/>
+
+  <!-- EL SELLO, TAL COMO LO DIBUJA LA TIENDA
+       Se reproduce la geometría exacta de `BrandMark`, sobre su retícula
+       original de 32 unidades y ampliada por transformación: el estuche, las
+       dos pistas, la vía y el pad. Ampliar la retícula en vez de redibujar
+       mantiene las proporciones y las opacidades del original; el intento
+       anterior, hecho a ojo, perdía el estuche y separaba el pad de la vía.
+
+       Único cambio: el color. En pantalla el sello va en el cian de la casa,
+       que sobre papel blanco desaparece. Se usa #0b6e97, la variante para
+       fondo claro que la hoja de estilos del sitio ya declara para fondo claro. -->
+  <g transform="translate(44 46) scale(5.9)" fill="none" stroke="#0b6e97">
+    <!-- El estuche NO es un cuadrado cerrado. La hoja de estilos le aplica
+         `stroke-dasharray: 46` sobre un perímetro de ~116 unidades, así que se
+         dibuja el borde superior, la esquina y parte del lateral derecho, se
+         salta todo el fondo, y vuelve por el lateral izquierdo. Queda abierto
+         por abajo, justo por donde sale la pista. -->
+    <rect x="1" y="1" width="30" height="30" rx="2" stroke-width="1" opacity=".42" stroke-dasharray="46"/>
+    <path d="M5 25 H12 L20 17 H24" stroke-width="1.75" stroke-linecap="square"/>
+    <path d="M5 19 H9 L15 13 H24" stroke-width="1" opacity=".5" stroke-linecap="square"/>
+    <circle cx="26" cy="17" r="2.6" stroke-width="1.75"/>
+    <circle cx="26" cy="13" r="1.2" fill="#0b6e97" stroke="none" opacity=".5"/>
+  </g>
+
+  <!-- La marca denominativa no se toca: un solo color, versalitas y el
+       tracking de 0.22em que fija la identidad de la casa. -->
+  <text x="290" y="168" font-size="62" font-weight="700" letter-spacing="13.6" fill="#12181f">SKY IMPORT</text>
+</svg>
