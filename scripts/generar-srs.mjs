@@ -818,6 +818,7 @@ const doc = new Document({
             ['28/08/2026', '0.5', 'Analista de Requisitos', 'Inclusión de Requisitos Funcionales y No Funcionales.'],
             ['30/08/2026', '0.8', 'Analista de Requisitos', 'Incorporación de diagrama de bloques y diagrama de flujo del proceso de venta.'],
             ['06/09/2026', '1.0', 'Equipo de SQA', 'Validación completa de consistencia, completitud y trazabilidad. Versión Final Hito 1.'],
+            ['12/10/2026', '2.0', 'Analista de Requisitos', 'Modelado UML completo: diagramas de casos de uso, componentes, comportamiento y clases, y vistas por requisito. Roles de administrador y moderador. Versión final de entrega.'],
           ],
           [1300, 1100, 2200, 4426],
         ),
@@ -826,9 +827,9 @@ const doc = new Document({
         tabla(
           ['Rol / Entidad', 'Firma / Aprobación', 'Fecha'],
           [
-            ['Por el Proveedor (Estudiante / Desarrollador)', '', '06/09/2026'],
-            ['Por el Cliente (Sky Import)', '', '06/09/2026'],
-            ['Equipo de SQA (Docente de Cátedra)', '', '06/09/2026'],
+            ['Por el Proveedor (Estudiante / Desarrollador)', '', '12/10/2026'],
+            ['Por el Cliente (Sky Import)', '', '12/10/2026'],
+            ['Equipo de SQA (Docente de Cátedra)', '', '12/10/2026'],
           ],
           [3600, 3626, 1800],
         ),
@@ -1163,7 +1164,7 @@ const doc = new Document({
         // ────────────────────────── 3.2 REQUISITOS FUNCIONALES
         h2('3.2 Requisitos Funcionales'),
         p('Cada requisito se presenta en una ficha con su sintaxis formal, sus condiciones de entrada y de salida y la referencia a las figuras donde aparece representado. Los requisitos cuyo comportamiento no se agota en el enunciado llevan además su propia lámina de vistas: quién ejecuta la función, cómo responde el sistema paso a paso y, cuando aporta algo que el texto no dice, de qué componentes se sirve. No todas las funciones necesitan las tres vistas; la autenticación, por ejemplo, no se explica mejor enumerando sus componentes.'),
-        p('Se especifican a continuación los dieciséis requisitos funcionales del sistema, redactados conforme a la sintaxis normalizada de ISO/IEC/IEEE 29148 y detallando para cada uno sus condiciones de entrada y sus condiciones de salida sobre la base de datos.'),
+        p('Se especifican a continuación los veintiún requisitos funcionales del sistema, redactados conforme a la sintaxis normalizada de ISO/IEC/IEEE 29148 y detallando para cada uno sus condiciones de entrada y sus condiciones de salida sobre la base de datos.'),
         ...RF.flatMap(requisito),
         new Paragraph({ children: [new PageBreak()] }),
 
@@ -1209,8 +1210,8 @@ const doc = new Document({
             ['RNF11', 'Disponibilidad', 'Continuidad del servicio durante el horario comercial.', 'Nivel objetivo del 99.9 % de lunes a sábado, de 08:00 a 20:00.', 'Alta'],
             ['RNF12', 'Fiabilidad y respaldo', 'Resguardo periódico de la información ante fallos.', 'Copias de seguridad automáticas diarias provistas por la plataforma de base de datos.', 'Alta'],
             ['RNF13', 'Mantenibilidad', 'Código verificado de forma automatizada y decisiones estructurales documentadas.', '119 pruebas unitarias y 97 pruebas de extremo a extremo en perfiles de escritorio y móvil. Verificación de tipos y análisis estático sin advertencias. Registro de decisiones en docs/adr/, con seis decisiones estructurales documentadas.', 'Media-Alta'],
-            ['RNF15', 'Separación de funciones', 'Las operaciones sobre cuentas y la baja de pedidos quedan reservadas al moderador, y la restricción se comprueba en el servidor y en la base de datos, no ocultando controles.', 'Prueba verificada: la operación de alta de cuentas, invocada directamente desde una sesión de administrador y eludiendo la interfaz, es rechazada. La política de borrado de pedidos exige el rol de moderación a nivel de fila.', 'Alta'],
             ['RNF14', 'Privacidad', 'Se recolecta únicamente el dato imprescindible para concretar la entrega.', 'No se solicita documento de identidad, fecha de nacimiento ni dato de pago alguno. No existe ningún campo donde introducirlos.', 'Alta'],
+            ['RNF15', 'Separación de funciones', 'Las operaciones sobre cuentas y la baja de pedidos quedan reservadas al moderador, y la restricción se comprueba en el servidor y en la base de datos, no ocultando controles.', 'Prueba verificada: la operación de alta de cuentas, invocada directamente desde una sesión de administrador y eludiendo la interfaz, es rechazada. La política de borrado de pedidos exige el rol de moderación a nivel de fila.', 'Alta'],
           ],
           [900, 1700, 2400, 2626, 1400],
         ),
@@ -1223,7 +1224,7 @@ const doc = new Document({
         new Paragraph({ children: [new PageBreak()] }),
 
         h2('3.7 Modelado UML del Sistema'),
-        p('Los tres diagramas siguientes describen el sistema en notación UML 2.5 y se corresponden con lo especificado en los apartados anteriores: ningún elemento aparece en ellos que no esté antes enunciado como requisito. Cada caso de uso lleva la referencia del requisito funcional que lo define, de modo que el diagrama y el texto puedan contrastarse punto por punto.'),
+        p('Los cuatro diagramas siguientes describen el sistema en notación UML 2.5 y se corresponden con lo especificado en los apartados anteriores: ningún elemento aparece en ellos que no esté antes enunciado como requisito. Cada caso de uso lleva la referencia del requisito funcional que lo define, de modo que el diagrama y el texto puedan contrastarse punto por punto.'),
 
         p('El primero identifica quiénes usan el sistema y qué alcanza cada uno. Es la respuesta a una pregunta que el diagrama de bloques del apartado 2.1 no contesta: allí se ven las fronteras del sistema, pero no los actores ni sus permisos. Se distinguen tres, más un sistema externo. El cliente nunca se autentica, porque el sistema no le exige cuenta; el administrador opera la tienda; y el moderador es un administrador que además gobierna las cuentas del panel y da de baja pedidos. Esa relación se representa como una generalización de actores, y no como dos actores independientes, porque el moderador no tiene permisos distintos sino permisos adicionales.'),
         ...imagen('casos-de-uso.png', 640, 484, 'Figura 24 — Diagrama de casos de uso. Los actores del sistema y las funciones que cada uno alcanza, referidas al requisito funcional que las define.'),
