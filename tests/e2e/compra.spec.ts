@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { CON_BASE } from '../../playwright.config'
 
 /**
  * Recorrido completo de compra, de punta a punta, como lo haría un cliente.
@@ -155,7 +156,10 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
   expect(url.searchParams.get('phone')).toBe(WHATSAPP)
 
   const mensaje = url.searchParams.get('text') ?? ''
-  expect(mensaje).toContain('*Pedido SI-PRUEBA*')
+  // Sin claves de Supabase —como en la integración continua— la tienda no
+  // intenta registrar el pedido y vende igual, sin número: es el modo de
+  // RNF09. El encabezado cambia; el resto del mensaje tiene que ser idéntico.
+  expect(mensaje).toContain(CON_BASE ? '*Pedido SI-PRUEBA*' : '*Mi pedido*')
   expect(mensaje).toContain('🛒 2 × *GeForce RTX 5070 12 GB*')
   expect(mensaje).toContain('· SI-VGA-0124 — Gs.')
   expect(mensaje).toContain('📍 ')

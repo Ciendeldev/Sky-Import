@@ -42,7 +42,7 @@ test('un cupón válido descuenta del total', async ({ page, context }) => {
         code: CUPON,
         kind: 'percent',
         value: 10,
-        discount_usd: 61.9,
+        discount_usd: 81.9,
       }),
     }),
   )
@@ -50,7 +50,7 @@ test('un cupón válido descuenta del total', async ({ page, context }) => {
   await prepararCarrito(page)
 
   const resumen = page.locator('aside')
-  await expect(resumen).toContainText('US$ 619')
+  await expect(resumen).toContainText('US$ 819')
 
   await page.getByLabel('Código del cupón').fill(CUPON)
   await page.getByRole('button', { name: 'Aplicar' }).click()
@@ -64,7 +64,7 @@ test('un cupón válido descuenta del total', async ({ page, context }) => {
   await expect(apartadoCupon).toContainText(CUPON)
 
   await expect(resumen).toContainText(CUPON)
-  await expect(resumen).toContainText('US$ 557')
+  await expect(resumen).toContainText('US$ 737')
 
   // Y viaja al mensaje de WhatsApp con su línea propia.
   await context.route('https://api.whatsapp.com/send**', (route) =>
@@ -118,7 +118,7 @@ test('un cupón inexistente lo dice y no toca el total', async ({ page, context 
   await page.getByRole('button', { name: 'Aplicar' }).click()
 
   await expect(page.getByTestId('error-cupon')).toContainText('Ese código no existe')
-  await expect(page.locator('aside')).toContainText('US$ 619')
+  await expect(page.locator('aside')).toContainText('US$ 819')
   await expect(page.getByRole('region', { name: 'Cupón de descuento' })).not.toContainText(
     'Cupón aplicado',
   )
@@ -166,6 +166,6 @@ test('sin base configurada lo dice, y la venta sigue igual', async ({ page }) =>
 
   // El total no se toca y el botón de enviar sigue disponible: sin cupón se
   // vende igual.
-  await expect(page.locator('aside')).toContainText('US$ 619')
+  await expect(page.locator('aside')).toContainText('US$ 819')
   await expect(page.getByTestId('enviar-pedido')).toBeEnabled()
 })
