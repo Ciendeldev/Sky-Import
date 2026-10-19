@@ -48,7 +48,13 @@ test('movimiento reducido muestra la foto sin canvas ni recorrido vacío', async
   await expect(track).toHaveAttribute('data-static', 'true')
   await expect(track.locator('canvas')).toHaveCount(0)
   await expect(track.locator('img')).toBeVisible()
-  await expect.poll(() => track.locator('img').evaluate(img => (img as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+  // En el runner compartido, la primera optimización de la imagen seguía
+  // pendiente al agotar los 5 s habituales. Se espera la carga real, sin
+  // omitir la comprobación de imagen ni fijar una pausa para todos los casos.
+  await expect.poll(
+    () => track.locator('img').evaluate(img => (img as HTMLImageElement).naturalWidth),
+    { timeout: 20_000, message: 'la imagen alternativa termina de cargar' },
+  ).toBeGreaterThan(0)
   expect(await track.evaluate((el) => el.clientHeight === el.firstElementChild?.clientHeight || Math.abs(el.clientHeight - (el.firstElementChild as HTMLElement).offsetHeight) < 2)).toBe(true)
 })
 test('la pérdida de WebGL recupera la fotografía', async ({ page }) => {
