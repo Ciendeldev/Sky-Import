@@ -124,8 +124,12 @@ describe('la foto del catálogo', () => {
     expect(slugs.at(-1)).toBe('pieza-nueva-del-panel')
   })
 
-  it('una base vacía o caída no deja la vitrina vacía: vuelve al archivo', () => {
-    expect(snapshotFrom([], [], RESPALDO).products).toBe(PRODUCTS)
+  it('desactivar el último producto no vuelve a publicar el catálogo de respaldo', () => {
+    expect(snapshotFrom([], [], RESPALDO).products).toEqual([])
+    expect(snapshotFrom([], [], RESPALDO).origin).toBe('base')
+  })
+
+  it('sin respuesta de la base conserva el respaldo', () => {
     expect(snapshotFrom(null, null, RESPALDO).origin).toBe('archivo')
   })
 

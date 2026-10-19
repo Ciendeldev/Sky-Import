@@ -169,3 +169,20 @@ Leyenda: ✅ verificada en este proyecto · ⚠️ con condiciones · ❌ incomp
 ## Configuración de cuentas — 2026-09-07
 
 Formularios nativos React 19 con useActionState, tabla HTML y CSS del panel. Se mantiene el descarte de shadcn/Radix: no hace falta un contrato ARIA complejo; etiquetas, foco, estados pendientes y avisos usan HTML nativo. Cero dependencias, motor adicional o costo de licencia. Compatible con Next 16 y el presupuesto de 650 kB, que se verifica antes de publicar.
+
+## Correcciones de compra y panel — 2026-10-19
+
+Se conservan React 19 y los controles HTML nativos para deshabilitar compras de
+combinaciones inexistentes y anunciar errores de stock. shadcn/Radix siguen sin
+ser necesarios: no hay un nuevo contrato ARIA complejo. Sin dependencias de
+producción, motor de animación ni cambios de licencia o presupuesto de cliente.
+Las pruebas SQL usan PostgreSQL 17 con `embedded-postgres` en `tmp/pg-review`,
+aislado del paquete y del despliegue de la tienda.
+
+## Revisión para la entrega final — 2026-10-19
+
+Las regiones de tablas desplazables del panel usan foco y etiquetas HTML nativas.
+La recuperación ante errores utiliza la frontera de error de Next.js. No se añade
+una biblioteca de tablas ni de interfaz: los componentes existentes resuelven
+estos cambios, sin dependencias nuevas, efectos ni modificaciones de licencia.
+Se mantiene el presupuesto de 650 kB y se verifica tras compilar.

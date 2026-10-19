@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/lib/metadata'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { ProductView } from '@/components/views/ProductView'
@@ -40,7 +41,7 @@ export async function generateMetadata({
   const locale: Locale = isLocale(raw) ? raw : 'es'
   const product = await productOf(slug)
   if (!product) return { title: makeT(locale)('product.notFound') }
-  return { title: `${product.name} — ${product.brand}`, description: product.blurb[locale] }
+  return pageMetadata(locale, `/producto/${slug}`, `${product.name} — ${product.brand}`, product.blurb[locale])
 }
 
 export default async function ProductPage({

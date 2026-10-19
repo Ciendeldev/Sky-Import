@@ -203,7 +203,7 @@ export function CouponManager({ coupons }: { coupons: CouponRow[] }) {
       {coupons.length === 0 ? (
         <p className="a-hint mt-6">Todavía no hay cupones.</p>
       ) : (
-        <div className="a-panel a-scroll mt-6">
+        <div className="a-panel a-scroll mt-6" tabIndex={0} role="region" aria-label="Cupones de descuento">
           <table className="a-table">
             <thead>
               <tr>

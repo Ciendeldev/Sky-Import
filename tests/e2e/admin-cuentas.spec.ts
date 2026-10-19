@@ -7,7 +7,7 @@ import AxeBuilder from '@axe-core/playwright'
 test.use({ trace: 'off', video: 'off' })
 test('configuración: moderador crea, administrador cambia su clave y no gestiona cuentas', async ({ page, context }, info) => {
   test.skip(process.env.RUN_ACCOUNT_E2E !== '1', 'Requiere ejecución explícita de cuentas temporales.')
-  test.setTimeout(120_000)
+  test.setTimeout(240_000)
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -34,7 +34,8 @@ test('configuración: moderador crea, administrador cambia su clave y no gestion
     await target.getByLabel('Usuario', { exact: true }).fill(user)
     await secretFill(target.getByLabel('Contraseña', { exact: true }), password)
     await target.getByRole('button', { name: 'Entrar', exact: true }).click()
-    await expect(target).toHaveURL(/\/admin$/)
+    // Auth y el primer render consultan la red: esto no mide el objetivo de rendimiento.
+    await expect(target).toHaveURL(/\/admin$/, { timeout: 20_000 })
   }
 
   let memberId: string | undefined
@@ -46,6 +47,15 @@ test('configuración: moderador crea, administrador cambia su clave y no gestion
     const membership = await service.from('admin_users').insert({ user_id: moderatorId, username: 'qa_mod_' + suffix, full_name: 'Moderador de prueba' })
     expect(Boolean(membership.error)).toBe(false)
     await login(page, moderatorEmail, ownerKey)
+    // Inspección autenticada de las pantallas principales sin editar datos comerciales.
+    for (const route of ['/admin', '/admin/productos', '/admin/productos/nuevo', '/admin/pedidos', '/admin/cupones', '/admin/precios']) {
+      await page.goto(route)
+      await expect(page.locator('h1')).toBeVisible()
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+      const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
+      expect(violations.map(v => `${v.id}: ${v.help}`), route).toEqual([])
+      await page.screenshot({ path: info.outputPath(`${route.replaceAll('/', '_')}.png`), fullPage: true })
+    }
     await page.getByRole('link', { name: 'Configuración', exact: true }).click()
     await expect(page.getByRole('heading', { name: 'Configuración', exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Gestión de usuarios' })).toBeVisible()
@@ -115,8 +125,24 @@ test('configuración: moderador crea, administrador cambia su clave y no gestion
     await expect(resetForm.getByRole('status')).toContainText('Contraseña restablecida', { timeout: 15000 })
     const resetClient = client()
     expect(Boolean((await resetClient.auth.signInWithPassword({ email: username + '@users.skyimport.local', password: reset })).error)).toBe(false)
+
+    await page.getByRole('button', { name: 'Retirar el acceso a ' + username, exact: true }).click()
+    const revoke = page.getByRole('form', { name: 'Retirar el acceso de ' + username })
+    await revoke.getByRole('button', { name: 'Retirar el acceso', exact: true }).click()
+    await expect(page.getByRole('button', { name: 'Devolver el acceso a ' + username, exact: true })).toBeVisible({ timeout: 15000 })
+    // La sesión existente pierde la autorización sin esperar a que venza el token.
+    expect((await resetClient.rpc('is_admin')).data).toBe(false)
+    await page.getByRole('button', { name: 'Devolver el acceso a ' + username, exact: true }).click()
+    const restore = page.getByRole('form', { name: 'Devolver el acceso a ' + username })
+    await restore.getByRole('button', { name: 'Devolver el acceso', exact: true }).click()
+    await expect(page.getByRole('button', { name: 'Retirar el acceso a ' + username, exact: true })).toBeVisible({ timeout: 15000 })
+    expect((await resetClient.rpc('is_admin')).data).toBe(true)
     await resetClient.auth.signOut({ scope: 'local' })
   } finally {
+    // Playwright puede adjuntar el estado del DOM al fallar, incluso sin trace.
+    await Promise.allSettled(context.pages().map(p => p.locator('input[type="password"]').evaluateAll(inputs => {
+      for (const input of inputs) (input as HTMLInputElement).value = ''
+    })))
     // Recuperar el ID si el navegador falló justo después del alta.
     if (!memberId) {
       const result = await service.from('admin_users').select('user_id').eq('username', username).maybeSingle()

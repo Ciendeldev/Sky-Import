@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/lib/metadata'
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -19,7 +20,7 @@ export async function generateMetadata({
   const { locale: raw } = await params
   const locale: Locale = isLocale(raw) ? raw : 'es'
   const t = makeT(locale)
-  return { title: t('catalog.title'), description: t('catalog.lede') }
+  return pageMetadata(locale, '/catalogo', t('catalog.title'), t('catalog.lede'))
 }
 
 export default async function CatalogPage({ params }: { params: Promise<{ locale: string }> }) {

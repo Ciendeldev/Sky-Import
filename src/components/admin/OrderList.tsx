@@ -187,7 +187,9 @@ function OrderDetail({ order, canDelete }: { order: OrderWithItems; canDelete: b
                       borra para siempre
                       {order.status === 'entregado'
                         ? '; como está entregado, el stock no se toca.'
-                        : ' y sus unidades vuelven al stock.'}
+                        : order.stock_released
+                          ? '; sus unidades ya volvieron al stock al cancelar.'
+                          : ' y sus unidades vuelven al stock.'}
                     </p>
                     <input
                       className="a-field a-num mt-2"
@@ -256,6 +258,7 @@ export function OrderList({ orders, canDelete = false }: { orders: OrderWithItem
   const [open, setOpen] = useState<string | null>(null)
   const [filter, setFilter] = useState<OrderStatus | 'todos'>('todos')
   const [pending, start] = useTransition()
+  const [statusError, setStatusError] = useState<string | null>(null)
 
   const visibles = useMemo(
     () => (filter === 'todos' ? orders : orders.filter((o) => o.status === filter)),
@@ -273,6 +276,7 @@ export function OrderList({ orders, canDelete = false }: { orders: OrderWithItem
 
   return (
     <>
+      {statusError ? <p className="a-note a-note--error mt-4" role="alert">{statusError}</p> : null}
       <div className="mt-6 flex flex-wrap gap-1.5">
         <button
           type="button"
@@ -297,7 +301,7 @@ export function OrderList({ orders, canDelete = false }: { orders: OrderWithItem
         })}
       </div>
 
-      <div className="a-panel a-scroll mt-4">
+      <div className="a-panel a-scroll mt-4" tabIndex={0} role="region" aria-label="Historial de pedidos">
         <table className="a-table">
           <thead>
             <tr>
@@ -338,8 +342,11 @@ export function OrderList({ orders, canDelete = false }: { orders: OrderWithItem
                       disabled={pending}
                       onChange={(e) =>
                         start(
-                          async () =>
-                            void (await setOrderStatus(o.id, e.target.value as OrderStatus)),
+                          async () => {
+                            setStatusError(null)
+                            const result = await setOrderStatus(o.id, e.target.value as OrderStatus)
+                            if (!result.ok) setStatusError(result.error ?? 'No se pudo cambiar el estado.')
+                          },
                         )
                       }
                     >

@@ -17,7 +17,7 @@ export default async function TableroPage() {
   ])
 
   const nuevos = pedidos.filter((p) => p.status === 'iniciado_whatsapp')
-  const vendidoUsd = pedidos
+  const pedidosActivosUsd = pedidos
     .filter((p) => p.status !== 'cancelado')
     .reduce((sum, p) => sum + Number(p.total_usd), 0)
 
@@ -79,9 +79,10 @@ export default async function TableroPage() {
 
       <div className="a-grid a-grid--2 mt-4">
         <div className="a-stat">
-          <p className="a-eyebrow">Vendido — pedidos no cancelados</p>
-          <p className="a-stat__value">Gs. {pyg(vendidoUsd, fx)}</p>
-          <p className="a-hint">US$ {vendidoUsd.toFixed(2)} a la tasa de {fx.PYG} Gs./US$</p>
+          <p className="a-eyebrow">Importe de pedidos no cancelados</p>
+          <p className="a-stat__value">Gs. {pyg(pedidosActivosUsd, fx)}</p>
+          <p className="a-hint">US$ {pedidosActivosUsd.toFixed(2)} a la tasa vigente de {fx.PYG} Gs./US$</p>
+          <p className="a-hint">Sobre los últimos 50 registros. No acredita ventas cobradas.</p>
         </div>
 
         <div className="a-stat">
@@ -100,7 +101,7 @@ export default async function TableroPage() {
       {alertas.length > 0 ? (
         <section className="mt-10">
           <h2 className="a-eyebrow">Stock que necesita atención</h2>
-          <div className="a-panel a-scroll mt-3">
+          <div className="a-panel a-scroll mt-3" tabIndex={0} role="region" aria-label="Alertas de existencias">
             <table className="a-table">
               <thead>
                 <tr>
@@ -148,11 +149,11 @@ export default async function TableroPage() {
 
         {pedidos.length === 0 ? (
           <p className="a-hint mt-3">
-            Todavía no entró ningún pedido. Cuando alguien cierre una compra por WhatsApp, queda
+            Todavía no entró ningún pedido. Cuando se registre un pedido desde el checkout, queda
             registrado acá con estado «Iniciado por WhatsApp».
           </p>
         ) : (
-          <div className="a-panel a-scroll mt-3">
+          <div className="a-panel a-scroll mt-3" tabIndex={0} role="region" aria-label="Pedidos recientes">
             <table className="a-table">
               <thead>
                 <tr>

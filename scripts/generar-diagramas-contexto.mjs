@@ -57,7 +57,7 @@ flow+=box(390,583,510,100,['Solicita place_order()','Valida precios, cupón y ex
 flow+=arrow('M645 683 L645 710')
 flow+=`<polygon points="645,712 825,777 645,842 465,777" fill="#fff5e3" stroke="#9a723c" stroke-width="2"/>`+text(645,769,['Resultado del','registro'],22)
 flow+=arrow('M465 777 L445 777 L445 921')+label(431,881,'Registrado',20)
-flow+=arrow('M645 842 L645 921')+label(647,881,'Falta stock',20)
+flow+=arrow('M645 842 L645 921')+label(647,881,'No disponible',20)
 flow+=arrow('M825 777 L875 777 L875 921')+label(878,881,'Fallo técnico',20)
 flow+=box(350,925,190,100,['Usa número e','importes del','pedido guardado'],{fill:'#eaf3ee',size:20})
 flow+=box(550,925,190,100,['Muestra error','y detiene','el proceso'],{fill:'#fbeae7',size:20})

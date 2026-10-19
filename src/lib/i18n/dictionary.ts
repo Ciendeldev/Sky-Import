@@ -186,6 +186,8 @@ const es = {
   'product.notFoundBody': 'Puede que haya cambiado de código. Buscala en el catálogo completo.',
   'product.addedToCart': 'agregado al carrito',
   'product.soldOut': 'Sin stock — consultá por WhatsApp',
+  'product.variantUnavailable': 'Combinación no disponible',
+  'product.variantUnavailableNote': 'Elegí otra combinación de opciones para comprar esta pieza.',
   'product.soldOutNote':
     'Esta pieza no tiene unidades ahora mismo. Escribinos y te avisamos apenas entre.',
 
@@ -549,6 +551,8 @@ const pt: Record<DictKey, string> = {
   'product.notFoundBody': 'Pode ter mudado de código. Procure no catálogo completo.',
   'product.addedToCart': 'adicionado ao carrinho',
   'product.soldOut': 'Sem estoque — fale no WhatsApp',
+  'product.variantUnavailable': 'Combinação indisponível',
+  'product.variantUnavailableNote': 'Escolha outra combinação de opções para comprar esta peça.',
   'product.soldOutNote':
     'Esta peça está sem unidades no momento. Fale conosco e avisamos assim que chegar.',
 

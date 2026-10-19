@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/lib/metadata'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { CartContents } from '@/components/cart/CartContents'
@@ -16,7 +17,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale: raw } = await params
   const locale: Locale = isLocale(raw) ? raw : 'es'
-  return { title: makeT(locale)('cart.title') }
+  return { ...pageMetadata(locale, '/carrito', makeT(locale)('cart.title')), robots: { index: false, follow: true } }
 }
 
 /**

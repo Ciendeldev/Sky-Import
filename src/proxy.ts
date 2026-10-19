@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { DEFAULT_LOCALE, LOCALES } from '@/lib/i18n/locales'
+import { refreshAdminSession } from '@/lib/supabase/proxy'
 
 /**
  * El idioma vive en la ruta (`/es`, `/pt`), no en una cookie: así las dos
@@ -20,16 +21,16 @@ function preferredLocale(request: NextRequest): string {
   return DEFAULT_LOCALE
 }
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    return refreshAdminSession(request)
+  }
 
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
-    // El panel de administración no lleva idioma en la ruta: no es bilingüe,
-    // no se comparte y no se indexa. Sin esta línea, `/admin` acabaría
-    // redirigido a `/es/admin`, que no existe.
-    pathname.startsWith('/admin') ||
     PUBLIC_FILE.test(pathname)
   ) {
     return NextResponse.next()

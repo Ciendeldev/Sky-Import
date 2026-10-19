@@ -1,3 +1,4 @@
+import { availableUnits } from '@/lib/catalog/stock'
 import Link from 'next/link'
 import { getSettings, listProducts, stockLevelOf } from '@/lib/admin/queries'
 import { ImportCatalogButton } from '@/components/admin/ImportCatalogButton'
@@ -41,7 +42,7 @@ export default async function ProductosPage() {
             propio umbral.
           </p>
 
-          <div className="a-panel a-scroll mt-5">
+          <div className="a-panel a-scroll mt-5" tabIndex={0} role="region" aria-label="Inventario de productos">
             <table className="a-table">
               <thead>
                 <tr>
@@ -60,9 +61,8 @@ export default async function ProductosPage() {
                   const variantes = p.product_variants ?? []
                   // Con variantes activas, el stock real es la suma de ellas:
                   // el número del producto base deja de mandar.
-                  const stock = variantes.length
-                    ? variantes.filter((v) => v.active).reduce((s, v) => s + v.units, 0)
-                    : p.units
+                  const activas = variantes.filter(v => v.active)
+                  const stock = availableUnits(p.units, variantes)
                   const nivel = stockLevelOf(stock, p.min_stock, rules.lowStockAt)
 
                   return (
@@ -82,7 +82,7 @@ export default async function ProductosPage() {
                         </span>
                       </td>
                       <td>
-                        {variantes.length ? (
+                        {activas.length ? (
                           <span className="a-num text-fg-mid" title="Suma de las variantes activas">
                             {stock}
                           </span>

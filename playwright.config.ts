@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { defineConfig, devices } from '@playwright/test'
 
 const PORT = 3100
-const baseURL = `http://127.0.0.1:${PORT}`
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${PORT}`
 
 /**
  * Next lee `.env.local` solo, pero las pruebas corren en otro proceso y no lo
@@ -49,7 +49,7 @@ export default defineConfig({
     { name: 'escritorio', use: { ...devices['Desktop Chrome'] } },
     { name: 'movil', use: { ...devices['Pixel 7'] } },
   ],
-  webServer: {
+  webServer: process.env.PLAYWRIGHT_BASE_URL ? undefined : {
     command: `npm run start -- --port ${PORT}`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,

@@ -76,7 +76,7 @@ export function UserManagement({ accounts, currentUserId }: { accounts: PanelAcc
   return <section className="a-panel a-account-section" aria-label="Gestión de usuarios">
     <AccountSectionTitle title="Gestión de usuarios" type="users" count={accounts.length} />
     <p className="a-hint a-users-scroll-hint">Deslizá la tabla para ver roles y acciones.</p>
-    <div className="a-scroll">
+    <div className="a-scroll" tabIndex={0} role="region" aria-label="Cuentas del panel">
       <table className="a-table a-users-table">
         <caption className="sr-only">Usuarios con acceso al panel: {activos} activos de {accounts.length}</caption>
         <thead><tr><th scope="col">Usuario</th><th scope="col">Nombre completo</th><th scope="col">Rol</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>

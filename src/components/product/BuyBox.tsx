@@ -11,7 +11,6 @@ import { availabilityOf, type Product } from '@/lib/catalog/types'
 import { hasWhatsapp } from '@/config/site'
 import { productMessage, whatsappUrl } from '@/lib/whatsapp'
 import {
-  defaultSelection,
   matchVariant,
   priceOf,
   skuOf,
@@ -31,27 +30,27 @@ import {
  * cosa no tiene por qué pasar por un carrito.
  *
  * Al cambiar de variante cambian a la vez el SKU, el precio, el stock y —si la
- * variante trae imagen propia— la foto. Eso último lo resuelve el padre, que es
- * quien tiene la galería: acá se avisa con `onVariantChange`.
+ * variante trae imagen propia— la foto. La selección vive en el padre para
+ * que galería, precio y compra compartan el mismo estado.
  */
 export function BuyBox({
   product,
   variants = [],
-  onVariantChange,
+  selection,
+  onSelect,
 }: {
   product: Product
   variants?: Variant[]
-  onVariantChange?: (variant: Variant | null) => void
+  selection: Record<string, string>
+  onSelect: (selection: Record<string, string>) => void
 }) {
   const { t, locale } = useI18n()
   const { fx, lowStockAt } = useCatalog()
   const [qty, setQty] = useState(1)
-  const [selection, setSelection] = useState<Record<string, string>>(() =>
-    defaultSelection(variants),
-  )
 
   const variant = variants.length > 0 ? matchVariant(variants, selection) : null
-  const units = unitsOf(variant, product.units)
+  const invalidSelection = variants.length > 0 && !variant
+  const units = invalidSelection ? 0 : unitsOf(variant, product.units)
   const price = priceOf(variant, product.priceUsd)
   const sku = skuOf(variant, product.ref)
 
@@ -66,9 +65,8 @@ export function BuyBox({
 
   function elegir(axis: string, value: string) {
     const siguiente = { ...selection, [axis]: value }
-    setSelection(siguiente)
+    onSelect(siguiente)
     setQty(1)
-    onVariantChange?.(matchVariant(variants, siguiente))
   }
 
   const mensaje = productMessage({
@@ -129,7 +127,11 @@ export function BuyBox({
 
       <div className="mt-6 flex flex-col gap-2.5">
         {/* ── acción principal ── */}
-        {hasWhatsapp ? (
+        {invalidSelection ? (
+          <button type="button" disabled data-testid="comprar-whatsapp" className="u-btn u-btn-solid w-full">
+            {t('product.variantUnavailable')}
+          </button>
+        ) : hasWhatsapp ? (
           <a
             href={whatsappUrl(mensaje)}
             target="_blank"
@@ -148,32 +150,40 @@ export function BuyBox({
         ) : null}
 
         {/* ── acción secundaria ── */}
-        <AddToCart
-          product={product}
-          qty={cantidad}
-          variant="line"
-          disabled={soldOut}
-          cartVariant={
-            variant
-              ? {
-                  sku: variant.sku,
-                  label: variant.label,
-                  priceUsd: variant.priceUsd,
-                  attributes: variant.attributes,
-                }
-              : undefined
-          }
-          testId="agregar"
-        />
+        {invalidSelection ? (
+          <button type="button" disabled data-testid="agregar" className="u-btn u-btn-line w-full">
+            {t('product.variantUnavailable')}
+          </button>
+        ) : (
+          <AddToCart
+            product={product}
+            qty={cantidad}
+            variant="line"
+            disabled={soldOut}
+            cartVariant={
+              variant
+                ? {
+                    sku: variant.sku,
+                    label: variant.label,
+                    priceUsd: variant.priceUsd,
+                    attributes: variant.attributes,
+                  }
+                : undefined
+            }
+            testId="agregar"
+          />
+        )}
       </div>
 
-      {soldOut ? (
+      {invalidSelection ? (
+        <p role="status" className="u-label mt-4 normal-case tracking-normal">{t('product.variantUnavailableNote')}</p>
+      ) : soldOut ? (
         <p className="u-label mt-4 normal-case tracking-normal">{t('product.soldOutNote')}</p>
       ) : null}
 
       {/* En teléfono la acción vuelve al pie en cuanto se pierde de vista. */}
       <StickyBuyBar
-        href={hasWhatsapp ? whatsappUrl(mensaje) : null}
+        href={hasWhatsapp && !invalidSelection ? whatsappUrl(mensaje) : null}
         priceUsd={price}
         label={t('cta.buyWhatsapp')}
         soldOut={soldOut}

@@ -200,9 +200,8 @@ export type PlaceOrderOutcome =
    */
   | { status: 'sin-registro'; reason: string }
   /**
-   * La venta NO puede seguir. Un solo caso: no hay unidades suficientes.
-   * Mandar por WhatsApp un pedido que no se puede cumplir es peor que
-   * detenerlo acá.
+   * La venta NO puede seguir: falta stock, el producto dejó de estar disponible
+   * o la variante no es válida. No se convierte un rechazo comercial en venta.
    */
   | { status: 'bloqueado'; message: string }
 
@@ -215,8 +214,8 @@ export type PlaceOrderOutcome =
  * **El registro nunca puede costar una venta.** Es una ayuda de seguimiento
  * comercial, no un requisito para vender: la tienda vendía por WhatsApp antes
  * de tener base y tiene que poder seguir haciéndolo si la base falla. Por eso
- * el único fallo que detiene el pedido es el de stock, que es un hecho del
- * negocio y no de la infraestructura.
+ * los rechazos de disponibilidad detienen el pedido: son hechos del negocio,
+ * no fallos de infraestructura.
  */
 /** Lee la respuesta de `place_order` sin confiar en su forma. */
 export function placedFrom(result: Partial<PlaceOrderResult> | null): PlacedOrder | null {
@@ -253,9 +252,9 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderOutc
     })
 
     if (error) {
-      // El mensaje de la excepción de Postgres viaja en `message`. El de stock
-      // es el único que el cliente necesita ver y el único que detiene todo.
-      if (/sin stock suficiente/i.test(error.message)) {
+      // Un rechazo de disponibilidad no debe convertirse en un pedido por
+      // WhatsApp que use el SKU base o una variante que ya se retiró.
+      if (/sin stock suficiente|producto no disponible|variante no disponible|seleccioná una variante/i.test(error.message)) {
         return { status: 'bloqueado', message: error.message }
       }
       return { status: 'sin-registro', reason: error.message }

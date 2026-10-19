@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/lib/metadata'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { GuideView } from '@/components/views/GuideViews'
@@ -21,7 +22,7 @@ export async function generateMetadata({
   const locale: Locale = isLocale(raw) ? raw : 'es'
   const guide = GUIDE_BY_SLUG.get(slug)
   if (!guide) return { title: makeT(locale)('guides.notFound') }
-  return { title: guide.title[locale], description: guide.standfirst[locale] }
+  return pageMetadata(locale, `/guias/${slug}`, guide.title[locale], guide.standfirst[locale])
 }
 
 export default async function GuidePage({

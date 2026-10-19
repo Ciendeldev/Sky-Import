@@ -112,7 +112,7 @@ export async function saveProduct(form: FormData): Promise<ActionResult> {
     blurb_pt: String(form.get('blurb_pt') ?? ''),
     featured: form.get('featured') === 'on',
     arrived_recently: form.get('arrived_recently') === 'on',
-    active: form.get('active') !== null ? form.get('active') === 'on' : true,
+    active: form.get('active') === 'on',
   }
 
   if (!payload.slug || !payload.ref || !payload.name) {
@@ -187,7 +187,7 @@ export async function saveVariant(form: FormData): Promise<ActionResult> {
     units: Math.max(0, Number(form.get('units') ?? 0)),
     image_url: String(form.get('image_url') ?? '').trim() || null,
     sort_order: Number(form.get('sort_order') ?? 0),
-    active: form.get('active') !== null ? form.get('active') === 'on' : true,
+    active: form.get('active') === 'on',
   }
 
   if (!payload.sku || !payload.label_es) {
@@ -305,7 +305,7 @@ export async function saveCoupon(form: FormData): Promise<ActionResult> {
     starts_at: starts ? new Date(starts).toISOString() : null,
     expires_at: expires ? new Date(expires).toISOString() : null,
     max_uses: maxUses === '' ? null : Math.max(1, Number(maxUses)),
-    active: form.get('active') !== null ? form.get('active') === 'on' : true,
+    active: form.get('active') === 'on',
   }
 
   if (!payload.code) return { ok: false, error: 'El cupón necesita un código.' }
@@ -342,6 +342,8 @@ export async function setOrderStatus(id: string, status: OrderStatus): Promise<A
   const { error } = await supabase.from('orders').update({ status }).eq('id', id)
   if (error) return { ok: false, error: error.message }
   revalidatePath('/admin/pedidos')
+  revalidatePath('/admin/productos')
+  revalidatePath('/', 'layout')
   return { ok: true }
 }
 
@@ -369,6 +371,7 @@ export async function deleteOrder(id: string): Promise<ActionResult> {
 
   revalidatePath('/admin/pedidos')
   revalidatePath('/admin/productos')
+  revalidatePath('/', 'layout')
   const devueltas = data.restored ?? 0
   return {
     ok: true,

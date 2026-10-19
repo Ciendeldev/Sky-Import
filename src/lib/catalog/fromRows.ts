@@ -1,3 +1,4 @@
+import { availableUnits } from './stock'
 import { CATEGORY_META } from './categories'
 import { CATEGORIES, type CategorySlug, type Compat, type Product, type RenderSpec } from './types'
 import type { CatalogSnapshot, Rates } from './live'
@@ -28,7 +29,7 @@ import type { ProductRow } from '@/lib/supabase/types'
 
 /** Las columnas que la vitrina lee. Ni costos, ni mínimos, ni fechas. */
 export const STORE_PRODUCT_COLUMNS =
-  'slug, ref, name, brand, model, category_slug, price_usd, list_price_usd, units, arrived_recently, featured, blurb_es, blurb_pt, specs, compat, render' as const
+  'slug, ref, name, brand, model, category_slug, price_usd, list_price_usd, units, arrived_recently, featured, blurb_es, blurb_pt, specs, compat, render, product_variants(units, active)' as const
 
 export type StoreProductRow = Pick<
   ProductRow,
@@ -48,7 +49,7 @@ export type StoreProductRow = Pick<
   | 'specs'
   | 'compat'
   | 'render'
->
+> & { product_variants?: { units: number; active: boolean }[] }
 
 const COMPAT_KINDS: ReadonlySet<string> = new Set([
   'gpu',
@@ -136,7 +137,7 @@ export function productFromRow(row: StoreProductRow, base: Product | undefined):
     priceUsd,
     // Sin precio anterior en la base, no hay oferta: el operador la quitó.
     ...(Number.isFinite(listPriceUsd) && listPriceUsd > 0 ? { listPriceUsd } : {}),
-    units: Math.max(0, Math.floor(Number(row.units) || 0)),
+    units: Math.max(0, Math.floor(availableUnits(Number(row.units) || 0, row.product_variants))),
     ...(row.arrived_recently ? { arrivedRecently: true } : {}),
     ...(row.featured ? { featured: true } : {}),
     blurb: { es: blurbEs, pt: text(row.blurb_pt) || base?.blurb.pt || blurbEs },
@@ -175,10 +176,9 @@ export function lowStockFrom(value: unknown, fallback: number): number {
 /**
  * La foto del catálogo a partir de lo que devolvió la base.
  *
- * Si la base no devolvió ningún producto vendible se usa el archivo entero.
- * Pasa con una base recién creada, antes de importar el catálogo desde el
- * panel: una vitrina vacía no le sirve a nadie, y la venta por WhatsApp
- * funciona igual aunque el pedido no llegue a registrarse.
+ * Una consulta exitosa sin productos también manda: puede que el operador
+ * haya desactivado el último. Volver al archivo lo publicaría otra vez.
+ * Solo la ausencia de respuesta permite usar el respaldo.
  */
 export function snapshotFrom(
   rows: StoreProductRow[] | null,
@@ -202,7 +202,7 @@ export function snapshotFrom(
     )
 
   const ajustes = new Map((settings ?? []).map((row) => [row.key, row.value]))
-  const conBase = products.length > 0
+  const conBase = rows !== null
 
   return {
     products: conBase ? products : fallback.products,

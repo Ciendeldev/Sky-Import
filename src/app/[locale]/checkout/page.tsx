@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/lib/metadata'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { CheckoutFlow } from '@/components/checkout/CheckoutFlow'
@@ -16,7 +17,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale: raw } = await params
   const locale: Locale = isLocale(raw) ? raw : 'es'
-  return { title: makeT(locale)('checkout.title') }
+  return { ...pageMetadata(locale, '/checkout', makeT(locale)('checkout.title')), robots: { index: false, follow: true } }
 }
 
 export default async function CheckoutPage({ params }: { params: Promise<{ locale: string }> }) {

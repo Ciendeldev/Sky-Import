@@ -1,4 +1,5 @@
 import 'server-only'
+import { availableUnits } from '@/lib/catalog/stock'
 
 import { hasSupabase, supabaseServer } from '@/lib/supabase/server'
 import type {
@@ -39,6 +40,7 @@ export async function listProducts(): Promise<ProductWithVariants[]> {
     .select('*, product_variants(*)')
     .order('category_slug')
     .order('name')
+    .throwOnError()
   return (data as ProductWithVariants[] | null) ?? []
 }
 
@@ -50,27 +52,28 @@ export async function getProduct(id: string): Promise<ProductWithVariants | null
     .select('*, product_variants(*)')
     .eq('id', id)
     .maybeSingle()
+    .throwOnError()
   return (data as ProductWithVariants | null) ?? null
 }
 
 export async function listCategories(): Promise<CategoryRow[]> {
   if (!hasSupabase) return []
   const supabase = await supabaseServer()
-  const { data } = await supabase.from('categories').select('*').order('sort_order')
+  const { data } = await supabase.from('categories').select('*').order('sort_order').throwOnError()
   return data ?? []
 }
 
 export async function listCoupons(): Promise<CouponRow[]> {
   if (!hasSupabase) return []
   const supabase = await supabaseServer()
-  const { data } = await supabase.from('coupons').select('*').order('created_at', { ascending: false })
+  const { data } = await supabase.from('coupons').select('*').order('created_at', { ascending: false }).throwOnError()
   return data ?? []
 }
 
 export async function listShippingZones(): Promise<ShippingZoneRow[]> {
   if (!hasSupabase) return []
   const supabase = await supabaseServer()
-  const { data } = await supabase.from('shipping_zones').select('*').order('sort_order')
+  const { data } = await supabase.from('shipping_zones').select('*').order('sort_order').throwOnError()
   return data ?? []
 }
 
@@ -86,6 +89,7 @@ export async function listOrders(limit = 100): Promise<OrderWithItems[]> {
     .select('*, order_items(*)')
     .order('created_at', { ascending: false })
     .limit(limit)
+    .throwOnError()
   return (data as OrderWithItems[] | null) ?? []
 }
 
@@ -93,7 +97,7 @@ export async function getSettings(): Promise<{ fx: FxSettings; rules: RulesSetti
   // Sin base, se responden los mismos valores que trae `src/config/site.ts`:
   // la tienda no cambia de comportamiento por no tener Supabase configurado.
   const data = hasSupabase
-    ? ((await (await supabaseServer()).from('settings').select('key, value').in('key', ['fx', 'rules']))
+    ? ((await (await supabaseServer()).from('settings').select('key, value').in('key', ['fx', 'rules']).throwOnError())
         .data ?? [])
     : []
 
@@ -153,14 +157,16 @@ export async function listStockAlerts(): Promise<StockAlert[]> {
 
   const { data } = await supabase
     .from('products')
-    .select('id, name, ref, units, min_stock')
+    .select('id, name, ref, units, min_stock, product_variants(units, active)')
     .eq('active', true)
+    .throwOnError()
 
   const alertas: StockAlert[] = []
   for (const p of data ?? []) {
-    const level = stockLevelOf(p.units, p.min_stock, rules.lowStockAt)
+    const units = availableUnits(p.units, p.product_variants)
+    const level = stockLevelOf(units, p.min_stock, rules.lowStockAt)
     if (level === 'ok') continue
-    alertas.push({ id: p.id, name: p.name, ref: p.ref, units: p.units, level })
+    alertas.push({ id: p.id, name: p.name, ref: p.ref, units, level })
   }
 
   return alertas.sort(

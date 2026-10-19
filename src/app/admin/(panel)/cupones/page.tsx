@@ -13,8 +13,8 @@ export default async function CuponesPage() {
       <h1 className="a-title mt-2">Cupones de descuento</h1>
       <p className="a-hint mt-3 max-w-[62ch]">
         El cliente escribe el código en el checkout y la tienda le devuelve el descuento ya
-        calculado. La lista de cupones nunca sale de la base: no se puede enumerar desde el
-        navegador ni adivinar qué otros códigos existen.
+        calculado. El listado completo está reservado al panel. La tienda pública solo consulta
+        la validez del código que introduce el cliente.
       </p>
 
       <CouponManager coupons={cupones} />

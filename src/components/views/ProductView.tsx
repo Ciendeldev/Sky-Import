@@ -32,12 +32,12 @@ export function ProductView({
   const catalog = useCatalog()
   // La variante elegida vive acá y no dentro del bloque de compra: la galería
   // también la necesita, y dos copias del mismo estado se desincronizan.
-  const [variant, setVariant] = useState<Variant | null>(
-    () => (variants.length > 0 ? matchVariant(variants, defaultSelection(variants)) : null),
-  )
+  const [selection, setSelection] = useState(() => defaultSelection(variants))
+  const variant = variants.length > 0 ? matchVariant(variants, selection) : null
+  const invalidSelection = variants.length > 0 && !variant
 
   const category = CATEGORY_META[product.category]
-  const units = unitsOf(variant, product.units)
+  const units = invalidSelection ? 0 : unitsOf(variant, product.units)
   const price = priceOf(variant, product.priceUsd)
   const availability = availabilityOf({ ...product, units }, catalog.lowStockAt)
   const off = discountPercent(price, product.listPriceUsd)
@@ -86,7 +86,7 @@ export function ProductView({
 
           <Reveal delayIndex={2}>
             <p className="u-label mt-3 tabular-nums" aria-live="polite">
-              {t('product.ref')} {variant?.sku ?? product.ref}
+              {t('product.ref')} {invalidSelection ? '—' : variant?.sku ?? product.ref}
             </p>
 
             <p className="u-measure mt-6 text-[1rem] leading-relaxed text-fg-mid">
@@ -94,7 +94,7 @@ export function ProductView({
             </p>
 
             <div className="mt-8 flex flex-wrap items-end gap-x-4 gap-y-2 border-t border-rule pt-6">
-              {off ? (
+              {!invalidSelection && off ? (
                 <>
                   <Price
                     usd={product.listPriceUsd ?? product.priceUsd}
@@ -106,10 +106,12 @@ export function ProductView({
                   </span>
                 </>
               ) : null}
-              <Price
-                usd={price}
-                className="w-full font-mono text-[clamp(1.5rem,4vw,2rem)] font-medium text-fg"
-              />
+              {!invalidSelection ? (
+                <Price
+                  usd={price}
+                  className="w-full font-mono text-[clamp(1.5rem,4vw,2rem)] font-medium text-fg"
+                />
+              ) : null}
               <span
                 className={`u-tag ${
                   availability === 'agotado'
@@ -119,11 +121,11 @@ export function ProductView({
                       : 'text-fg-low'
                 }`}
               >
-                {t(`product.availability.${availability}`)}
+                {invalidSelection ? t('product.variantUnavailable') : t(`product.availability.${availability}`)}
               </span>
             </div>
 
-            <BuyBox product={product} variants={variants} onVariantChange={setVariant} />
+            <BuyBox product={product} variants={variants} selection={selection} onSelect={setSelection} />
 
             <p className="u-label mt-5 leading-relaxed normal-case tracking-normal">
               {t('product.priceNote')} {t('currency.note')}

@@ -141,6 +141,8 @@ export type OrderRow = {
   id: string
   number: string
   status: OrderStatus
+  /** Evita devolver dos veces las unidades al cancelar y después borrar. */
+  stock_released: boolean
   first_name: string
   last_name: string
   phone: string

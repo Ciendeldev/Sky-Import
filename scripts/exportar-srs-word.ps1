@@ -1,6 +1,6 @@
 param(
-  [string]$Documento = 'C:\Code\SkyImport\docs\srs\SRS-Sky-Import.docx',
-  [string]$Pdf = 'C:\Code\SkyImport\docs\srs\SRS-Sky-Import.pdf'
+  [string]$Documento = 'C:\Code\SkyImport\docs\srs\SRS-Sky-Import-Final.docx',
+  [string]$Pdf = 'C:\Code\SkyImport\docs\srs\SRS-Sky-Import-Final.pdf'
 )
 $ErrorActionPreference = 'Stop'
 $wordSrs = $null

@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/lib/metadata'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { GuidesView } from '@/components/views/GuideViews'
@@ -16,7 +17,7 @@ export async function generateMetadata({
   const { locale: raw } = await params
   const locale: Locale = isLocale(raw) ? raw : 'es'
   const t = makeT(locale)
-  return { title: t('guides.title'), description: t('guides.lede') }
+  return pageMetadata(locale, '/guias', t('guides.title'), t('guides.lede'))
 }
 
 export default async function GuidesPage({ params }: { params: Promise<{ locale: string }> }) {

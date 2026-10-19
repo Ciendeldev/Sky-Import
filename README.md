@@ -8,9 +8,10 @@ reales**. Con panel de administración sobre Supabase.
 > **Cómo se cierra una venta.** No hay pasarela de pago ni selector de métodos.
 > El checkout reúne los datos de entrega y arma un mensaje de WhatsApp con el
 > pedido completo: piezas, códigos, cantidades, cupón, envío y total en
-> guaraníes. El pedido queda registrado en la base **antes** de abrir la
-> conversación, con estado «Iniciado por WhatsApp», para que el seguimiento
-> comercial no dependa de que el cliente llegue a escribir.
+> guaraníes. Si el registro tiene éxito, el pedido queda guardado **antes** de abrir la
+> conversación, con estado «Iniciado por WhatsApp». La compra directa y la
+> continuación por fallo técnico no crean un registro. Un rechazo por stock,
+> producto o variante no disponible bloquea el pedido.
 
 ---
 
@@ -59,7 +60,7 @@ estáticos y vende por WhatsApp. Lo que deja de haber es panel.
 
 ## Requisitos
 
-- Node.js **20.9 o superior** (probado en 24.17).
+- Node.js **24.19.0**, fijado en `.nvmrc` (el paquete exige como mínimo Node 22).
 - npm 10 o superior. El proyecto usa **npm** de forma consistente; hay
   `package-lock.json` en el repositorio.
 
@@ -97,21 +98,22 @@ cp .env.example .env.local
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — pública por diseño; lo que protege los datos
   son las políticas RLS, no el secreto de esta clave.
 - `SUPABASE_SERVICE_ROLE_KEY` — la «secret key». **Salta todas las políticas.**
-  Solo servidor, y **solo hace falta para crear la cuenta de administración**:
-  todo lo demás pasa por RLS con la sesión del operador. Una vez creada la
-  cuenta, se puede quitar del despliegue.
+  Solo servidor. Se necesita para aprovisionar cuentas y para la gestión
+  autorizada de usuarios desde el panel. **Debe conservarse en el despliegue
+  si se utilizarán esas funciones.** Las operaciones comerciales usan RLS
+  con la sesión del operador.
 
 ### 2 · El esquema
 
-En el panel de Supabase, **SQL Editor**, ejecutá en orden los tres archivos de
-`supabase/migrations/`:
+En el panel de Supabase, **SQL Editor**, ejecutá los archivos de
+`supabase/migrations/` en orden de nombre. En una base existente, aplicá solamente
+las migraciones pendientes, sin volver a ejecutar las versiones antiguas de
+las funciones.
 
-1. `20260831000100_esquema_inicial.sql` — tablas y tipos
-2. `20260831000200_rls.sql` — políticas y las funciones `validate_coupon` y
-   `place_order`
-3. `20260831000300_datos_base.sql` — tasa de cambio, zonas de envío y categorías
-
-Los tres son idempotentes: correrlos dos veces no rompe ni duplica nada.
+La migración `20261019141606_integridad_pedidos_cupones.sql` debe aplicarse antes
+de desplegar estas correcciones: devuelve stock al cancelar, impide devolverlo
+dos veces al borrar y serializa el uso de cupones. El detalle y las pruebas
+locales están en [ADR 013](docs/adr/013-integridad-pedidos-y-sesion.md).
 
 ### 3 · La cuenta de administración
 
@@ -130,6 +132,10 @@ proyecto.
 Entrá en `/admin` y pulsá **Importar el catálogo del proyecto**. Vuelca las 37
 piezas con su ficha técnica y sus datos de compatibilidad. A partir de ahí el
 catálogo se edita desde el panel.
+
+Con Supabase configurado, una consulta exitosa sin productos activos muestra
+el catálogo vacío; eso permite desactivar todas las piezas sin que reaparezca
+la semilla. Sin configurar Supabase, la tienda sigue usando el catálogo estático.
 
 **Si todavía no tenés cuenta de administración**, hay un camino que no necesita
 ninguna credencial:
@@ -236,7 +242,7 @@ src/
 supabase/
   migrations/            esquema, políticas RLS y datos de arranque
 tests/
-  unit/                  carrito, moneda, compatibilidad, búsqueda, WhatsApp
+  unit/                  carrito, moneda, compatibilidad, búsqueda, WhatsApp, stock y sesión
   e2e/                   recorrido de compra, guard del panel y experiencia
 scripts/
   build-assets.mjs       genera la imagen social
@@ -265,9 +271,9 @@ Cada pieza declara nombre, marca, modelo, código de referencia, precio en USD,
 unidades, descripción en los dos idiomas, ficha técnica y un objeto `compat` que
 es lo que consume el configurador.
 
-Tres reglas que conviene no romper:
+Cuatro reglas que conviene no romper:
 
-1. **`units` es la única fuente de la disponibilidad.** No existe un campo
+1. **Las unidades son la fuente de la disponibilidad: con variantes activas se suman sus unidades; sin ellas se usa `products.units`.** No existe un campo
    «agotado»: `0` unidades da agotado, `≤ 3` da «últimas unidades». Cambiá el
    umbral en `RULES.lowStockAt`.
 2. **La oferta se deriva de `listPriceUsd`.** Si es mayor que `priceUsd`, la
@@ -330,9 +336,9 @@ porque obliga al vendedor a interpretarlo.
 ### Zonas de envío y cupones
 
 Las zonas se editan en la tabla `shipping_zones` y los cupones en
-**`/admin/cupones`**. Los cupones **no se leen nunca desde el navegador**: se
-validan con una función de la base que devuelve el descuento ya calculado, así
-que nadie puede enumerar los códigos vigentes mirando el código fuente.
+**`/admin/cupones`**. El listado de cupones está reservado al panel. La tienda pública valida
+un código mediante una función que devuelve el descuento o el motivo de
+rechazo; esto no constituye una protección contra probar códigos individuales.
 
 ### Textos de la interfaz
 
@@ -356,7 +362,7 @@ en un solo idioma sin que se note.
    |---|---|
    | `NEXT_PUBLIC_SUPABASE_URL` | Todos los entornos |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Todos los entornos |
-   | `SUPABASE_SERVICE_ROLE_KEY` | **Opcional y solo servidor.** Nunca con prefijo `NEXT_PUBLIC_` |
+   | `SUPABASE_SERVICE_ROLE_KEY` | **Servidor; necesaria para gestionar cuentas.** Nunca con prefijo `NEXT_PUBLIC_` |
    | `ADMIN_USERNAME` · `ADMIN_EMAIL` | Todos los entornos |
 
    `ADMIN_PASSWORD` **no va a Vercel**: solo se usa una vez, en local, para
@@ -431,3 +437,26 @@ archivo de origen.
 Las tipografías (Archivo y Azeret Mono) son de licencia SIL Open Font License 1.1
 y se sirven desde el propio dominio a través de `next/font`. El detalle completo
 está en [`CREDITS.md`](CREDITS.md).
+
+## Revisión para la entrega final
+
+La versión impresa del SRS del 12/10/2026 se conserva en `docs/srs/SRS-Sky-Import.docx`
+y `.pdf`. La revisión posterior se publica por separado como `SRS-Sky-Import-Final.docx`
+y `.pdf`, con fecha y evidencia propias. La guía de exposición acompaña esa revisión.
+
+La prueba autenticada usa cuentas temporales y las elimina al terminar:
+
+```powershell
+$env:RUN_ACCOUNT_E2E="1"
+npx playwright test tests/e2e/admin-cuentas.spec.ts
+```
+
+`PLAYWRIGHT_BASE_URL` permite inspeccionar un despliegue existente sin iniciar
+otro servidor. No ejecutar toda la batería sobre producción indiscriminadamente:
+seleccionar los recorridos de lectura y las pruebas con datos temporales.
+
+El catálogo, el inventario y las alertas comparten el cálculo de existencias.
+Las páginas públicas identifican su URL y sus traducciones; carrito y checkout
+no se indexan. Los errores de consulta del panel se muestran como errores,
+sin simular una base vacía. El importe del tablero corresponde a pedidos no
+cancelados entre los últimos 50 registros y no acredita cobros.

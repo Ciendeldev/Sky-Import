@@ -178,8 +178,8 @@ export function CheckoutFlow() {
       couponCode: coupon?.code ?? null,
     })
 
-    // Falta de stock es lo único que detiene la venta: mandar por WhatsApp un
-    // pedido que no se puede cumplir es peor que pararlo acá.
+    // Un rechazo de disponibilidad detiene la venta, también cuando la
+    // variante dejó de existir mientras el cliente tenía abierto el carrito.
     if (outcome.status === 'bloqueado') {
       // La pestaña reservada se cierra: no hay pedido que mandar.
       ventana?.close()

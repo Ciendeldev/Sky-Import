@@ -52,24 +52,28 @@ primera clase, comprobables en el configurador, en tres monedas y dos idiomas.
 
 **Confirmado**
 
-- Catálogo estático tipado; sin backend, sin base de datos, sin autenticación.
+- Catálogo público leído desde Supabase, con semilla tipada y respaldo local.
+- Panel autenticado con perfiles de administrador y moderador, políticas RLS y acceso revocable.
 - Categorías: tarjetas gráficas, procesadores, memorias RAM, placas madre, almacenamiento,
   fuentes de alimentación, refrigeración, gabinetes, accesorios de armado.
-- Carrito persistido en `localStorage`. Estado de checkout local y efímero.
+- Carrito persistido en `localStorage`. El checkout registra pedidos, relee precios y reserva existencias en PostgreSQL.
 - Configurador «Arma tu PC» con comprobaciones fundamentales: socket CPU/placa,
   generación DDR, vataje recomendado según GPU, longitud de GPU contra gabinete.
-- Contacto comercial: WhatsApp **+595 982 064 334** (dato real provisto por el titular).
-- Checkout **simulado**: al pulsar el paso final se intercepta la acción y se revela que
-  la experiencia es demostrativa. Ningún dato sensible se pide, se transmite ni se guarda.
-  Ésta es la única aparición pública de esa revelación.
+- Contacto configurado: WhatsApp **+595 994 222 542**, centralizado en `src/config/site.ts`.
+- El cierre se coordina por WhatsApp. El registro no acredita pago ni envío del mensaje.
+- La compra directa no crea pedido; un fallo técnico puede permitir continuar sin registro.
+  Stock insuficiente, producto no disponible o variante inválida bloquean el checkout.
+- Cupones, variantes, tasa de cambio, existencias y seguimiento se administran desde el panel.
 
 **Restricciones duras**
 
-- La web **no debe indexarse** mientras el comercio no sea real: `noindex` global y sin
-  datos estructurados que la presenten como tienda operativa.
-- El tipo de cambio es **referencial y fijo**, editable en un solo archivo. Nunca se
-  presenta como cotización en vivo.
-- No hay stock verificado, ni pasarela, ni pedidos reales.
+- Las páginas públicas permiten indexación; el panel, el carrito y el checkout quedan excluidos.
+- El tipo de cambio es **referencial y configurable** desde el panel. Nunca se presenta
+  como cotización en vivo. Los pedidos conservan la tasa y los importes del registro.
+- No hay pasarela de pago, conciliación bancaria, facturación fiscal ni seguimiento logístico.
+- Las cantidades almacenadas no prueban por sí solas las existencias físicas del comercio.
+- Cancelar devuelve la reserva una sola vez; reabrir exige stock. Borrar no vuelve a
+  restituir un pedido cancelado y no repone un entregado. Requiere la migración de integridad.
 
 **Terminología del rubro que la interfaz debe usar bien**
 
@@ -99,8 +103,9 @@ Mini-ITX, PCIe 5.0, NVMe M.2 2280, certificación 80 PLUS.
   respaldadas por terceros, reseñas de compradores, stock verificado, métricas de venta.
 - **Precios, disponibilidad y condiciones comerciales**: son datos de configuración del
   proyecto, no información oficial del fabricante, y la interfaz lo dice.
-- **Imágenes**: no hay fotografía de producto con derechos. El proyecto autoría sus
-  propios renders vectoriales; ninguna marca ajena se reproduce.
+- **Imágenes**: hay fotografías de producto con procedencia registrada en
+  `public/products/SOURCES.md`, además de ilustraciones y escenas 3D propias.
+  Registrar la procedencia no equivale a una certificación de derechos de uso.
 
 ## Product Principles
 
@@ -112,8 +117,8 @@ Mini-ITX, PCIe 5.0, NVMe M.2 2280, certificación 80 PLUS.
    funcionalidad de primera clase, no un selector escondido en el pie.
 4. **Ningún dato visible sin lógica que lo sostenga.** Los estados (agotado, últimas
    unidades, oferta) se derivan de los datos; no se declaran a mano.
-5. **La honestidad se concentra.** El carácter demostrativo se revela en un solo lugar,
-   con peso, al final del checkout — y en ningún otro punto de la interfaz pública.
+5. **La confirmación comercial es explícita.** Los importes derivados son referenciales;
+   abrir WhatsApp o guardar un pedido no acredita pago ni una venta confirmada.
 
 ## Accessibility & Inclusion
 

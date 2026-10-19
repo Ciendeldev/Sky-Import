@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/lib/metadata'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Configurator } from '@/components/builder/Configurator'
@@ -17,7 +18,7 @@ export async function generateMetadata({
   const { locale: raw } = await params
   const locale: Locale = isLocale(raw) ? raw : 'es'
   const t = makeT(locale)
-  return { title: t('build.title'), description: t('build.lede') }
+  return pageMetadata(locale, '/armar', t('build.title'), t('build.lede'))
 }
 
 export default async function BuilderPage({ params }: { params: Promise<{ locale: string }> }) {

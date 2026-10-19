@@ -66,7 +66,7 @@ const HERO_TRIM = { x: 12.5, bottom: 29 } as const
  * destacarse y de contarse.
  */
 function portadaDe(products: Product[]) {
-  const primera = products[0]!
+  const primera = products[0]
   const countByCategory = new Map<string, number>()
   for (const product of products) {
     countByCategory.set(product.category, (countByCategory.get(product.category) ?? 0) + 1)
@@ -206,21 +206,25 @@ export function HomeView() {
                   seguir al puntero, latir el halo— y ganó no moverse: encima
                   ya corren el barrido de luz y el paralaje del scroll, y una
                   fotografía que flota deja de leerse como fotografía. */}
-              <ProductPhoto
-                product={heroGpu}
-                priority
-                sizes="(min-width: 1280px) 58vw, (min-width: 1024px) 50vw, 92vw"
-              />
-              <PhotoDims
-                trimX={HERO_TRIM.x}
-                baseY={HERO_TRIM.bottom}
-                {...(heroGpu.compat.kind === 'gpu'
-                  ? {
-                      main: `${heroGpu.compat.lengthMm} mm`,
-                      notes: [`${heroGpu.compat.tgpW} W`, heroGpu.compat.bus],
-                    }
-                  : { notes: [] })}
-              />
+              {heroGpu ? (
+                <>
+                  <ProductPhoto
+                    product={heroGpu}
+                    priority
+                    sizes="(min-width: 1280px) 58vw, (min-width: 1024px) 50vw, 92vw"
+                  />
+                  <PhotoDims
+                    trimX={HERO_TRIM.x}
+                    baseY={HERO_TRIM.bottom}
+                    {...(heroGpu.compat.kind === 'gpu'
+                      ? {
+                          main: `${heroGpu.compat.lengthMm} mm`,
+                          notes: [`${heroGpu.compat.tgpW} W`, heroGpu.compat.bus],
+                        }
+                      : { notes: [] })}
+                  />
+                </>
+              ) : null}
               <span className="u-sweep" aria-hidden="true" />
             </div>
           </div>
@@ -267,7 +271,7 @@ export function HomeView() {
         <CellGrid className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {CATEGORY_ORDER.map((slug, i) => {
             const meta = CATEGORY_META[slug]
-            const representante = categoryProduct.get(slug)!
+            const representante = categoryProduct.get(slug)
             const wide = WIDE.has(slug)
             return (
               <Reveal
@@ -286,7 +290,7 @@ export function HomeView() {
                       {String(i + 1).padStart(2, '0')}
                     </span>
                     <span className="relative block aspect-square w-24 shrink-0 opacity-85 transition-all duration-500 ease-rail group-hover:-translate-y-1 group-hover:opacity-100">
-                      <ProductPhoto product={representante} sizes="96px" />
+                      {representante ? <ProductPhoto product={representante} sizes="96px" /> : null}
                     </span>
                   </div>
 

@@ -275,12 +275,12 @@ const RF = [
       'La búsqueda normaliza el texto eliminando marcas diacríticas, de modo que «grafica» encuentra «gráfica» y «refrigeracion» encuentra «refrigeración». Además admite la búsqueda por código de referencia interno, que es el dato que el cliente dicta por teléfono.',
     pre: ['1. El campo de búsqueda del catálogo está visible y habilitado.'],
     post: [
-      '1. La coincidencia se resuelve en memoria sobre el conjunto ya recuperado: con este volumen de catálogo, consultar el servidor por cada pulsación sería más lento y menos fiable.',
+      '1. La coincidencia se resuelve en memoria sobre el conjunto ya recuperado: esto evita una petición al servidor por cada pulsación.',
       '2. Sin escritura en base de datos.',
     ],
     rnf: 'RNF03 (Rendimiento), RNF07 (Usabilidad)',
     prioridad:
-      'Alta. Caso de prueba automatizado: la consulta «rtx 5070» sin tildes devuelve la ficha correspondiente. Cubierto por siete pruebas unitarias en tests/unit/search.test.ts.',
+      'Alta. Caso de prueba automatizado: la consulta «grafica» encuentra «Tarjeta gráfica», y «refrigeracion» encuentra «Refrigeración». Cubierto por siete pruebas unitarias en tests/unit/search.test.ts.',
   },
   {
     id: 'RF04',
@@ -289,9 +289,9 @@ const RF = [
       'Figura 24a, RF04. Figura 2, selección de variante y cantidad. Ficha completa de la función: Figura 6.',
     nombre: 'Selección dinámica de variantes',
     sintaxis:
-      'Cuando el cliente seleccione un valor distinto en cualquier eje de variante [Condición], la ficha de producto [Sujeto] deberá actualizar [Acción] la fotografía, el código SKU, el precio y la disponibilidad [Objeto] de forma inmediata y sin recargar la página [Restricción].',
+      'Cuando el cliente seleccione un valor distinto en cualquier eje de variante [Condición], la ficha de producto [Sujeto] deberá actualizar [Acción] la fotografía, el código SKU, el precio y la disponibilidad [Objeto] sin recargar la página [Restricción].',
     descripcion:
-      'Cada producto puede declarar sus propios ejes de variación —capacidad, color, velocidad, formato—, que se derivan de las variantes existentes en lugar de declararse por separado. Un valor sin unidades se marca como agotado pero permanece seleccionable, para que el cliente sepa que esa versión existe.',
+      'Cada producto puede declarar sus propios ejes de variación —capacidad, color, velocidad, formato—, que se derivan de las variantes existentes en lugar de declararse por separado. Un valor sin unidades se marca como agotado pero permanece seleccionable. Si la combinación elegida no corresponde a una variante activa o no tiene existencias, se deshabilitan las acciones de compra.',
     pre: [
       '1. El producto posee al menos una variante activa en la tabla product_variants.',
       '2. La ficha del producto está cargada.',
@@ -421,12 +421,12 @@ const RF = [
       '1. El carrito contiene al menos una línea.',
       '2. Los campos nombre, apellido y teléfono están completos.',
       '3. Si la zona seleccionada lo requiere, la dirección exacta está informada.',
-      '4. Para persistir el pedido, la base de datos debe estar disponible. Ante un fallo técnico puede continuarse por WhatsApp sin registro, según RNF09; la falta de existencias sí bloquea la operación.',
+      '4. Para persistir el pedido, la base de datos debe estar disponible. Ante un fallo técnico puede continuarse por WhatsApp sin registro, según RNF09; la falta de existencias, un producto no disponible o una variante inválida bloquean la operación.',
     ],
     post: [
       '1. SELECT ... FOR UPDATE sobre cada producto y variante implicados, para bloquear la fila durante la transacción.',
       '2. UPDATE sobre products y product_variants descontando las unidades solicitadas.',
-      '3. UPDATE sobre coupons incrementando used_count, si se aplicó un cupón.',
+      '3. Bloqueo de la fila del cupón, revalidación e incremento de used_count en la misma transacción, para respetar el límite ante compras simultáneas.',
       '4. INSERT en la tabla orders con el número correlativo, los importes y la tasa de cambio vigente en ese instante.',
       '5. INSERT en order_items con una fila por línea, copiando nombre, SKU y precio del momento de la compra.',
       '6. Si alguna pieza carece de unidades suficientes, la transacción completa se revierte y no se registra nada.',
@@ -445,7 +445,7 @@ const RF = [
       'Cuando el registro del pedido finalice correctamente o se habilite la continuación sin registro por un fallo técnico [Condición], el generador de mensajes del navegador [Sujeto] deberá componer [Acción] el detalle de productos, cupón, entrega y total [Objeto], codificado para su transmisión por WhatsApp [Restricción].',
     descripcion:
       'Produce el mensaje de Formato 2 en el navegador. El dólar estadounidense es la moneda base de precios y la referencia comercial indicada en la tienda; el mensaje presenta importes convertidos a guaraníes. La moneda y las condiciones efectivas de pago se acuerdan por WhatsApp, fuera del sistema. Si el pedido quedó registrado, las líneas, los totales y la tasa se toman de los valores persistidos. En la continuación sin registro se utilizan los datos disponibles en la página, sujetos a confirmación comercial. El mensaje incluye emojis y líneas de producto sin numeración ordinal; omite cupón y observaciones cuando no corresponden.',
-    pre: ['1. El pedido se registró o se habilitó la continuación sin registro por un fallo técnico. Un rechazo por falta de existencias no genera el mensaje de pedido.'],
+    pre: ['1. El pedido se registró o se habilitó la continuación sin registro por un fallo técnico. Un rechazo por falta de existencias, producto no disponible o variante inválida no genera el mensaje de pedido.'],
     post: [
       '1. Operación de solo lectura sobre los datos devueltos por el registro del pedido o, sin registro, sobre los de la página.',
       '2. Se abre la dirección oficial api.whatsapp.com/send con el contenido codificado mediante encodeURIComponent.',
@@ -489,16 +489,16 @@ const RF = [
     sintaxis:
       'Cuando las unidades de un producto activo desciendan hasta el umbral configurado o por debajo [Condición], el módulo de inventario [Sujeto] deberá señalar [Acción] dicho producto en el panel de alertas [Objeto], diferenciando el estado agotado del estado de últimas unidades [Restricción].',
     descripcion:
-      'La disponibilidad se calcula a partir de las unidades y del umbral propio del producto o, en su ausencia, del general. En el listado de productos se suman las unidades de las variantes activas cuando existen. La consulta de alertas utiliza products.units. La equivalencia entre ese campo y la suma de variantes requiere comprobación y, cuando corresponda, conciliación; la versión actual no garantiza una única regla de agregación en ambas vistas.',
+      'El catálogo, el inventario y las alertas utilizan la suma de unidades de las variantes activas cuando existen; en su ausencia, utilizan products.units. El panel clasifica las alertas según el umbral propio del producto o, si no existe, el general. Los estados se calculan a partir de esos datos y no se almacenan por separado.',
     pre: ['1. Existe una sesión de administrador activa.'],
     post: [
       '1. UPDATE sobre products.units al ajustar el stock desde el listado.',
-      '2. SELECT sobre products con active = true para componer el listado de alertas, ordenado con los agotados en primer lugar.',
-      '3. La clasificación de las alertas se calcula sobre products.units y el umbral aplicable; no se almacena como un estado separado.',
+      '2. SELECT de productos activos y sus variantes para calcular las existencias; las alertas se ordenan con los agotados en primer lugar.',
+      '3. La clasificación utiliza las existencias vendibles y el umbral aplicable; no se almacena como un estado separado.',
     ],
     rnf: 'RNF04 (Integridad), RNF07 (Usabilidad)',
     prioridad:
-      'Alta. Caso de prueba: fijar las unidades de una pieza en cero la clasifica como agotada en el tablero; fijarlas en un valor igual al umbral la clasifica como últimas unidades.',
+      'Alta. Caso de prueba: fijar las unidades de una pieza en cero la clasifica como agotada en el tablero; fijarlas en un valor igual al umbral la clasifica como últimas unidades. Con variantes activas, se usa su suma aunque products.units tenga otro valor.',
   },
   {
     id: 'RF14',
@@ -509,7 +509,7 @@ const RF = [
     sintaxis:
       'Cuando el administrador registre una nueva tasa de cambio [Condición], el módulo de configuración [Sujeto] deberá persistir y propagar [Acción] dicho valor a la totalidad de la tienda y de los mensajes generados [Objeto], sin necesidad de un nuevo despliegue [Restricción].',
     descripcion:
-      'Centraliza la tasa de guaraníes y reales por dólar, el mes de referencia y el umbral de aviso de últimas unidades. El costo del envío no figura en el sistema: se acuerda por la vía de mensajería. La tienda pública y los mensajes emplean exclusivamente el valor almacenado; el código conserva únicamente un valor de respaldo, que se aplica solo si la base de datos no responde. El sistema rechaza toda tasa fuera de un rango de plausibilidad: la notación local del guaraní emplea el punto como separador de millar, y un campo numérico lo descarta, de modo que «7.400» se registraría como «7» y dividiría por mil la totalidad de los precios publicados.',
+      'Centraliza la tasa de guaraníes y reales por dólar, el mes de referencia y el umbral de aviso de últimas unidades. El costo del envío no figura en el sistema: se acuerda por la vía de mensajería. La tienda pública y los mensajes emplean exclusivamente el valor almacenado; el código conserva únicamente un valor de respaldo, que se aplica solo si la base de datos no responde. El sistema valida los rangos definidos para evitar que una tasa mal introducida altere los precios publicados. En los campos numéricos se introducen las unidades por dólar sin separador de miles.',
     pre: [
       '1. Existe una sesión de administrador activa.',
       '2. El guaraní por dólar se sitúa entre 1000 y 20000, y el real entre 1 y 50.',
@@ -532,7 +532,7 @@ const RF = [
     sintaxis:
       'Cuando el administrador registre un cupón [Condición], el módulo de promociones [Sujeto] deberá almacenar [Acción] su código, tipo, valor, compra mínima, vigencia y límite de usos [Objeto], garantizando la unicidad del código con independencia de mayúsculas [Restricción].',
     descripcion:
-      'Permite generar cupones por porcentaje o por monto fijo en dólares, con restricción de compra mínima, ventana de vigencia y límite de canjes. El estado del cupón se deriva de sus datos y del reloj, de modo que no puede existir un cupón marcado como activo pero vencido.',
+      'Permite generar cupones por porcentaje o por monto fijo en dólares, con restricción de compra mínima, ventana de vigencia y límite de canjes. El estado mostrado se deriva de la habilitación, la vigencia y el límite de usos. Un cupón habilitado solo puede aplicarse si cumple esas condiciones y la compra mínima.',
     pre: [
       '1. Existe una sesión de administrador activa.',
       '2. El valor es mayor que cero y, en cupones porcentuales, no supera cien.',
@@ -555,11 +555,11 @@ const RF = [
     sintaxis:
       'Cuando el administrador consulte el historial [Condición], el módulo de pedidos [Sujeto] deberá presentar [Acción] hasta los 200 pedidos registrados más recientes con su estado, importes, líneas y datos de entrega [Objeto], ordenados del más reciente al más antiguo [Restricción].',
     descripcion:
-      'Permite seguir los pedidos efectivamente registrados mediante el checkout, con estado inicial «Iniciado por WhatsApp», y actualizarlos a confirmado, en preparación, entregado o cancelado. Admite observaciones internas. El historial muestra hasta 200 pedidos y el tablero utiliza los 50 más recientes; este límite no elimina registros anteriores. La compra directa y la continuación por fallo técnico sin registro no aparecen en el historial. Los importes mostrados son los persistidos al registrar el pedido.',
+      'Permite seguir los pedidos efectivamente registrados mediante el checkout, con estado inicial «Iniciado por WhatsApp», y actualizarlos a confirmado, en preparación, entregado o cancelado. Admite observaciones internas. El historial muestra hasta 200 pedidos y el tablero utiliza los 50 más recientes; este límite no elimina registros anteriores. La compra directa y la continuación por fallo técnico sin registro no aparecen en el historial. Los importes del historial son los persistidos al registrar el pedido. El indicador agregado del tablero usa la tasa vigente y no acredita cobros.',
     pre: ['1. Existe una sesión de administrador activa.'],
     post: [
       '1. SELECT sobre orders con unión a order_items, restringido por la política RLS que exige pertenencia a admin_users.',
-      '2. UPDATE sobre orders.status y orders.admin_note al modificar el seguimiento.',
+      '2. UPDATE sobre orders.status y orders.admin_note. La cancelación devuelve las unidades una sola vez; reabrir reserva de nuevo y se rechaza si falta stock. Un pedido entregado no admite otro estado.',
       '3. Los importes no se recalculan: se preservan los valores y la tasa de cambio grabados con el pedido.',
     ],
     rnf: 'RNF02 (Control de acceso), RNF04 (Integridad), RNF10 (Trazabilidad)',
@@ -641,21 +641,21 @@ const RF = [
       'Figura 24b, RF20. Figura 25, componente «Funciones de base de datos», operación delete_order. Ficha completa de la función: Figura 22.',
     nombre: 'Baja de pedidos con restitución de existencias',
     sintaxis:
-      'Cuando el moderador elimine un pedido [Condición], el módulo de pedidos [Sujeto] deberá devolver [Acción] las unidades comprometidas al inventario y suprimir el registro con sus líneas [Objeto], en una única transacción [Restricción].',
+      'Cuando el moderador elimine un pedido [Condición], el módulo de pedidos [Sujeto] deberá suprimir [Acción] el registro con sus líneas y devolver las unidades aún reservadas [Objeto], en una única transacción, sin repetir una restitución previa ni reponer un pedido entregado [Restricción].',
     descripcion:
-      'Destinado a los registros que no constituyeron una venta. La restitución es imprescindible porque el alta del pedido descuenta las unidades y la disponibilidad del catálogo se deriva de ese valor: una supresión simple dejaría el inventario declarando existencias inferiores a las reales de forma permanente. Las unidades no se devuelven si el pedido consta como entregado, pues en tal caso la mercadería salió efectivamente del local. La confirmación exige transcribir el número del pedido, dado que la operación es irreversible.',
+      'Destinado a los registros que no constituyeron una venta. La restitución es imprescindible porque el alta del pedido descuenta las unidades y la disponibilidad del catálogo se deriva de ese valor: una supresión simple dejaría el inventario declarando existencias inferiores a las reales de forma permanente. Las unidades no se devuelven si el pedido consta como entregado o si ya fueron restituidas al cancelarlo. La marca stock_released registra esa restitución e impide duplicarla. La confirmación exige transcribir el número del pedido, dado que la operación es irreversible.',
     pre: [
       '1. Existe una sesión activa cuyo rol verificado es el de moderador.',
       '2. El pedido existe y su número ha sido transcrito literalmente.',
     ],
     post: [
-      '1. UPDATE sobre products.units y product_variants.units por cada línea, salvo en pedidos entregados.',
+      '1. El disparador restituye products.units y product_variants.units solo si el pedido no fue entregado y conserva su reserva.',
       '2. DELETE sobre orders; las líneas se suprimen por integridad referencial en cascada.',
       '3. Ambas operaciones se ejecutan en la misma transacción de base de datos.',
     ],
     rnf: 'RNF02 (Control de acceso), RNF04 (Integridad), RNF15 (Separación de funciones)',
     prioridad:
-      'Media-Alta. Criterio de aceptación: la baja de un pedido no entregado restituye las unidades y suprime sus líneas en cascada; un pedido entregado se elimina sin reponer mercadería. La verificación histórica se distingue de las pruebas actuales en el Apéndice C.',
+      'Media-Alta. Criterio de aceptación: la baja de un pedido pendiente restituye sus unidades; borrar uno cancelado no vuelve a reponerlas. Un pedido entregado se elimina sin reponer mercadería. Las líneas se eliminan en cascada. La verificación histórica se distingue de las pruebas actuales en el Apéndice C.',
   },
   {
     id: 'RF21',
@@ -815,8 +815,8 @@ const doc = new Document({
             ['Autor / Estudiante', 'Cielo Medina'],
             ['Docente Evaluador', 'Adrian Lopez'],
             ['Cliente del sistema', 'Sky Import — Ciudad del Este, Paraguay'],
-            ['Fecha de Entrega', '12 de octubre de 2026'],
-            ['Versión del Documento', '2.2 — Revisión documental final del 12/10/2026'],
+            ['Fecha de Revisión', '19 de octubre de 2026'],
+            ['Versión del Documento', '2.3 — Preparación de la entrega final'],
           ],
           [2800, 6226],
         ),
@@ -830,7 +830,8 @@ const doc = new Document({
           [
             ['09/09/2026', '2.0', 'Cielo Medina', 'Consolidación de los requisitos y del modelado UML, delimitación de medios de pago y carátula institucional.'],
             ['14/09/2026', '2.1', 'Cielo Medina', 'Catálogo con precios y existencias desde la base de datos; mensajes con los importes persistidos del pedido (RF11, RF12 y RF14).'],
-            ['12/10/2026', '2.2', 'Cielo Medina', 'Revisión de coherencia entre requisitos, código y diagramas; corrección de conteos, permisos, límites, formatos y evidencias de verificación. Preparación documental para la entrega.'],
+            ['12/10/2026', '2.2', 'Cielo Medina', 'Versión impresa para aval del proyecto. Se conserva como antecedente.'],
+            ['19/10/2026', '2.3', 'Cielo Medina', 'Revisión posterior al aval: redacción, integridad de pedidos, stock de variantes, accesibilidad del panel y contraste entre entorno local y publicado.'],
           ],
           [1300, 1100, 2200, 4426],
         ),
@@ -874,7 +875,7 @@ const doc = new Document({
         bullet('La ausencia de un registro interno de pedidos dificulta el seguimiento comercial de consultas no concretadas.'),
         p('La automatización de estos procesos persigue los siguientes beneficios estratégicos:'),
         bullet('Reducción del tiempo de atención por consulta, al publicar ficha técnica, disponibilidad y precio en las tres monedas antes del primer contacto.'),
-        bullet('Eliminación del error humano de cálculo, mediante conversión automática desde una tasa única configurable.'),
+        bullet('Reducción de los errores de conversión mediante el cálculo automático a partir de una tasa configurable.'),
         bullet('Consistencia entre los importes registrados y el mensaje comercial cuando el checkout se completa, mediante recálculo en la base de datos.'),
         bullet('Seguimiento de los pedidos registrados desde el checkout, aunque el cliente no envíe el mensaje. La compra directa y la continuación sin registro por fallo técnico constituyen excepciones.'),
         p('Límites del Sistema', { run: { bold: true } }),
@@ -934,7 +935,7 @@ const doc = new Document({
         bullet('Supabase, documentación de copias de seguridad: https://supabase.com/docs/guides/platform/backups. Consulta: 11/10/2026. Referencia para el alcance del plan y la definición del procedimiento de respaldo.'),
 
         h2('1.6 Resumen del Documento'),
-        p('Este documento consta de cuatro secciones. La primera presenta la introducción, el alcance y el personal involucrado. La segunda describe el producto, los usuarios y las restricciones, e incorpora los diagramas de bloques y de flujo. La tercera especifica las interfaces, los veintiún requisitos funcionales con sus precondiciones y efectos sobre los datos, los quince requisitos no funcionales, las metas de rendimiento y cuatro diagramas UML generales. La cuarta reúne el resumen del modelo de datos, los formatos de salida, la evidencia de verificación y el glosario.'),
+        p('Esta revisión conserva la estructura de cuatro secciones del documento presentado para aval. La primera presenta la introducción, el alcance y el personal involucrado. La segunda describe el producto, los usuarios y las restricciones, e incorpora los diagramas de bloques y de flujo. La tercera especifica las interfaces, los veintiún requisitos funcionales con sus precondiciones y efectos sobre los datos, los quince requisitos no funcionales, las metas de rendimiento y cuatro diagramas UML generales. La cuarta reúne el resumen del modelo de datos, los formatos de salida, la evidencia de verificación y el glosario.'),
         new Paragraph({ children: [new PageBreak()] }),
 
         // ═══════════════════════════════ 2 DESCRIPCIÓN GENERAL
@@ -1020,7 +1021,7 @@ const doc = new Document({
             [
               'Moderador (titular del comercio)',
               'Usuario avanzado, con experiencia media en sistemas de gestión. No requiere conocimientos de programación.',
-              'Cuanto alcanza el administrador, y además el alta de cuentas, el restablecimiento de contraseñas ajenas, el retiro y la restitución de accesos, y la baja de pedidos. El rol reside en los metadatos que el proveedor de autenticación reserva al servidor, de modo que no puede otorgarse desde la aplicación.',
+              'Las funciones del administrador y, además, el alta de cuentas, el restablecimiento de contraseñas ajenas, el retiro y la restitución de accesos, y la baja de pedidos. El rol reside en los metadatos que el proveedor de autenticación reserva al servidor, de modo que no puede otorgarse desde la aplicación.',
               'Gobierno del personal con acceso al panel y limpieza de registros que no constituyeron una venta, además de la operación ordinaria de la tienda.',
             ],
             [
@@ -1077,12 +1078,12 @@ const doc = new Document({
             [
               'Billetera electrónica con código QR',
               'No implementado. El sistema no genera ni interpreta códigos QR de cobro.',
-              'Si el cliente paga por billetera, lo coordina por la conversación; el sistema no se entera.',
+              'Si el cliente paga por billetera, lo coordina por WhatsApp. El sistema no recibe confirmación automática del pago.',
             ],
             [
               'Transferencia bancaria automatizada',
               'No implementada. No hay conciliación automática ni verificación de acreditación.',
-              'El operador confirma la transferencia por su cuenta y mueve el estado del pedido a mano.',
+              'El operador verifica la transferencia por fuera del sistema y actualiza manualmente el estado del pedido.',
             ],
             [
               'Financiación en cuotas',
@@ -1118,7 +1119,7 @@ const doc = new Document({
         bullet('Informes estadísticos de ventas por período, categoría y margen.'),
         bullet('Bitácora funcional con autor, fecha, operación y cambios realizados por cada cuenta. La conservación de la identidad de una cuenta retirada no sustituye esta función.'),
         bullet('Consulta paginada de todo el historial de pedidos, más allá del límite de 200 registros de la vista actual.'),
-        p('Como tareas de verificación y operación quedan la conciliación entre stock agregado y alertas de variantes, la definición del procedimiento de respaldo y su prueba de restauración, y la preparación de manuales. Estas tareas no se presentan como funcionalidades ya implementadas.'),
+        p('Como tareas operativas quedan aplicar la migración pendiente y publicar la revisión, verificar el recorrido en ese despliegue y ejecutar una copia de seguridad con prueba de restauración. La guía de operación y exposición acompaña esta revisión. Las metas de rendimiento y disponibilidad requieren mediciones específicas.'),
         new Paragraph({ children: [new PageBreak()] }),
 
         // ═══════════════════════════════ 3 REQUISITOS ESPECÍFICOS
@@ -1178,7 +1179,7 @@ const doc = new Document({
 
         // ────────────────────────── 3.3 RENDIMIENTO
         h2('3.3 Requisitos de Rendimiento'),
-        p('Los siguientes valores son objetivos cuantitativos de calidad. Salvo la medición histórica de volumen indicada en RP06, no se dispone de mediciones actuales que acrediten su cumplimiento; deben comprobarse en un entorno y una carga definidos. La compilación correcta no demuestra por sí sola tiempos de respuesta, concurrencia o disponibilidad.'),
+        p('Los siguientes valores son objetivos cuantitativos de calidad. Salvo la medición de volumen indicada en RP06, no se dispone de mediciones actuales que acrediten su cumplimiento; deben comprobarse en un entorno y una carga definidos. La compilación correcta no demuestra por sí sola tiempos de respuesta, concurrencia o disponibilidad.'),
         tabla(
           ['Identificador', 'Requisito de Rendimiento', 'Métrica Objetivo'],
           [
@@ -1187,7 +1188,7 @@ const doc = new Document({
             ['RP03', 'Tiempo de verificación de credenciales de acceso.', 'Inferior a 2 segundos.'],
             ['RP04', 'Tiempo de registro de un pedido completo, incluyendo descuento de existencias.', 'Inferior a 3 segundos.'],
             ['RP05', 'Conexiones concurrentes soportadas sin degradación apreciable.', 'Hasta 60 conexiones simultáneas al motor de base de datos.'],
-            ['RP06', 'Volumen de código de cliente transferido al navegador.', 'No superior a 650 kB comprimidos. Antecedente del 14/09/2026: 629,5 kB; pendiente de nueva medición.'],
+            ['RP06', 'Suma de los chunks JavaScript de cliente del sitio, comprimidos; no equivale a la descarga inicial de una página.', 'No superior a 650 kB comprimidos. Medición del 19/10/2026 en el Apéndice C.'],
             ['RP07', 'Latencia de propagación de un cambio del panel a la tienda pública.', 'Hasta 60 segundos, por regeneración estática incremental.'],
           ],
           [1500, 4526, 3000],
@@ -1197,7 +1198,7 @@ const doc = new Document({
         bullet('El modelo relacional cumple las formas normales primera, segunda y tercera. Los datos de ficha técnica y compatibilidad se almacenan en columnas de tipo JSON estructurado por tratarse de atributos heterogéneos entre categorías, decisión documentada en el registro de decisiones del proyecto.'),
         bullet('Se emplean sentencias SQL estándar y funciones declaradas en el propio motor, de modo que la lógica crítica de negocio resida junto a los datos que valida.'),
         bullet('El dólar estadounidense constituye la moneda base de los precios. Los importes derivados se calculan mediante las tasas configuradas; el pedido conserva los importes y la tasa utilizados al registrarse para mantener su valor histórico.'),
-        bullet('La disponibilidad se calcula a partir de las unidades. El listado de productos con variantes utiliza su suma, mientras que las alertas utilizan products.units; la conciliación entre ambas fuentes se señala como limitación de RF13.'),
+        bullet('La disponibilidad del catálogo, el inventario y las alertas se calcula con una regla compartida: suma de variantes activas cuando existen y unidades del producto en su ausencia.'),
         bullet('Los importes y la tasa de cambio se copian al pedido en el momento de su registro, de modo que un pedido histórico preserve las condiciones bajo las que se pactó.'),
         bullet('La clave de servicio permanece en el servidor y no se transmite al navegador. Se utiliza para el aprovisionamiento y para operaciones autorizadas de gestión de cuentas, previa comprobación de la sesión y del rol de moderador. El catálogo y el checkout públicos no utilizan esa clave.'),
 
@@ -1208,17 +1209,17 @@ const doc = new Document({
           [
             ['RNF01', 'Seguridad informática', 'Supabase Auth administra las credenciales. Las tablas de aplicación aplican políticas de seguridad por fila; la clave de servicio solo se usa en operaciones administrativas autorizadas del servidor.', 'RLS declarada en las 9 tablas públicas del modelo. Criterio: una consulta anónima no obtiene cupones, pedidos ni cuentas administrativas. Esta política no impide probar códigos de cupón individuales.', 'Alta (Mandatorio)'],
             ['RNF02', 'Control de acceso', 'El acceso al panel exige sesión válida y pertenencia vigente al registro de administradores.', 'Criterio: toda ruta administrativa sin sesión redirige al acceso y una cuenta retirada no accede al panel. El alcance de las pruebas se detalla en el Apéndice C.', 'Alta'],
-            ['RNF03', 'Rendimiento', 'Las páginas públicas emplean generación estática y regeneración. Se mantienen los objetivos RP01 a RP07.', 'Build del 11/10/2026: 100 páginas, con avisos de conexión y uso de datos de respaldo. Presupuesto: 650 kB; medición histórica del 14/09/2026: 629,5 kB. Tiempos y carga pendientes de medición.', 'Alta'],
+            ['RNF03', 'Rendimiento', 'Las páginas públicas emplean generación estática y regeneración. Se mantienen los objetivos RP01 a RP07.', 'Build local del 19/10/2026: 100 páginas. Presupuesto de JavaScript: 650 kB comprimidos. Resultado actualizado en el Apéndice C; tiempos y carga pendientes de medición.', 'Alta'],
             ['RNF04', 'Integridad de datos', 'Los importes del pedido se recalculan en el servidor y el stock se descuenta en la misma transacción.', 'El cliente transmite identificadores y cantidades, nunca importes. Prueba: un pedido que excede las existencias se revierte por completo.', 'Alta (Mandatorio)'],
-            ['RNF05', 'Accesibilidad', 'Objetivo: conformidad con WCAG 2.1, nivel AA, en los recorridos públicos y administrativos.', 'Antecedente automatizado: axe-core sin infracciones en las rutas documentadas. No sustituye una evaluación manual ni acredita por sí solo conformidad completa. Ver Apéndice C.', 'Alta'],
+            ['RNF05', 'Accesibilidad', 'Objetivo: conformidad con WCAG 2.1, nivel AA, en los recorridos públicos y administrativos.', 'axe-core en recorridos públicos y autenticados. La revisión publicada detectó una tabla sin acceso por teclado, corregida localmente. Una evaluación automática no acredita conformidad completa. Ver Apéndice C.', 'Alta'],
             ['RNF06', 'Internacionalización', 'La interfaz pública y los mensajes comerciales están disponibles en español y portugués. El panel administrativo está en español.', 'Diccionarios tipados que detectan claves de traducción ausentes al compilar. Verificación funcional del cambio de idioma y de los mensajes; no se exige bilingüismo del panel.', 'Alta'],
             ['RNF07', 'Usabilidad', 'Objetivo táctil mínimo de 44 píxeles, respeto de la preferencia de movimiento reducido y mensajes de error explícitos.', 'Criterios: navegación por teclado, gestión del foco en diálogos y contenido accesible con movimiento reducido. Verificar los recorridos de uso, además de las comprobaciones automatizadas.', 'Alta'],
-            ['RNF08', 'Compatibilidad', 'Objetivo: funcionamiento correcto en navegadores de escritorio y móviles compatibles.', 'Antecedente de pruebas en dos perfiles, escritorio y móvil. Se requiere comprobar los recorridos en el entorno de publicación; no se reejecutaron E2E el 11/10/2026.', 'Media-Alta'],
-            ['RNF09', 'Tolerancia a fallos', 'Un fallo técnico del registro puede permitir continuar por WhatsApp sin persistencia interna. La falta de existencias bloquea el pedido; los datos obligatorios deben ser válidos.', 'Criterio: diferenciar rechazo por stock, error de formulario y fallo técnico. En el último caso, el mensaje se compone con los datos disponibles y queda sujeto a confirmación comercial.', 'Alta'],
+            ['RNF08', 'Compatibilidad', 'Objetivo: funcionamiento correcto en navegadores de escritorio y móviles compatibles.', 'Pruebas en Chromium con perfiles de escritorio y móvil el 19/10/2026. No equivalen a pruebas en dispositivos físicos, Firefox o Safari. Ver Apéndice C.', 'Media-Alta'],
+            ['RNF09', 'Tolerancia a fallos', 'Un fallo técnico del registro puede permitir continuar por WhatsApp sin persistencia interna. La falta de existencias, un producto no disponible o una variante inválida bloquean el pedido; los datos obligatorios deben ser válidos.', 'Criterio: diferenciar rechazo por stock, error de formulario y fallo técnico. En el último caso, el mensaje se compone con los datos disponibles y queda sujeto a confirmación comercial.', 'Alta'],
             ['RNF10', 'Trazabilidad', 'El checkout que se registra correctamente conserva número, estado, líneas, importes y tasa antes de abrir WhatsApp. Se excluyen la compra directa y la continuación sin registro.', 'Numeración por secuencia de base de datos. El registro persiste aunque no se envíe el mensaje, salvo posterior baja autorizada. No implica una bitácora de todas las acciones administrativas.', 'Alta'],
             ['RNF11', 'Disponibilidad', 'Objetivo: continuidad del servicio durante el horario comercial.', '99,9 % de lunes a sábado, de 08:00 a 20:00. Pendiente de medición mediante monitoreo durante un período definido; no se acredita con una comprobación puntual del sitio.', 'Alta'],
-            ['RNF12', 'Fiabilidad y respaldo', 'Objetivo: una copia de seguridad diaria y capacidad de restaurar la información ante fallos.', 'Plan actual: Free. No se acredita un servicio de respaldo diario administrado. Deben definirse el responsable, el procedimiento y el almacenamiento, y conservar evidencia de ejecución y de una prueba de restauración.', 'Alta'],
-            ['RNF13', 'Mantenibilidad', 'Verificación automatizada del código y documentación de decisiones estructurales.', '11/10/2026: 136 pruebas unitarias, tipos y análisis estático correctos. Las 97 E2E son evidencia histórica del 14/09/2026 y no fueron reejecutadas. Decisiones documentadas en docs/adr/.', 'Media-Alta'],
+            ['RNF12', 'Fiabilidad y respaldo', 'Objetivo: una copia de seguridad diaria y capacidad de restaurar la información ante fallos.', 'Plan Free según la revisión del 11/10/2026. No se acredita en esta revisión un respaldo diario administrado. Deben definirse el responsable, el procedimiento y el almacenamiento, y conservar evidencia de ejecución y de una prueba de restauración.', 'Alta'],
+            ['RNF13', 'Mantenibilidad', 'Verificación automatizada del código y documentación de decisiones estructurales.', '19/10/2026: 158 pruebas unitarias, tipos y análisis estático correctos. Navegador y PostgreSQL comprobados por separado; resultados y límites en el Apéndice C.', 'Media-Alta'],
             ['RNF14', 'Privacidad', 'Se solicitan los datos necesarios para coordinar la entrega.', 'Los formularios no exigen documento de identidad, fecha de nacimiento ni datos de pago, y no tienen campos específicos para ellos. Los campos libres se destinan a observaciones del pedido.', 'Alta'],
             ['RNF15', 'Separación de funciones', 'La gestión de cuentas y la baja de pedidos se reservan al moderador. La autorización se comprueba en el servidor y, donde corresponde, en las políticas de base de datos.', 'Criterio: un administrador no puede crear cuentas, restablecer claves ajenas, retirar accesos ni dar de baja pedidos, incluso invocando directamente las operaciones. Verificación histórica diferenciada en el Apéndice C.', 'Alta'],
           ],
@@ -1228,7 +1229,7 @@ const doc = new Document({
         h2('3.6 Otros Requisitos'),
         bullet('Protección de datos personales: se recolectan nombre, apellido, teléfono y, cuando corresponde, dirección para coordinar el pedido. Los datos registrados se almacenan en Supabase y el mensaje puede transmitirse mediante WhatsApp. El sistema no incorpora funciones de publicidad ni de venta de datos personales.'),
         bullet('Veracidad de la información comercial: los importes en guaraníes y reales se rotulan expresamente como referenciales y derivados de una tasa fija, sin constituir cotización en firme.'),
-        bullet('Origen del material gráfico: las fotografías de producto proceden de material de prensa de los fabricantes. Su procedencia se documenta individualmente en el archivo public/products/SOURCES.md, con la página oficial y el archivo de origen de cada imagen.'),
+        bullet('Origen del material gráfico: las fotografías de producto proceden de fabricantes y otras fuentes identificadas en public/products/SOURCES.md. Ese registro documenta la procedencia; no acredita por sí solo la autorización de uso de todas las imágenes.'),
         bullet('Ausencia de tratamiento de datos de pago: el sistema no solicita, transmite ni almacena datos de tarjeta o credenciales bancarias. La especificación no constituye una certificación de cumplimiento de estándares de pago.'),
         new Paragraph({ children: [new PageBreak()] }),
 
@@ -1244,8 +1245,8 @@ const doc = new Document({
         ...figura('componentes.png', 640, 'Figura 25 — Diagrama de componentes. Nodos de ejecución y dependencias entre partes.'),
         new Paragraph({ children: [new PageBreak()] }),
 
-        p('El diagrama de comportamiento representa tres resultados del checkout. Si el registro tiene éxito, el mensaje utiliza los importes persistidos. Si faltan existencias, la operación termina sin abrir WhatsApp. Ante un fallo técnico que permita continuar sin registro, el navegador compone el mensaje con los datos disponibles y la confirmación comercial queda a cargo del vendedor. El registro previo conserva la consulta aunque no se envíe el mensaje, únicamente en el camino que logró persistir el pedido.'),
-        ...figura('comportamiento.png', 640, 'Figura 26 — Secuencia del checkout: cupón opcional y alternativas de registro, falta de existencias y fallo técnico.'),
+        p('El diagrama de comportamiento representa tres resultados del checkout. Si el registro tiene éxito, el mensaje utiliza los importes persistidos. Si faltan existencias o el producto o la variante no están disponibles, la operación termina sin abrir WhatsApp. Ante un fallo técnico que permita continuar sin registro, el navegador compone el mensaje con los datos disponibles y la confirmación comercial queda a cargo del vendedor. El registro previo conserva la consulta aunque no se envíe el mensaje, únicamente en el camino que logró persistir el pedido.'),
+        ...figura('comportamiento.png', 640, 'Figura 26 — Secuencia del checkout: cupón opcional y alternativas de registro, rechazo de disponibilidad y fallo técnico.'),
         new Paragraph({ children: [new PageBreak()] }),
 
         p('El diagrama de clases resume las entidades persistentes y sus multiplicidades. Cada línea pertenece a un pedido y se elimina con él; su referencia al producto o a la variante puede quedar nula, preservando el nombre y el precio históricos. Un pedido admite como máximo un código de cupón, conservado sin clave foránea, y una zona de entrega opcional. Una identidad de autenticación puede tener cero o una fila de pertenencia al panel; cada fila de admin_users corresponde a una identidad. El Apéndice A resume tablas, claves y funciones, sin sustituir el esquema completo de las migraciones.'),
@@ -1264,7 +1265,7 @@ const doc = new Document({
             ['product_variants', 'Variantes de un producto, con SKU, ejes, precio y existencias propias.', 'PK: id · UNIQUE: sku · FK: product_id'],
             ['shipping_zones', 'Destinos de entrega. No llevan tarifa: el envío se acuerda por la vía de mensajería.', 'PK: id · UNIQUE: slug'],
             ['coupons', 'Cupones de descuento, con vigencia, compra mínima y límite de usos.', 'PK: id · UNIQUE: código en mayúsculas · CHECK: porcentaje ≤ 100'],
-            ['orders', 'Pedidos registrados, con estado, importes y tasa históricos; conserva un código de cupón opcional sin FK.', 'PK: id · UNIQUE: number (secuencia) · FK opcional: zone_slug'],
+            ['orders', 'Pedidos con estado, importes y tasa históricos; stock_released controla la restitución. Conservan un código de cupón opcional sin FK.', 'PK: id · UNIQUE: number (secuencia) · FK opcional: zone_slug'],
             ['order_items', 'Líneas de pedido, con nombre, SKU y precio históricos. Producto y variante pueden quedar nulos.', 'PK: id · FK: order_id · FK opcionales: product_id, variant_id · CHECK: qty > 0'],
             ['settings', 'Configuración por clave: tasa de cambio, umbrales comerciales y contacto.', 'PK: key'],
             ['admin_users', 'Pertenencia al panel y estado de acceso. revoked_at permite retirar y restituir acceso conservando la identidad; no registra una bitácora de operaciones.', 'PK / FK a auth.users: user_id · UNIQUE: username'],
@@ -1280,7 +1281,8 @@ const doc = new Document({
             ['is_moderator()', 'STABLE, SECURITY DEFINER', 'Añade a lo anterior la exigencia del rol de moderación, leído de los metadatos reservados al servidor. Gobierna la baja de pedidos a nivel de fila.'],
             ['validate_coupon(código, subtotal)', 'STABLE, SECURITY DEFINER', 'Valida un cupón y devuelve el descuento ya calculado, sin exponer el listado de cupones.'],
             ['place_order(líneas, cliente, zona, cupón)', 'VOLATILE, SECURITY DEFINER', 'Registra el pedido de forma atómica: relee precios, aplica cupón, descuenta existencias y persiste pedido y líneas.'],
-            ['delete_order(pedido)', 'VOLATILE, SECURITY DEFINER', 'Suprime un pedido devolviendo sus unidades al inventario en la misma transacción, salvo que conste como entregado. Exige el rol de moderación.'],
+            ['delete_order(pedido)', 'VOLATILE, SECURITY DEFINER', 'Suprime un pedido y ejecuta la restitución pendiente en la misma transacción, sin duplicar devoluciones ni reponer entregados. Exige el rol de moderación.'],
+            ['sync_order_stock()', 'TRIGGER, SECURITY DEFINER', 'Devuelve la reserva al cancelar o borrar y vuelve a reservar al reabrir, con validación de stock y marca stock_released.'],
             ['touch_updated_at()', 'TRIGGER', 'Actualiza la marca temporal de modificación en cada escritura.'],
           ],
           [2600, 2200, 4226],
@@ -1296,25 +1298,24 @@ const doc = new Document({
         p('Incluye encabezado y, si hubo registro, número de pedido; una línea por pieza sin numeración ordinal, código, cantidad y subtotal; descuento cuando corresponde; zona de entrega, total de piezas y datos del cliente. El envío se acuerda en la conversación. Las líneas que no aplican se omiten. Si el registro tuvo éxito, se utilizan sus importes persistidos; ante continuación por fallo técnico se emplean los datos disponibles, sin atribuirles un número de pedido inexistente.'),
 
         h2('4.3 Apéndice C — Resultados de verificación'),
-        p('La revisión documental final corresponde al 12/10/2026. Las últimas comprobaciones locales de código se realizaron el 11/10/2026; no se ejecutaron nuevas pruebas de software como parte de esta edición del SRS. Se distinguen esos resultados de los antecedentes del 14/09/2026 y de las verificaciones todavía pendientes.'),
+        p('La revisión 2.3 corresponde al 19/10/2026 y documenta el código local posterior al aval impreso. Las pruebas de navegador distinguen respuestas simuladas del checkout y acceso real a Supabase con cuentas temporales. Las pruebas transaccionales utilizan PostgreSQL local aislado. Estos resultados no sustituyen una comprobación después del despliegue.'),
         tabla(
           ['Verificación y fecha', 'Alcance / Entorno', 'Resultado o estado'],
           [
-            ['Tipos — 11/10/2026', 'Código local en modo estricto.', 'Sin errores.'],
-            ['Análisis estático — 11/10/2026', 'Código local.', 'Sin errores ni advertencias de lint.'],
-            ['Pruebas unitarias — 11/10/2026', '136 casos sobre dominio y módulos del proyecto.', '136 correctas.'],
-            ['Compilación — 11/10/2026', 'Build local previo a la restauración de Supabase; utilizó datos de respaldo ante avisos de conexión.', '100 páginas generadas; no equivale a una prueba de integración.'],
-            ['E2E — antecedente 14/09/2026', '97 casos en perfiles de escritorio y móvil, según el registro de desarrollo.', '97 correctas entonces; no reejecutadas en esta revisión.'],
-            ['Cuentas y roles — antecedente de desarrollo', 'Alta, restablecimiento, retiro de acceso y baja de pedidos con cuentas de prueba.', 'Resultados históricos; sin nueva prueba autenticada el 11/10/2026.'],
-            ['Accesibilidad — antecedente 14/09/2026', 'axe-core en 10 rutas públicas en ambos idiomas y 8 pantallas administrativas.', '0 infracciones automáticas registradas; evaluación manual completa pendiente.'],
-            ['Errores del cliente — antecedente 14/09/2026', 'Barrido de rutas: consola, excepciones, peticiones e imágenes.', '0 incidencias registradas entonces; sin nuevo barrido E2E.'],
-            ['Volumen de código — 14/09/2026', 'Medición histórica de JavaScript comprimido; presupuesto de 650 kB.', '629,5 kB; nueva medición pendiente.'],
-            ['Disponibilidad puntual — 11/10/2026', 'Supabase restaurado; web pública HTTP 200 y panel redirigiendo al acceso.', 'Servicio reactivado; no acredita operaciones autenticadas, integración ni 99,9 % de disponibilidad.'],
-            ['Metas y procedimientos pendientes', 'Tiempos, concurrencia, propagación, disponibilidad, restauración de respaldos y conciliación de stock de variantes.', 'Requieren pruebas y evidencia específicas.'],
+            ["Tipos y análisis estático — 19/10/2026", "Código local en modo estricto y ESLint.", "Sin errores."],
+            ["Pruebas unitarias — 19/10/2026", "Dominio, catálogo, cuentas, sesión, variantes y stock.", "158 correctas."],
+            ["Compilación — 19/10/2026", "Build de producción local conectado a Supabase.", "100 páginas generadas."],
+            ["Navegador local — 19/10/2026", "Escritorio y perfil móvil en Chromium. Checkout interceptado para evitar pedidos comerciales; cuentas temporales reales.", "107 correctas; incluye 2 de cuentas reejecutadas tras ampliar la espera de red. 3 omitidas por condición."],
+            ["PostgreSQL aislado — 19/10/2026", "Migraciones, cancelación, reapertura, borrado, variantes, RLS y concurrencia del último uso de cupón.", "11 comprobaciones correctas."],
+            ["Web publicada — 19/10/2026", "9 rutas, incluida la redirección del panel al acceso; visita de escritorio.", "HTTP 200 al finalizar; sin errores JS ni imágenes rotas detectadas."],
+            ["Panel publicado — 19/10/2026", "Cuentas temporales y seis pantallas autenticadas; validación de accesibilidad.", "Escritorio correcto. Móvil detectó una tabla sin foco de teclado. Corrección local."],
+            ["Volumen de código — 19/10/2026", "Suma de chunks JavaScript de cliente comprimidos; presupuesto de 650 kB.", "630,28 kB gzip. Dentro del presupuesto."],
+            ["Migración publicada — 19/10/2026", "Comprobación de la columna orders.stock_released en la base conectada.", "Ausente. Aplicación de la migración pendiente."],
+            ["Metas operativas pendientes", "Tiempos, carga, propagación, disponibilidad y restauración de respaldos.", "Requieren medición y evidencia específicas."],
           ],
           [2600, 4426, 2000],
         ),
-        p('Esta especificación describe la copia local del proyecto. Al comprobar el entorno el 11/10/2026, la publicación de producción correspondía al commit b3a5a92 del 09/09/2026 y conservaba contenido estático anterior; las mejoras locales posteriores no se habían desplegado. La restauración de Supabase no publica esos cambios ni sustituye una verificación del recorrido completo.', { spacing: { before: 180, after: 120, line: 276 } }),
+        p('La publicación revisada es https://sky-import-jet.vercel.app. El 19/10/2026 estaba accesible, pero no contenía las correcciones preparadas en esta revisión: entre ellas, las URL canónicas por página y el foco de las tablas del panel. La base tampoco tenía stock_released. La entrega operativa requiere aplicar la migración, desplegar y repetir la comprobación del recorrido completo. La versión 2.2 conserva la evidencia histórica del aval impreso.', { spacing: { before: 180, after: 120, line: 276 } }),
 
         h2('4.4 Apéndice D — Glosario de negocio'),
         tabla(
@@ -1336,5 +1337,6 @@ const doc = new Document({
 })
 
 const buffer = await Packer.toBuffer(doc)
-writeFileSync(`${DIR}\\SRS-Sky-Import.docx`, buffer)
-console.log('OK -> SRS-Sky-Import.docx (' + Math.round(buffer.length / 1024) + ' kB)')
+const output = process.argv[2] ?? `${DIR}\\SRS-Sky-Import-Final.docx`
+writeFileSync(output, buffer)
+console.log('OK -> ' + output + ' (' + Math.round(buffer.length / 1024) + ' kB)')
