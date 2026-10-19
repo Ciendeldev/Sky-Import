@@ -7,11 +7,16 @@
  * puras y deterministas, así que las tres monedas se pueden imprimir en el HTML
  * del servidor y quedarse ahí.
  *
- * El USD es la fuente de verdad. PYG y BRL se derivan con la tasa fija de
- * `src/config/site.ts` y se redondean «de vitrina»: nadie publica ₲ 9.242.617.
+ * El USD es la fuente de verdad. PYG y BRL se derivan con la tasa VIGENTE y se
+ * redondean «de vitrina»: nadie publica ₲ 9.242.617.
+ *
+ * La tasa es un parámetro obligatorio, no una constante importada. Mientras
+ * fue una constante, el panel podía cambiarla en la base y la vitrina seguía
+ * convirtiendo con la del archivo sin que nada avisara. Obligatoria, cualquier
+ * llamada que se olvide de la tasa vigente no compila.
  */
 
-import { FX } from '@/config/site'
+import type { Rates } from '@/lib/catalog/live'
 
 export const CURRENCIES = ['USD', 'PYG', 'BRL'] as const
 export type Currency = (typeof CURRENCIES)[number]
@@ -45,16 +50,16 @@ function formatNumber(value: number, decimals: number): string {
 }
 
 /** Convierte un importe en USD a la moneda pedida, con redondeo de vitrina. */
-export function convert(usd: number, currency: Currency): number {
+export function convert(usd: number, currency: Currency, rates: Rates): number {
   switch (currency) {
     case 'USD':
       return Math.round(usd * 100) / 100
     case 'PYG':
       // Al millar más cercano: en guaraníes nadie cotiza unidades.
-      return Math.round((usd * FX.PYG) / 1000) * 1000
+      return Math.round((usd * rates.PYG) / 1000) * 1000
     case 'BRL':
       // Al décimo de real más cercano.
-      return Math.round(usd * FX.BRL * 10) / 10
+      return Math.round(usd * rates.BRL * 10) / 10
   }
 }
 
@@ -67,16 +72,19 @@ export const CURRENCY_META: Record<
   BRL: { symbol: 'R$', decimals: 2, label: 'Real', note: 'derived' },
 }
 
-/** `formatMoney(1249, 'BRL')` -> `"R$ 6.744,60"`. */
-export function formatMoney(usd: number, currency: Currency): string {
+/** `formatMoney(1249, 'BRL', { PYG: 7400, BRL: 5.4 })` -> `"R$ 6.744,60"`. */
+export function formatMoney(usd: number, currency: Currency, rates: Rates): string {
   const meta = CURRENCY_META[currency]
-  const amount = convert(usd, currency)
+  const amount = convert(usd, currency, rates)
   return `${meta.symbol} ${formatNumber(amount, meta.decimals)}`
 }
 
 /** Las tres representaciones de un mismo importe, para imprimirlas todas. */
-export function allCurrencies(usd: number): Array<{ currency: Currency; text: string }> {
-  return CURRENCIES.map((currency) => ({ currency, text: formatMoney(usd, currency) }))
+export function allCurrencies(
+  usd: number,
+  rates: Rates,
+): Array<{ currency: Currency; text: string }> {
+  return CURRENCIES.map((currency) => ({ currency, text: formatMoney(usd, currency, rates) }))
 }
 
 /** Descuento porcentual entero derivado de los datos, nunca declarado a mano. */

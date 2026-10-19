@@ -51,3 +51,8 @@ en Postgres.
 - La prueba «no hay ninguna petición de escritura» deja de tener sentido y se
   retira. La reemplaza una que verifica el contenido del mensaje de WhatsApp.
 - Aparece una dependencia de un servicio de terceros con su propio SLA.
+
+> **Nota del 2026-09-14.** La lectura desde la base se había implementado solo
+> en el panel y en `place_order`: la vitrina seguía leyendo el archivo, así que
+> precio, stock y tasa editados en el panel no llegaban a la web. Se completó en
+> el ADR 012.

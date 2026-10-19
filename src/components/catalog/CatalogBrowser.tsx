@@ -5,12 +5,11 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { useFocusTrap } from '@/lib/useFocusTrap'
 import { useI18n } from '@/lib/i18n/context'
-import { PRODUCTS, BRANDS, PRICE_BOUNDS } from '@/lib/catalog/products'
+import { useCatalog } from '@/lib/catalog/context'
 import { CATEGORY_META, CATEGORY_ORDER } from '@/lib/catalog/categories'
 import { availabilityOf } from '@/lib/catalog/types'
 import { matchRank } from '@/lib/search'
 import { formatMoney } from '@/lib/money'
-import { RULES } from '@/config/site'
 
 /**
  * El estado de los filtros vive en la URL para que una búsqueda se pueda
@@ -30,6 +29,7 @@ function isSort(value: string | null): value is Sort {
 
 export function CatalogBrowser() {
   const { t, locale, l } = useI18n()
+  const { products, brands, priceBounds, fx, lowStockAt } = useCatalog()
   const pathname = usePathname()
   const params = useSearchParams()
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -41,7 +41,7 @@ export function CatalogBrowser() {
   const query = params.get('q') ?? ''
   const category = params.get('categoria') ?? ''
   const brand = params.get('marca') ?? ''
-  const maxPrice = Number(params.get('max') ?? PRICE_BOUNDS.max)
+  const maxPrice = Number(params.get('max') ?? priceBounds.max)
   const onlyStock = params.get('stock') === '1'
   const sortParam = params.get('orden')
   const sort: Sort = isSort(sortParam) ? sortParam : 'relevance'
@@ -80,7 +80,7 @@ export function CatalogBrowser() {
   }, [pathname])
 
   const results = useMemo(() => {
-    const scored = PRODUCTS.flatMap((product) => {
+    const scored = products.flatMap((product) => {
       if (category && product.category !== category) return []
       if (brand && product.brand !== brand) return []
       if (product.priceUsd > maxPrice) return []
@@ -119,11 +119,11 @@ export function CatalogBrowser() {
     }
 
     return scored.map((entry) => entry.product)
-  }, [brand, category, deferredQuery, locale, maxPrice, onlyStock, sort])
+  }, [brand, category, deferredQuery, locale, maxPrice, onlyStock, products, sort])
 
   const activeCount =
     (query ? 1 : 0) + (category ? 1 : 0) + (brand ? 1 : 0) + (onlyStock ? 1 : 0) +
-    (maxPrice < PRICE_BOUNDS.max ? 1 : 0)
+    (maxPrice < priceBounds.max ? 1 : 0)
 
   const sortControl = (
     <>
@@ -167,11 +167,11 @@ export function CatalogBrowser() {
           >
             {t('catalog.all')}
             <span className="font-mono text-[0.625rem] tabular-nums text-fg-low">
-              {PRODUCTS.length}
+              {products.length}
             </span>
           </button>
           {CATEGORY_ORDER.map((slug) => {
-            const count = PRODUCTS.filter((product) => product.category === slug).length
+            const count = products.filter((product) => product.category === slug).length
             return (
               <button
                 key={slug}
@@ -206,7 +206,7 @@ export function CatalogBrowser() {
           >
             {t('catalog.all')}
           </button>
-          {BRANDS.map((name) => (
+          {brands.map((name) => (
             <button
               key={name}
               type="button"
@@ -222,26 +222,26 @@ export function CatalogBrowser() {
 
       <fieldset>
         <legend className="u-label mb-3 text-fg">
-          {t('catalog.price')} — {formatMoney(maxPrice, 'USD')}
+          {t('catalog.price')} — {formatMoney(maxPrice, 'USD', fx)}
         </legend>
         <input
           type="range"
-          min={PRICE_BOUNDS.min}
-          max={PRICE_BOUNDS.max}
+          min={priceBounds.min}
+          max={priceBounds.max}
           step={10}
           value={maxPrice}
           onChange={(event) =>
             update({
               max:
-                Number(event.target.value) >= PRICE_BOUNDS.max ? null : event.target.value,
+                Number(event.target.value) >= priceBounds.max ? null : event.target.value,
             })
           }
           className="w-full accent-[var(--accent)]"
           aria-label={t('catalog.price')}
         />
         <div className="mt-1 flex justify-between font-mono text-[0.625rem] tabular-nums text-fg-low">
-          <span>{formatMoney(PRICE_BOUNDS.min, 'USD')}</span>
-          <span>{formatMoney(PRICE_BOUNDS.max, 'USD')}</span>
+          <span>{formatMoney(priceBounds.min, 'USD', fx)}</span>
+          <span>{formatMoney(priceBounds.max, 'USD', fx)}</span>
         </div>
       </fieldset>
 
@@ -352,8 +352,8 @@ export function CatalogBrowser() {
         {/* Nota honesta sobre lo que significa cada estado. */}
         <p className="u-label mt-6 leading-relaxed normal-case tracking-normal">
           {l({
-            es: `«${t('product.availability.ultimas-unidades')}» significa ${RULES.lowStockAt} unidades o menos según nuestra configuración de inventario. ${t('product.priceNote')}`,
-            pt: `«${t('product.availability.ultimas-unidades')}» significa ${RULES.lowStockAt} unidades ou menos conforme nossa configuração de estoque. ${t('product.priceNote')}`,
+            es: `«${t('product.availability.ultimas-unidades')}» significa ${lowStockAt} unidades o menos según nuestra configuración de inventario. ${t('product.priceNote')}`,
+            pt: `«${t('product.availability.ultimas-unidades')}» significa ${lowStockAt} unidades ou menos conforme nossa configuração de estoque. ${t('product.priceNote')}`,
           })}
         </p>
       </div>

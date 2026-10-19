@@ -80,7 +80,7 @@ export default async function TableroPage() {
       <div className="a-grid a-grid--2 mt-4">
         <div className="a-stat">
           <p className="a-eyebrow">Vendido — pedidos no cancelados</p>
-          <p className="a-stat__value">Gs. {pyg(vendidoUsd)}</p>
+          <p className="a-stat__value">Gs. {pyg(vendidoUsd, fx)}</p>
           <p className="a-hint">US$ {vendidoUsd.toFixed(2)} a la tasa de {fx.PYG} Gs./US$</p>
         </div>
 
@@ -169,7 +169,10 @@ export default async function TableroPage() {
                     <td>
                       {p.first_name} {p.last_name}
                     </td>
-                    <td className="a-num">Gs. {pyg(Number(p.total_usd))}</td>
+                    {/* Cada pedido con la tasa que grabó al registrarse, no con la de hoy. */}
+                    <td className="a-num">
+                      Gs. {pyg(Number(p.total_usd), { ...fx, PYG: Number(p.fx_pyg) || fx.PYG })}
+                    </td>
                     <td>
                       <span
                         className={`a-tag ${

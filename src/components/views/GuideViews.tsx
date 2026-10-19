@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { ProductPhoto } from '@/components/product/ProductPhoto'
 import { Reveal, SplitWords } from '@/components/motion/Motion'
 import { GUIDES, GUIDE_BY_SLUG, type Guide } from '@/content/guides'
-import { PRODUCTS } from '@/lib/catalog/products'
+import { useCatalog } from '@/lib/catalog/context'
+import type { Product } from '@/lib/catalog/types'
 import { useI18n } from '@/lib/i18n/context'
 import type { RenderSpec } from '@/lib/catalog/types'
 
@@ -22,13 +23,14 @@ const CATEGORIA_DE_FORMA: Partial<Record<RenderSpec['shape'], string>> = {
   motherboard: 'placas-madre',
 }
 
-function piezaDeGuia(guide: Guide) {
+function piezaDeGuia(products: Product[], guide: Guide) {
   const categoria = CATEGORIA_DE_FORMA[guide.shape]
-  return PRODUCTS.find((p) => p.category === categoria) ?? PRODUCTS[0]!
+  return products.find((p) => p.category === categoria) ?? products[0]!
 }
 
 export function GuidesView() {
   const { t, locale, path } = useI18n()
+  const { products } = useCatalog()
 
   return (
     <div data-surface="aluminio" className="bg-surface text-fg">
@@ -61,7 +63,7 @@ export function GuidesView() {
                   {guide.index}
                 </span>
                 <span className="relative hidden aspect-square w-20 opacity-80 transition-all duration-500 ease-rail group-hover:-translate-y-1 group-hover:opacity-100 md:col-span-2 md:block">
-                  <ProductPhoto product={piezaDeGuia(guide)} sizes="80px" />
+                  <ProductPhoto product={piezaDeGuia(products, guide)} sizes="80px" />
                 </span>
                 <span className="md:col-span-9">
                   <span className="u-display-sm block text-[clamp(1.25rem,2.6vw,1.75rem)]">
@@ -85,6 +87,7 @@ export function GuidesView() {
 
 export function GuideView({ slug }: { slug: string }) {
   const { t, locale, path } = useI18n()
+  const { products } = useCatalog()
   const guide = GUIDE_BY_SLUG.get(slug)
   if (!guide) return null
 
@@ -118,7 +121,7 @@ export function GuideView({ slug }: { slug: string }) {
           </div>
           <Reveal delayIndex={1} from="right" className="hidden lg:col-span-4 lg:block">
             <span className="relative block aspect-square w-full">
-              <ProductPhoto product={piezaDeGuia(guide)} sizes="(min-width: 1024px) 30vw, 0px" />
+              <ProductPhoto product={piezaDeGuia(products, guide)} sizes="(min-width: 1024px) 30vw, 0px" />
             </span>
           </Reveal>
         </header>

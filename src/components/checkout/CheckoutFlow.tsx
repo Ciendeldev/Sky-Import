@@ -7,6 +7,7 @@ import { Price } from '@/components/ui/Price'
 import { CtaBody } from '@/components/ui/Cta'
 import { useCart, resolveLines, lineKey } from '@/lib/cart'
 import { useI18n } from '@/lib/i18n/context'
+import { useCatalog } from '@/lib/catalog/context'
 import { hasWhatsapp } from '@/config/site'
 import { orderMessage, whatsappUrl } from '@/lib/whatsapp'
 import {
@@ -31,7 +32,9 @@ import type { DictKey } from '@/lib/i18n/dictionary'
  *   1. Se registra el pedido en la base. La base relee los precios, aplica el
  *      cupón, descuenta el stock y devuelve un número. El cliente nunca decide
  *      el total.
- *   2. Se arma el mensaje con ese número y se abre la conversación.
+ *   2. Se arma el mensaje con ese número —y con las líneas, totales y tasa que
+ *      la base grabó, no con los que calculó la página— y se abre la
+ *      conversación.
  *   3. El carrito se vacía.
  *
  * Si el paso 1 no está disponible —todavía no hay base conectada—, la venta
@@ -39,6 +42,7 @@ import type { DictKey } from '@/lib/i18n/dictionary'
  */
 export function CheckoutFlow() {
   const { t, locale, path } = useI18n()
+  const catalog = useCatalog()
   const lines = useCart((s) => s.lines)
   const hydrated = useCart((s) => s.hydrated)
   const clear = useCart((s) => s.clear)
@@ -73,7 +77,7 @@ export function CheckoutFlow() {
     }
   }, [])
 
-  const resolved = resolveLines(lines)
+  const resolved = resolveLines(lines, catalog)
   const subtotalUsd = resolved.reduce((sum, l) => sum + l.lineTotalUsd, 0)
   const zone = useMemo(() => zones.find((z) => z.slug === zoneSlug) ?? null, [zones, zoneSlug])
 
@@ -191,22 +195,34 @@ export function CheckoutFlow() {
     }
 
     const orderNumber = outcome.status === 'registrado' ? outcome.number : null
+    const placed = outcome.status === 'registrado' ? outcome.placed : null
 
     const mensaje = orderMessage({
       locale,
       deliveryMode: zone?.requiresAddress === false ? 'pickup' : 'shipping',
-      lines: resolved.map((l) => ({
-        name: l.product.name,
-        sku: l.variant?.sku ?? l.product.ref,
-        qty: l.qty,
-        subtotalUsd: l.lineTotalUsd,
-        variantLabel: l.variant ? l.variant.label[locale] : undefined,
-      })),
-      subtotalUsd,
-      discountUsd,
+      // Registrado, manda lo que grabó la base. Sin registro no hay otra
+      // referencia que la página, que es lo que el cliente estaba mirando.
+      lines: placed
+        ? placed.lines.map((l) => ({
+            name: l.name,
+            sku: l.sku,
+            qty: l.qty,
+            subtotalUsd: l.subtotalUsd,
+            variantLabel: l.variantLabel || undefined,
+          }))
+        : resolved.map((l) => ({
+            name: l.product.name,
+            sku: l.variant?.sku ?? l.product.ref,
+            qty: l.qty,
+            subtotalUsd: l.lineTotalUsd,
+            variantLabel: l.variant ? l.variant.label[locale] : undefined,
+          })),
+      subtotalUsd: placed?.subtotalUsd ?? subtotalUsd,
+      discountUsd: placed?.discountUsd ?? discountUsd,
       couponCode: coupon?.code,
       zoneName: zone ? zone.name[locale] : '',
-      totalUsd,
+      totalUsd: placed?.totalUsd ?? totalUsd,
+      rates: placed ? { ...catalog.fx, PYG: placed.fxPyg } : catalog.fx,
       customer: {
         firstName: firstName.trim(),
         lastName: lastName.trim(),

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 
 import { FieldPatch } from '@/components/background/FieldPatch'
 import { PhotoDims } from '@/components/home/PhotoDims'
@@ -15,7 +15,8 @@ import { EdgeGlow } from '@/components/motion/EdgeGlow'
 import { Cell, CellGrid } from '@/components/motion/Cell'
 import { CtaBody } from '@/components/ui/Cta'
 import { CATEGORY_META, CATEGORY_ORDER } from '@/lib/catalog/categories'
-import { PRODUCTS } from '@/lib/catalog/products'
+import { useCatalog } from '@/lib/catalog/context'
+import type { Product } from '@/lib/catalog/types'
 import { GUIDES } from '@/content/guides'
 import { useI18n } from '@/lib/i18n/context'
 import { useParallax } from '@/lib/motion'
@@ -25,11 +26,6 @@ import { CURRENCIES } from '@/lib/money'
 /** Los hilos del primer viewport: pesados, así que solo en el cliente y diferidos. */
 const Threads = dynamic(() => import('@/components/background/Threads'), { ssr: false })
 
-const FEATURED = PRODUCTS.filter((product) => product.featured).slice(0, 6)
-const COUNT_BY_CATEGORY = new Map<string, number>()
-for (const product of PRODUCTS) {
-  COUNT_BY_CATEGORY.set(product.category, (COUNT_BY_CATEGORY.get(product.category) ?? 0) + 1)
-}
 /**
  * La pieza que abre la tienda.
  *
@@ -44,7 +40,7 @@ for (const product of PRODUCTS) {
  * actual y sigue siendo NVIDIA; las cotas que la rodean salen del catálogo,
  * así que se actualizan solas.
  */
-const HERO_GPU = PRODUCTS.find((product) => product.slug === 'geforce-rtx-5070-ti-16gb') ?? PRODUCTS[0]!
+const HERO_SLUG = 'geforce-rtx-5070-ti-16gb'
 
 /**
  * Cuánto aire transparente trae la foto del héroe alrededor de la pieza, en
@@ -58,22 +54,46 @@ const HERO_GPU = PRODUCTS.find((product) => product.slug === 'geforce-rtx-5070-t
 const HERO_TRIM = { x: 12.5, bottom: 29 } as const
 
 /**
+ * Lo que la portada deriva del catálogo vigente: destacados, recuento por
+ * categoría, la pieza del héroe y el representante de cada categoría.
+ *
  * Cada categoría se representa con la fotografía de una pieza real suya, no con
  * un icono. Un dibujo genérico de «gabinete» no dice nada que la foto de un
  * gabinete concreto no diga mejor.
+ *
+ * Antes eran constantes del módulo calculadas sobre el archivo. Ahora dependen
+ * de lo que está a la venta: una pieza que el operador desactiva deja de
+ * destacarse y de contarse.
  */
-const CATEGORY_PRODUCT = new Map(
-  CATEGORY_ORDER.map((category) => [
-    category,
-    PRODUCTS.find((product) => product.category === category) ?? PRODUCTS[0]!,
-  ]),
-)
+function portadaDe(products: Product[]) {
+  const primera = products[0]!
+  const countByCategory = new Map<string, number>()
+  for (const product of products) {
+    countByCategory.set(product.category, (countByCategory.get(product.category) ?? 0) + 1)
+  }
+  return {
+    featured: products.filter((product) => product.featured).slice(0, 6),
+    countByCategory,
+    heroGpu: products.find((product) => product.slug === HERO_SLUG) ?? primera,
+    categoryProduct: new Map(
+      CATEGORY_ORDER.map((category) => [
+        category,
+        products.find((product) => product.category === category) ?? primera,
+      ]),
+    ),
+  }
+}
 
 /** Celdas que ocupan más de una posición: rompen la monotonía de la retícula. */
 const WIDE = new Set(['tarjetas-graficas', 'gabinetes'])
 
 export function HomeView() {
   const { t, locale, path } = useI18n()
+  const { products } = useCatalog()
+  const { featured, countByCategory, heroGpu, categoryProduct } = useMemo(
+    () => portadaDe(products),
+    [products],
+  )
   const heroArt = useRef<HTMLDivElement>(null)
   useParallax(heroArt, { distance: 34 })
 
@@ -187,17 +207,17 @@ export function HomeView() {
                   ya corren el barrido de luz y el paralaje del scroll, y una
                   fotografía que flota deja de leerse como fotografía. */}
               <ProductPhoto
-                product={HERO_GPU}
+                product={heroGpu}
                 priority
                 sizes="(min-width: 1280px) 58vw, (min-width: 1024px) 50vw, 92vw"
               />
               <PhotoDims
                 trimX={HERO_TRIM.x}
                 baseY={HERO_TRIM.bottom}
-                {...(HERO_GPU.compat.kind === 'gpu'
+                {...(heroGpu.compat.kind === 'gpu'
                   ? {
-                      main: `${HERO_GPU.compat.lengthMm} mm`,
-                      notes: [`${HERO_GPU.compat.tgpW} W`, HERO_GPU.compat.bus],
+                      main: `${heroGpu.compat.lengthMm} mm`,
+                      notes: [`${heroGpu.compat.tgpW} W`, heroGpu.compat.bus],
                     }
                   : { notes: [] })}
               />
@@ -210,7 +230,7 @@ export function HomeView() {
         <div className="u-rule" />
         <dl className="u-page relative grid grid-cols-2 gap-x-6 py-6 sm:grid-cols-4">
           {[
-            { label: t('home.manifest.pieces'), value: PRODUCTS.length },
+            { label: t('home.manifest.pieces'), value: products.length },
             { label: t('home.manifest.categories'), value: CATEGORY_ORDER.length },
             { label: t('home.manifest.currencies'), text: CURRENCIES.join(' · ') },
             { label: t('home.manifest.check'), text: t('home.manifest.checkValue') },
@@ -247,7 +267,7 @@ export function HomeView() {
         <CellGrid className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {CATEGORY_ORDER.map((slug, i) => {
             const meta = CATEGORY_META[slug]
-            const representante = CATEGORY_PRODUCT.get(slug)!
+            const representante = categoryProduct.get(slug)!
             const wide = WIDE.has(slug)
             return (
               <Reveal
@@ -282,7 +302,7 @@ export function HomeView() {
                     </p>
                     <p className="mt-4 flex items-center gap-2 border-t border-rule pt-3 font-mono text-[0.625rem] tracking-[0.14em] uppercase text-fg-mid">
                       <span className="tabular-nums text-fg">
-                        {COUNT_BY_CATEGORY.get(slug) ?? 0}
+                        {countByCategory.get(slug) ?? 0}
                       </span>
                       {t('home.categories.count')}
                       <span
@@ -341,7 +361,7 @@ export function HomeView() {
         </Reveal>
 
           <div className="mt-12 grid gap-x-6 gap-y-12 border-b border-rule pb-12 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURED.map((product, i) => (
+            {featured.map((product, i) => (
               <Reveal key={product.slug} delayIndex={i}>
                 <ProductCard product={product} index={i} />
               </Reveal>

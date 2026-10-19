@@ -1,12 +1,22 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { useCart, resolveLines, totalsOf } from '@/lib/cart'
 import { PRODUCTS } from '@/lib/catalog/products'
+import { buildCatalog, registerCatalog } from '@/lib/catalog/live'
 
 const gpu = PRODUCTS.find((product) => product.slug === 'geforce-rtx-5070-12gb')!
 const paste = PRODUCTS.find((product) => product.slug === 'thermal-grizzly-kryonaut-1g')!
 
+// En la tienda la registra `CatalogProvider`; acá se registra el archivo.
+const catalog = buildCatalog({
+  products: PRODUCTS,
+  fx: { PYG: 7400, BRL: 5.4 },
+  lowStockAt: 3,
+  origin: 'archivo',
+})
+
 describe('carrito', () => {
   beforeEach(() => {
+    registerCatalog(catalog)
     useCart.setState({ lines: [], lastRemoved: null })
   })
 
@@ -55,10 +65,13 @@ describe('carrito', () => {
   })
 
   it('resuelve líneas contra el catálogo y descarta las huérfanas', () => {
-    const resolved = resolveLines([
-      { slug: gpu.slug, qty: 2 },
-      { slug: 'pieza-que-ya-no-esta', qty: 1 },
-    ])
+    const resolved = resolveLines(
+      [
+        { slug: gpu.slug, qty: 2 },
+        { slug: 'pieza-que-ya-no-esta', qty: 1 },
+      ],
+      catalog,
+    )
     expect(resolved).toHaveLength(1)
     expect(resolved[0]?.lineTotalUsd).toBe(gpu.priceUsd * 2)
   })
@@ -71,7 +84,7 @@ describe('totales', () => {
    * regalaba por encima de un umbral, y las dos cosas eran falsas.
    */
   it('suma las líneas y nada más', () => {
-    const totals = totalsOf(resolveLines([{ slug: paste.slug, qty: 2 }]))
+    const totals = totalsOf(resolveLines([{ slug: paste.slug, qty: 2 }], catalog))
     expect(totals.subtotalUsd).toBe(paste.priceUsd * 2)
     expect(totals.count).toBe(2)
   })
@@ -81,7 +94,7 @@ describe('totales', () => {
   })
 
   it('no expone ningún total con envío que después haya que corregir', () => {
-    const totals = totalsOf(resolveLines([{ slug: gpu.slug, qty: 1 }]))
+    const totals = totalsOf(resolveLines([{ slug: gpu.slug, qty: 1 }], catalog))
     expect(Object.keys(totals).sort()).toEqual(['count', 'subtotalUsd'])
   })
 })

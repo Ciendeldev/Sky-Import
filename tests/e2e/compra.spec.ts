@@ -113,6 +113,12 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
    * que se verifica acá es el recorrido del cliente y el mensaje que sale; que
    * la función descuente bien el stock es asunto de la base y de su propia
    * prueba.
+   *
+   * La respuesta simula ADREDE un precio distinto del de la página, como si el
+   * operador lo hubiera cambiado mientras el cliente completaba el formulario.
+   * El mensaje tiene que salir con lo que grabó la base (US$ 900 la unidad), no
+   * con lo que la página tenía cargado: es el mismo pedido que va a ver el
+   * vendedor en el panel.
    */
   await context.route('**/rest/v1/rpc/place_order', (route) =>
     route.fulfill({
@@ -121,12 +127,22 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
       body: JSON.stringify({
         ok: true,
         order_number: 'SI-PRUEBA',
-        subtotal_usd: 0,
+        subtotal_usd: 1800,
         discount_usd: 0,
         shipping_usd: 0,
-        total_usd: 0,
-        total_pyg: 0,
+        total_usd: 1800,
+        total_pyg: 13320000,
         fx_pyg: 7400,
+        lines: [
+          {
+            sku: 'SI-VGA-0124',
+            name: 'GeForce RTX 5070 12 GB',
+            variant_label: '',
+            qty: 2,
+            unit_price_usd: 900,
+            subtotal_usd: 1800,
+          },
+        ],
       }),
     }),
   )
@@ -167,7 +183,9 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
   expect(mensaje).toContain('Envío a coordinar, no incluido.')
   expect(mensaje).toContain('👋')
   expect(mensaje).not.toContain('\uFFFD')
-  expect(mensaje).toContain('*Total: Gs.')
+  // 2 × US$ 900 a 7400: el importe que grabó la base, no el de la página.
+  expect(mensaje).toContain('· SI-VGA-0124 — Gs. 13.320.000')
+  expect(mensaje).toContain('*Total: Gs. 13.320.000*')
   // Sin cupón aplicado, esa línea no se imprime.
   expect(mensaje).not.toContain('Cupón (')
 

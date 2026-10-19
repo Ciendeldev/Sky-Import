@@ -13,6 +13,12 @@ import { CON_BASE } from '../../playwright.config'
  * no puede depender de que exista un cupón concreto en la tienda real ni gastar
  * uno de sus usos.
  *
+ * **Ningún precio escrito a mano.** El precio de la pieza sale de la base y el
+ * panel lo puede cambiar en cualquier momento; una prueba que esperara
+ * «US$ 619» se rompe el día que el operador ajusta el precio, sin que la tienda
+ * tenga ningún defecto. Se lee el importe que muestra el resumen y se razona
+ * sobre él.
+ *
  * **Dos modos, dos comportamientos.** Sin claves de Supabase —como en la
  * integración continua— la tienda no consulta cupones: lo dice y sigue
  * vendiendo. Eso también es correcto y también se comprueba, en el último caso
@@ -21,6 +27,17 @@ import { CON_BASE } from '../../playwright.config'
  */
 
 const CUPON = 'PRUEBA10'
+
+/** Todos los importes en dólares que el resumen muestra, en orden. */
+async function dolaresDelResumen(page: import('@playwright/test').Page): Promise<number[]> {
+  const texto = await page.locator('aside').innerText()
+  return [...texto.matchAll(/US\$ ([\d.]+)/g)].map((m) => Number(m[1]!.replace(/\./g, '')))
+}
+
+/** El dólar como lo imprime la tienda: miles con punto y sin decimales. */
+function usd(valor: number): string {
+  return `US$ ${String(Math.round(valor)).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
+}
 
 async function prepararCarrito(page: import('@playwright/test').Page) {
   await page.goto('/es/producto/geforce-rtx-5070-12gb')
@@ -33,24 +50,21 @@ async function prepararCarrito(page: import('@playwright/test').Page) {
 test('un cupón válido descuenta del total', async ({ page, context }) => {
   test.skip(!CON_BASE, 'Sin claves de Supabase la tienda no consulta cupones: ver el último caso.')
 
+  await prepararCarrito(page)
+
+  const resumen = page.locator('aside')
+  await expect(resumen).toContainText('US$ ')
+  const [precio] = await dolaresDelResumen(page)
+  expect(precio).toBeGreaterThan(0)
+  const descuento = 100
+
   await context.route('**/rest/v1/rpc/validate_coupon', (route) =>
     route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({
-        ok: true,
-        code: CUPON,
-        kind: 'percent',
-        value: 10,
-        discount_usd: 61.9,
-      }),
+      body: JSON.stringify({ ok: true, code: CUPON, kind: 'fixed', value: descuento, discount_usd: descuento }),
     }),
   )
-
-  await prepararCarrito(page)
-
-  const resumen = page.locator('aside')
-  await expect(resumen).toContainText('US$ 619')
 
   await page.getByLabel('Código del cupón').fill(CUPON)
   await page.getByRole('button', { name: 'Aplicar' }).click()
@@ -64,7 +78,7 @@ test('un cupón válido descuenta del total', async ({ page, context }) => {
   await expect(apartadoCupon).toContainText(CUPON)
 
   await expect(resumen).toContainText(CUPON)
-  await expect(resumen).toContainText('US$ 557')
+  await expect(resumen).toContainText(usd(precio! - descuento))
 
   // Y viaja al mensaje de WhatsApp con su línea propia.
   await context.route('https://api.whatsapp.com/send**', (route) =>
@@ -113,12 +127,14 @@ test('un cupón inexistente lo dice y no toca el total', async ({ page, context 
   )
 
   await prepararCarrito(page)
+  await expect(page.locator('aside')).toContainText('US$ ')
+  const antes = await dolaresDelResumen(page)
 
   await page.getByLabel('Código del cupón').fill('NOEXISTE')
   await page.getByRole('button', { name: 'Aplicar' }).click()
 
   await expect(page.getByTestId('error-cupon')).toContainText('Ese código no existe')
-  await expect(page.locator('aside')).toContainText('US$ 619')
+  expect(await dolaresDelResumen(page)).toEqual(antes)
   await expect(page.getByRole('region', { name: 'Cupón de descuento' })).not.toContainText(
     'Cupón aplicado',
   )
@@ -158,6 +174,8 @@ test('sin base configurada lo dice, y la venta sigue igual', async ({ page }) =>
    * sino que la tienda lo diga con claridad y **no bloquee la compra por eso**.
    */
   await prepararCarrito(page)
+  await expect(page.locator('aside')).toContainText('US$ ')
+  const antes = await dolaresDelResumen(page)
 
   await page.getByLabel('Código del cupón').fill(CUPON)
   await page.getByRole('button', { name: 'Aplicar' }).click()
@@ -166,6 +184,6 @@ test('sin base configurada lo dice, y la venta sigue igual', async ({ page }) =>
 
   // El total no se toca y el botón de enviar sigue disponible: sin cupón se
   // vende igual.
-  await expect(page.locator('aside')).toContainText('US$ 619')
+  expect(await dolaresDelResumen(page)).toEqual(antes)
   await expect(page.getByTestId('enviar-pedido')).toBeEnabled()
 })

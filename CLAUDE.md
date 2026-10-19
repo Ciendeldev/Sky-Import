@@ -52,6 +52,10 @@ WhatsApp**, con panel de administración sobre Supabase.
 11. No añadas dependencias sin justificarlo contra el presupuesto de
     `size-limit`.
 12. Las decisiones estructurales van a `docs/adr/`.
+13. **La vitrina publica lo que cobra la base.** Precio, stock, tasa y umbral se
+    leen de `useCatalog()`; ningún componente de cliente importa
+    `products.ts` ni `FX`, que son semilla y respaldo. Si no, un cambio del
+    panel no llega a la web mientras `place_order` ya lo cobra. Ver ADR 012.
 
 ## Convenciones
 

@@ -58,14 +58,17 @@ export function whatsappLink(message: string): string {
 }
 
 /**
- * Tipo de cambio REFERENCIAL y fijo.
+ * Tipo de cambio REFERENCIAL de RESPALDO.
  *
  * El USD es la fuente de verdad de todo precio del catálogo; PYG y BRL se derivan.
  * No hay ninguna fuente en vivo detrás de estos números y la interfaz nunca afirma
  * que lo haya: en toda pantalla donde aparece una moneda derivada se muestra la
  * palabra «referencial».
  *
- * Para actualizarlos basta editar este objeto: no hay otra copia en el proyecto.
+ * La tasa que se usa de verdad es la que el operador guarda desde el panel, en
+ * `settings.fx`: la lee `src/lib/catalog/source.ts` y es la misma con la que
+ * `place_order` graba cada pedido. Este objeto solo entra cuando la base no
+ * responde o todavía no tiene la fila. Editarlo NO cambia la tasa publicada.
  */
 export const FX = {
   /** Guaraníes por dólar. */
@@ -78,6 +81,9 @@ export const FX = {
 
 /**
  * Umbrales comerciales de los que se derivan los estados visibles.
+ *
+ * Igual que `FX`, es el respaldo: el umbral vigente es el de `settings.rules`,
+ * que el operador edita desde el panel.
  *
  * Acá vivían también un umbral de «envío bonificado» y una tarifa única de
  * flete. Los dos se fueron: el costo del envío depende de la ciudad y vive en

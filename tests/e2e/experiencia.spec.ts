@@ -184,17 +184,25 @@ test.describe('teclado', () => {
 
 test.describe('moneda e idioma', () => {
   test('cambiar de moneda cambia el importe sin recargar la página', async ({ page, isMobile }) => {
+    // Precio y tasa salen de la base y el panel los cambia: la prueba no espera
+    // un número concreto, sino que el importe visible pase de dólares a reales.
     await page.goto('/es/producto/geforce-rtx-5080-16gb')
-    await expect(page.getByText('US$ 1.249').first()).toBeVisible()
+    const principal = page.locator('article [data-price]').first()
+    const dolares = principal.locator('[data-cur="USD"]')
+    const reales = principal.locator('[data-cur="BRL"]')
+    await expect(dolares).toBeVisible()
+    await expect(dolares).toHaveText(/^US\$ [\d.]+$/)
+    await expect(reales).not.toBeVisible()
 
     await abrirControles(page, isMobile)
     await page.getByRole('group', { name: 'Moneda' }).getByRole('button', { name: 'BRL' }).click()
 
     await expect(page.locator('html')).toHaveAttribute('data-currency', 'BRL')
-    await expect(page.getByText('R$ 6.744,60').first()).toBeVisible()
+    await expect(reales).toBeVisible()
+    await expect(reales).toHaveText(/^R\$ [\d.]+,\d{2}$/)
     // El importe en dólares sigue impreso en el HTML —así no hay parpadeo—
     // pero deja de estar visible y sale del árbol de accesibilidad.
-    await expect(page.getByText('US$ 1.249').first()).not.toBeVisible()
+    await expect(dolares).not.toBeVisible()
   })
 
   test('cambiar de idioma NO recarga la página: traduce en el sitio', async ({ page, isMobile }) => {

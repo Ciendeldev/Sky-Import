@@ -230,6 +230,16 @@ export type ValidateCouponResult =
       min_purchase_usd?: number
     }
 
+/** Una línea tal como `place_order` la grabó, con el precio que cobró. */
+export type PlacedOrderLine = {
+  sku: string
+  name: string
+  variant_label: string
+  qty: number
+  unit_price_usd: number
+  subtotal_usd: number
+}
+
 export type PlaceOrderResult = {
   ok: true
   order_number: string
@@ -239,6 +249,8 @@ export type PlaceOrderResult = {
   total_usd: number
   total_pyg: number
   fx_pyg: number
+  /** Desde `20260914000100_pedido_devuelve_lineas.sql`. */
+  lines: PlacedOrderLine[]
 }
 
 // ─────────────────────────────────────────────────── contrato del cliente

@@ -4,6 +4,8 @@ import { Archivo, Azeret_Mono } from 'next/font/google'
 import './globals.css'
 
 import { I18nProvider } from '@/lib/i18n/context'
+import { CatalogProvider } from '@/lib/catalog/context'
+import { loadCatalog } from '@/lib/catalog/source'
 import { DEFAULT_LOCALE, LOCALE_META, isLocale, type Locale } from '@/lib/i18n/locales'
 import { makeT } from '@/lib/i18n/dictionary'
 import { prePaintScript } from '@/lib/prePaint'
@@ -47,6 +49,8 @@ async function resolveLocale(): Promise<Locale> {
 export default async function GlobalNotFound() {
   const locale = await resolveLocale()
   const t = makeT(locale)
+  // El pie lista las marcas del catálogo vigente, así que también acá hace falta.
+  const catalog = await loadCatalog()
 
   return (
     <html
@@ -63,16 +67,18 @@ export default async function GlobalNotFound() {
       </head>
       <body className="text-fg antialiased">
         <I18nProvider initialLocale={locale}>
-          <a href="#contenido" className="skip-link">
-            {t('skip.toContent')}
-          </a>
-          <RenderDefs />
-          <Cursor />
-          <Header />
-          <main id="contenido" tabIndex={-1}>
-            <NotFoundView />
-          </main>
-          <Footer />
+          <CatalogProvider snapshot={catalog}>
+            <a href="#contenido" className="skip-link">
+              {t('skip.toContent')}
+            </a>
+            <RenderDefs />
+            <Cursor />
+            <Header />
+            <main id="contenido" tabIndex={-1}>
+              <NotFoundView />
+            </main>
+            <Footer />
+          </CatalogProvider>
         </I18nProvider>
       </body>
     </html>

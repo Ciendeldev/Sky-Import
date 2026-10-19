@@ -11,7 +11,7 @@ import { useI18n } from '@/lib/i18n/context'
 import { useBuild, resolveBuild } from '@/lib/build'
 import { useCart } from '@/lib/cart'
 import { useUi } from '@/lib/ui'
-import { PRODUCTS } from '@/lib/catalog/products'
+import { useCatalog } from '@/lib/catalog/context'
 import { headlineSpec } from '@/lib/catalog/derive'
 import {
   BUILD_SLOTS,
@@ -61,12 +61,13 @@ const KIND_OF_SLOT: Record<BuildSlot, CompatKind> = {
   case: 'case',
 }
 
-function optionsFor(slot: BuildSlot): Product[] {
-  return PRODUCTS.filter((product) => product.compat.kind === KIND_OF_SLOT[slot])
+function optionsFor(products: Product[], slot: BuildSlot): Product[] {
+  return products.filter((product) => product.compat.kind === KIND_OF_SLOT[slot])
 }
 
 export function Configurator() {
   const { t, locale, path } = useI18n()
+  const catalog = useCatalog()
   const picks = useBuild((s) => s.picks)
   const hydrated = useBuild((s) => s.hydrated)
   const pick = useBuild((s) => s.pick)
@@ -90,7 +91,7 @@ export function Configurator() {
   const closeDialog = useCallback(() => setOpenSlot(null), [])
   useFocusTrap(dialogRef, openSlot !== null, closeDialog)
 
-  const build = useMemo(() => resolveBuild(picks), [picks])
+  const build = useMemo(() => resolveBuild(picks, catalog), [catalog, picks])
   const issues = useMemo(() => checkBuild(build), [build])
   const status = summarize(issues)
   const scenePlan = useMemo(() => getPcAssemblyPlan(picks), [picks])
@@ -113,7 +114,7 @@ export function Configurator() {
   const candidateOptions = useMemo(() => {
     if (!openSlot) return []
 
-    return optionsFor(openSlot)
+    return optionsFor(catalog.products, openSlot)
       .map((product, index) => ({
         product,
         index,
@@ -125,7 +126,7 @@ export function Configurator() {
           Number(left.assessment.fit === 'compatible')
         return fitOrder || left.index - right.index
       })
-  }, [build, openSlot])
+  }, [build, catalog.products, openSlot])
   const scenePhase = !scenePlan.complete
     ? 'assembling'
     : powerPhase === 'off'

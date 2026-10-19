@@ -10,7 +10,7 @@ import { availabilityOf, type Product } from '@/lib/catalog/types'
 import { headlineSpec, renderDims } from '@/lib/catalog/derive'
 import { useI18n } from '@/lib/i18n/context'
 import { discountPercent } from '@/lib/money'
-import { RULES } from '@/config/site'
+import { useCatalog } from '@/lib/catalog/context'
 
 /**
  * LA FICHA COMO MANIFIESTO
@@ -27,7 +27,8 @@ import { RULES } from '@/config/site'
  */
 export function ProductCard({ product, index = 0 }: { product: Product; index?: number }) {
   const { t, locale } = useI18n()
-  const availability = availabilityOf(product, RULES.lowStockAt)
+  const { lowStockAt } = useCatalog()
+  const availability = availabilityOf(product, lowStockAt)
   const off = discountPercent(product.priceUsd, product.listPriceUsd)
   const soldOut = availability === 'agotado'
 

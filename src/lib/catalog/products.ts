@@ -10,6 +10,11 @@ import type { Product } from './types'
  *    contra la ficha del fabricante. Si un dato no se pudo verificar, no se escribe.
  * 2. Precio, unidades y condiciones son datos de configuración de esta tienda, no
  *    información oficial del fabricante. La interfaz lo dice donde corresponde.
+ *    Con la base conectada, los que se publican son los de la base —los que
+ *    edita el panel y cobra `place_order`—; los de acá son la semilla que
+ *    importa el panel y el respaldo si la base no responde. La ficha técnica
+ *    (`specs`, `compat`, `render`) sí se publica siempre desde este archivo.
+ *    Ver `src/lib/catalog/fromRows.ts`.
  * 3. `units` es la única fuente de la disponibilidad. No existe ningún campo
  *    «agotado» que pueda contradecirla, y la oferta se deriva de `listPriceUsd`.
  * 4. `compat` es el dato que consume el configurador. Cambiar un número acá cambia

@@ -7,6 +7,8 @@ import { SITE } from '@/config/site'
 import { DEFAULT_LOCALE, LOCALES, LOCALE_META, isLocale, type Locale } from '@/lib/i18n/locales'
 import { makeT } from '@/lib/i18n/dictionary'
 import { I18nProvider } from '@/lib/i18n/context'
+import { CatalogProvider } from '@/lib/catalog/context'
+import { loadCatalog } from '@/lib/catalog/source'
 import { prePaintScript } from '@/lib/prePaint'
 import { Header } from '@/components/chrome/Header'
 import { RenderDefs } from '@/components/render/RenderDefs'
@@ -51,6 +53,14 @@ const azeret = Azeret_Mono({
   variable: '--font-azeret',
   display: 'swap',
 })
+
+/**
+ * Toda la tienda es estática y se regenera cada minuto, como ya lo hacía la
+ * ficha de producto. Precio, stock y tasa llegan con la página desde la base,
+ * así que sin esto la portada y el catálogo se quedarían con los números del
+ * último despliegue. El panel, además, fuerza la regeneración al guardar.
+ */
+export const revalidate = 60
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }))
@@ -118,6 +128,7 @@ export default async function LocaleLayout({
   if (!isLocale(raw)) notFound()
   const locale: Locale = raw
   const t = makeT(locale)
+  const catalog = await loadCatalog()
 
   return (
     <html
@@ -139,32 +150,34 @@ export default async function LocaleLayout({
       </head>
       <body className="text-fg antialiased">
         <I18nProvider initialLocale={locale}>
-          {/* El campo de vías NO vive aquí.
-              Estuvo un tiempo como lienzo fijo detrás de toda la tienda y el
-              efecto era el contrario del buscado: cuando algo está en todas
-              partes deja de ser un momento y pasa a ser ruido de fondo. Ahora
-              va por secciones, con `FieldPatch`, en los tramos concretos donde
-              aporta —y solo mientras se ven—. Ver `FieldPatch.tsx`. */}
-          <RenderDefs />
+          <CatalogProvider snapshot={catalog}>
+            {/* El campo de vías NO vive aquí.
+                Estuvo un tiempo como lienzo fijo detrás de toda la tienda y el
+                efecto era el contrario del buscado: cuando algo está en todas
+                partes deja de ser un momento y pasa a ser ruido de fondo. Ahora
+                va por secciones, con `FieldPatch`, en los tramos concretos donde
+                aporta —y solo mientras se ven—. Ver `FieldPatch.tsx`. */}
+            <RenderDefs />
 
-          <a href="#contenido" className="skip-link">
-            {t('skip.toContent')}
-          </a>
+            <a href="#contenido" className="skip-link">
+              {t('skip.toContent')}
+            </a>
 
-          <Intro />
-          <Cursor />
+            <Intro />
+            <Cursor />
 
-          <Header />
+            <Header />
 
-          <main id="contenido" tabIndex={-1}>
-            {children}
-          </main>
+            <main id="contenido" tabIndex={-1}>
+              {children}
+            </main>
 
-          <Footer />
+            <Footer />
 
-          <CartDrawer />
-          <Toaster />
-          <WhatsappFab />
+            <CartDrawer />
+            <Toaster />
+            <WhatsappFab />
+          </CatalogProvider>
         </I18nProvider>
       </body>
     </html>

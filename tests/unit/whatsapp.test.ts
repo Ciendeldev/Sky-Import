@@ -3,8 +3,11 @@ import { orderMessage, productMessage, productUrl, pyg, waPhone, whatsappUrl } f
 import { CONTACT, SITE, whatsappLink } from '@/config/site'
 import { DICTIONARY } from '@/lib/i18n/dictionary'
 
-const product = { name: 'GeForce RTX 5080 16 GB', sku: 'SI-VGA-0112', slug: 'geforce-rtx-5080-16gb', qty: 2, unitPriceUsd: 1249 }
+// Tasas fijas de prueba: los importes esperados se calculan con ellas.
+const rates = { PYG: 7400, BRL: 5.4 }
+const product = { name: 'GeForce RTX 5080 16 GB', sku: 'SI-VGA-0112', slug: 'geforce-rtx-5080-16gb', qty: 2, unitPriceUsd: 1249, rates }
 const order = {
+  rates,
   lines: [{ name: product.name, sku: product.sku, qty: 2, subtotalUsd: 2498 }],
   subtotalUsd: 2498, totalUsd: 2498, zoneName: 'Asunción', orderNumber: 'SI-1042',
   customer: { firstName: 'Ana', lastName: 'Giménez', phone: '+595 981 111 222', address: 'Av. España 1234', city: 'Asunción' },
@@ -12,9 +15,9 @@ const order = {
 
 describe('importes y datos del pedido', () => {
   it('convierte desde USD y mantiene el redondeo de vitrina', () => {
-    expect(pyg(100)).toBe('740.000')
-    expect(pyg(1249)).toBe('9.243.000')
-    expect(pyg(-5)).toBe('0')
+    expect(pyg(100, rates)).toBe('740.000')
+    expect(pyg(1249, rates)).toBe('9.243.000')
+    expect(pyg(-5, rates)).toBe('0')
     const message = productMessage(product)
     expect(message).toContain('Precio unitario: Gs. 9.243.000')
     expect(message).toContain('*TOTAL: Gs. 18.485.000*')
@@ -41,6 +44,11 @@ describe('importes y datos del pedido', () => {
     const message = orderMessage({ ...order, couponCode: 'sky10', discountUsd: 249.8, totalUsd: 2248.2 })
     expect(message).toContain('Cupón (SKY10): −Gs. 1.849.000')
     expect(message).toContain('*Total: Gs. 16.637.000*')
+  })
+  it('convierte con la tasa que recibe, no con una fija del archivo', () => {
+    // Si el panel sube la tasa, el mensaje la usa: es la que grabó el pedido.
+    expect(pyg(100, { ...rates, PYG: 7800 })).toBe('780.000')
+    expect(orderMessage({ ...order, rates: { ...rates, PYG: 7800 } })).toContain('*Total: Gs. 19.484.000*')
   })
   it('el envío no promete una tarifa ni se confunde con el total', () => {
     expect(orderMessage(order)).toContain('Envío a coordinar, no incluido.')

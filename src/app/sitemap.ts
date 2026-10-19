@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { SITE } from '@/config/site'
 import { LOCALES } from '@/lib/i18n/locales'
-import { PRODUCTS } from '@/lib/catalog/products'
+import { loadCatalog } from '@/lib/catalog/source'
 import { GUIDES } from '@/content/guides'
 
 /**
@@ -9,8 +9,11 @@ import { GUIDES } from '@/content/guides'
  * ser operativa no hay que escribirlo, solo levantar el bloqueo.
  *
  * Las rutas transaccionales (carrito y checkout) quedan fuera a propósito.
+ * Las fichas son las del catálogo vigente: una pieza desactivada en el panel
+ * no se anuncia, y una creada desde el panel sí.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const { products } = await loadCatalog()
   const entries: MetadataRoute.Sitemap = []
 
   for (const locale of LOCALES) {
@@ -22,7 +25,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     for (const guide of GUIDES) {
       entries.push({ url: `${SITE.origin}/${locale}/guias/${guide.slug}`, priority: 0.5 })
     }
-    for (const product of PRODUCTS) {
+    for (const product of products) {
       entries.push({ url: `${SITE.origin}/${locale}/producto/${product.slug}`, priority: 0.7 })
     }
   }

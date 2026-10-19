@@ -6,6 +6,7 @@ import { Price } from '@/components/ui/Price'
 import { useCart, resolveLines, totalsOf, lineKey } from '@/lib/cart'
 import { useUi } from '@/lib/ui'
 import { useI18n } from '@/lib/i18n/context'
+import { useCatalog } from '@/lib/catalog/context'
 
 function Stepper({
   qty,
@@ -70,7 +71,8 @@ export function CartContents({
   const clear = useCart((s) => s.clear)
   const toast = useUi((s) => s.toast)
 
-  const resolved = resolveLines(lines)
+  const catalog = useCatalog()
+  const resolved = resolveLines(lines, catalog)
   const totals = totalsOf(resolved)
 
   // Compuerta de hidratación: primero un marcador neutro, nunca un «flash de vacío».

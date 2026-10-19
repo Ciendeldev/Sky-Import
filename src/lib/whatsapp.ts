@@ -7,6 +7,7 @@
 
 import { SITE, whatsappLink } from '@/config/site'
 import { convert } from '@/lib/money'
+import type { Rates } from '@/lib/catalog/live'
 import type { Locale } from '@/lib/i18n/locales'
 
 /** Agrupa la parte entera con puntos: 9242000 -> "9.242.000". */
@@ -25,10 +26,11 @@ function groupThousands(value: number): string {
  * Importe en guaraníes, sin símbolo: la plantilla ya escribe «Gs.» delante.
  * El redondeo de vitrina (al millar) lo hace `convert`, que es el mismo que
  * usa toda la tienda — el mensaje no puede decir un número distinto del que
- * el cliente vio en pantalla.
+ * el cliente vio en pantalla. Por la misma razón la tasa se recibe: es la
+ * vigente de la página, o la que grabó el pedido si ya quedó registrado.
  */
-export function pyg(usd: number): string {
-  return groupThousands(convert(usd, 'PYG'))
+export function pyg(usd: number, rates: Rates): string {
+  return groupThousands(convert(usd, 'PYG', rates))
 }
 
 const DOT = '·'
@@ -56,10 +58,12 @@ export interface ProductMessageInput {
   /** Etiqueta de la variante, si el cliente eligió una. */
   variantLabel?: string
   locale?: Locale
+  /** Tasas vigentes: el guaraní del mensaje es el de la pantalla. */
+  rates: Rates
 }
 
 export function productMessage(input: ProductMessageInput): string {
-  const { name, sku, slug, qty, unitPriceUsd, variantLabel, locale = 'es' } = input
+  const { name, sku, slug, qty, unitPriceUsd, variantLabel, locale = 'es', rates } = input
   const pt = locale === 'pt'
   const titulo = variantLabel ? `${name} (Var: ${variantLabel})` : name
 
@@ -71,9 +75,9 @@ export function productMessage(input: ProductMessageInput): string {
     `*${titulo}*`,
     `${DOT} Código: ${sku}`,
     `${DOT} ${pt ? 'Quantidade' : 'Cantidad'}: ${qty} u.`,
-    `${DOT} ${pt ? 'Preço unitário' : 'Precio unitario'}: Gs. ${pyg(unitPriceUsd)}`,
+    `${DOT} ${pt ? 'Preço unitário' : 'Precio unitario'}: Gs. ${pyg(unitPriceUsd, rates)}`,
     '',
-    `💰 *TOTAL: Gs. ${pyg(unitPriceUsd * qty)}*`,
+    `💰 *TOTAL: Gs. ${pyg(unitPriceUsd * qty, rates)}*`,
     '',
     `🔗 ${productUrl(slug, locale)}`,
     '',
@@ -117,10 +121,12 @@ export interface OrderMessageInput {
   }
   /** Número de pedido asignado al registrarlo. Se imprime si existe. */
   orderNumber?: string
+  /** Tasas con que se convierte: las que grabó el pedido, si se registró. */
+  rates: Rates
 }
 
 export function orderMessage(input: OrderMessageInput): string {
-  const { customer, locale = 'es', discountUsd = 0, couponCode } = input
+  const { customer, locale = 'es', discountUsd = 0, couponCode, rates } = input
   const pt = locale === 'pt'
   const heading = input.orderNumber ? `*Pedido ${input.orderNumber}*` : `*${pt ? 'Meu pedido' : 'Mi pedido'}*`
   const out = [
@@ -128,19 +134,19 @@ export function orderMessage(input: OrderMessageInput): string {
     '',
     ...input.lines.map((line) => {
       const variant = line.variantLabel ? ` (Var: ${line.variantLabel})` : ''
-      return `🛒 ${line.qty} × *${line.name}*${variant} · ${line.sku} — Gs. ${pyg(line.subtotalUsd)}`
+      return `🛒 ${line.qty} × *${line.name}*${variant} · ${line.sku} — Gs. ${pyg(line.subtotalUsd, rates)}`
     }),
     '',
   ]
   if (discountUsd > 0) {
-    out.push(`Subtotal: Gs. ${pyg(input.subtotalUsd)}`)
+    out.push(`Subtotal: Gs. ${pyg(input.subtotalUsd, rates)}`)
     const label = couponCode?.trim()
       ? `${pt ? 'Cupom' : 'Cupón'} (${couponCode.trim().toUpperCase()})`
       : pt ? 'Desconto' : 'Descuento'
-    out.push(`${label}: −Gs. ${pyg(discountUsd)}`)
+    out.push(`${label}: −Gs. ${pyg(discountUsd, rates)}`)
   }
   const fullName = [customer.firstName.trim(), customer.lastName.trim()].filter(Boolean).join(' ')
-  out.push(`💰 *Total: Gs. ${pyg(input.totalUsd)}*`, `👤 ${fullName} · ${customer.phone.trim()}`)
+  out.push(`💰 *Total: Gs. ${pyg(input.totalUsd, rates)}*`, `👤 ${fullName} · ${customer.phone.trim()}`)
   if (input.deliveryMode === 'pickup') {
     out.push(pt ? '🏬 Retirada na loja' : '🏬 Retiro en el local')
   } else {

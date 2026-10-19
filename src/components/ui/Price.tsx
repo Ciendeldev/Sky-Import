@@ -1,3 +1,6 @@
+'use client'
+
+import { useCatalog } from '@/lib/catalog/context'
 import { CURRENCIES, formatMoney } from '@/lib/money'
 
 /**
@@ -13,6 +16,9 @@ import { CURRENCIES, formatMoney } from '@/lib/money'
  *
  * Solo la moneda visible entra en el árbol de accesibilidad, porque `display:none`
  * saca a las otras dos.
+ *
+ * Las tasas son las del catálogo vigente, las mismas con las que `place_order`
+ * graba el pedido: el guaraní que se ve es el que se registra.
  */
 
 export function Price({
@@ -24,11 +30,12 @@ export function Price({
   className?: string
   strike?: boolean
 }) {
+  const { fx } = useCatalog()
   return (
     <span className={className} data-tabular data-price>
       {CURRENCIES.map((currency) => (
         <span key={currency} data-cur={currency} className={strike ? 'line-through' : undefined}>
-          {formatMoney(usd, currency)}
+          {formatMoney(usd, currency, fx)}
         </span>
       ))}
     </span>

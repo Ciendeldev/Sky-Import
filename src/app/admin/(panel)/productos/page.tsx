@@ -8,7 +8,7 @@ export const metadata = { title: 'Productos · Panel Sky Import' }
 export const dynamic = 'force-dynamic'
 
 export default async function ProductosPage() {
-  const [productos, { rules }] = await Promise.all([listProducts(), getSettings()])
+  const [productos, { rules, fx }] = await Promise.all([listProducts(), getSettings()])
 
   return (
     <>
@@ -76,7 +76,7 @@ export default async function ProductosPage() {
                       <td className="a-num text-fg-low">{p.ref}</td>
                       <td className="text-[0.8125rem] text-fg-mid">{p.category_slug}</td>
                       <td className="a-num">
-                        Gs. {pyg(Number(p.price_usd))}
+                        Gs. {pyg(Number(p.price_usd), fx)}
                         <span className="block text-[0.6875rem] text-fg-low">
                           US$ {Number(p.price_usd).toFixed(0)}
                         </span>

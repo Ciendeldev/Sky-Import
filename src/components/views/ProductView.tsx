@@ -7,13 +7,12 @@ import { BuyBox } from '@/components/product/BuyBox'
 import { ProductCard } from '@/components/catalog/ProductCard'
 import { Price } from '@/components/ui/Price'
 import { Magnetic, Reveal, SplitWords } from '@/components/motion/Motion'
-import { PRODUCTS, PRODUCT_BY_SLUG } from '@/lib/catalog/products'
+import { useCatalog } from '@/lib/catalog/context'
 import { CATEGORY_META } from '@/lib/catalog/categories'
-import { availabilityOf } from '@/lib/catalog/types'
+import { availabilityOf, type Product } from '@/lib/catalog/types'
 import { constraintsOf } from '@/lib/catalog/derive'
 import { useI18n } from '@/lib/i18n/context'
 import { discountPercent } from '@/lib/money'
-import { RULES } from '@/config/site'
 import {
   defaultSelection,
   matchVariant,
@@ -22,24 +21,28 @@ import {
   type Variant,
 } from '@/lib/variants'
 
-export function ProductView({ slug, variants = [] }: { slug: string; variants?: Variant[] }) {
+export function ProductView({
+  product,
+  variants = [],
+}: {
+  product: Product
+  variants?: Variant[]
+}) {
   const { t, l, locale, path } = useI18n()
+  const catalog = useCatalog()
   // La variante elegida vive acá y no dentro del bloque de compra: la galería
   // también la necesita, y dos copias del mismo estado se desincronizan.
   const [variant, setVariant] = useState<Variant | null>(
     () => (variants.length > 0 ? matchVariant(variants, defaultSelection(variants)) : null),
   )
 
-  const product = PRODUCT_BY_SLUG.get(slug)
-  if (!product) return null
-
   const category = CATEGORY_META[product.category]
   const units = unitsOf(variant, product.units)
   const price = priceOf(variant, product.priceUsd)
-  const availability = availabilityOf({ ...product, units }, RULES.lowStockAt)
+  const availability = availabilityOf({ ...product, units }, catalog.lowStockAt)
   const off = discountPercent(price, product.listPriceUsd)
   const constraints = constraintsOf(product, locale)
-  const related = PRODUCTS.filter(
+  const related = catalog.products.filter(
     (item) => item.category === product.category && item.slug !== product.slug,
   ).slice(0, 3)
 

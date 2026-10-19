@@ -12,7 +12,9 @@ import type { CategoryRow, ProductRow } from '@/lib/supabase/types'
  * compatibilidad (`compat`) del catálogo importado. Son estructuras tipadas que
  * alimentan el configurador, y un formulario de texto libre las rompería sin
  * que nadie se entere hasta que un cliente arme una máquina imposible. Se
- * editan en `src/lib/catalog/products.ts` y se reimportan.
+ * editan en `src/lib/catalog/products.ts`, y la tienda los toma de ahí sin
+ * reimportar: todo lo que este formulario SÍ edita se publica desde la base.
+ * Ver `docs/adr/012-catalogo-vigente.md`.
  */
 export function ProductForm({
   product,

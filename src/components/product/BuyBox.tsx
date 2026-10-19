@@ -6,8 +6,9 @@ import { VariantPicker } from '@/components/product/VariantPicker'
 import { StickyBuyBar } from '@/components/product/StickyBuyBar'
 import { CtaBody } from '@/components/ui/Cta'
 import { useI18n } from '@/lib/i18n/context'
+import { useCatalog } from '@/lib/catalog/context'
 import { availabilityOf, type Product } from '@/lib/catalog/types'
-import { RULES, hasWhatsapp } from '@/config/site'
+import { hasWhatsapp } from '@/config/site'
 import { productMessage, whatsappUrl } from '@/lib/whatsapp'
 import {
   defaultSelection,
@@ -43,6 +44,7 @@ export function BuyBox({
   onVariantChange?: (variant: Variant | null) => void
 }) {
   const { t, locale } = useI18n()
+  const { fx, lowStockAt } = useCatalog()
   const [qty, setQty] = useState(1)
   const [selection, setSelection] = useState<Record<string, string>>(() =>
     defaultSelection(variants),
@@ -55,7 +57,7 @@ export function BuyBox({
 
   // La disponibilidad se deriva del stock efectivo, que con variantes es el de
   // la variante elegida y no el del producto.
-  const availability = availabilityOf({ ...product, units }, RULES.lowStockAt)
+  const availability = availabilityOf({ ...product, units }, lowStockAt)
   const soldOut = availability === 'agotado'
 
   // No se puede pedir más de lo que hay. Si la variante elegida tiene menos
@@ -77,6 +79,7 @@ export function BuyBox({
     unitPriceUsd: price,
     variantLabel: variant ? variant.label[locale] : undefined,
     locale,
+    rates: fx,
   })
 
   return (

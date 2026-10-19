@@ -5,9 +5,9 @@ import { BrandMark, Wordmark } from '@/components/brand/Wordmark'
 import { Trace } from '@/components/motif/Trace'
 import { Marquee, Reveal } from '@/components/motion/Motion'
 import { CATEGORY_META, CATEGORY_ORDER } from '@/lib/catalog/categories'
-import { BRANDS } from '@/lib/catalog/products'
 import { GUIDES } from '@/content/guides'
 import { useI18n } from '@/lib/i18n/context'
+import { useCatalog } from '@/lib/catalog/context'
 import { CONTACT, SITE, hasWhatsapp, whatsappLink } from '@/config/site'
 
 /**
@@ -18,11 +18,12 @@ import { CONTACT, SITE, hasWhatsapp, whatsappLink } from '@/config/site'
  */
 export function Footer() {
   const { t, l, locale, path } = useI18n()
+  const { brands } = useCatalog()
 
   return (
     <footer className="relative border-t border-rule bg-surface">
       <div className="border-b border-rule py-5">
-        <Marquee items={BRANDS.map((brand) => brand)} duration={46} />
+        <Marquee items={brands} duration={46} />
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 top-16 h-28 overflow-hidden text-steel opacity-25">

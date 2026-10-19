@@ -15,7 +15,11 @@
 
 import { hasSupabaseBrowser, supabaseBrowser } from '@/lib/supabase/client'
 import type { Locale } from '@/lib/i18n/locales'
-import type { ShippingZoneRow, ValidateCouponResult } from '@/lib/supabase/types'
+import type {
+  PlaceOrderResult,
+  ShippingZoneRow,
+  ValidateCouponResult,
+} from '@/lib/supabase/types'
 
 /**
  * Una zona es un DESTINO, no una tarifa.
@@ -166,9 +170,29 @@ export interface PlaceOrderInput {
   couponCode?: string | null
 }
 
+/**
+ * Lo que la base grabó, en la forma que necesita el mensaje.
+ *
+ * El mensaje se escribe con ESTO y no con lo que calculó la página: si el
+ * operador cambió un precio o la tasa mientras el cliente tenía el checkout
+ * abierto, el pedido se grabó con los valores nuevos, y el vendedor va a mirar
+ * el pedido del panel. Los dos tienen que decir lo mismo.
+ */
+export interface PlacedOrder {
+  subtotalUsd: number
+  discountUsd: number
+  totalUsd: number
+  fxPyg: number
+  lines: Array<{ sku: string; name: string; variantLabel: string; qty: number; subtotalUsd: number }>
+}
+
 export type PlaceOrderOutcome =
-  /** Quedó registrado. `number` es el que va en el mensaje. */
-  | { status: 'registrado'; number: string }
+  /**
+   * Quedó registrado. `number` es el que va en el mensaje. `placed` es `null`
+   * solo si la base todavía no devuelve las líneas (función anterior a la
+   * migración `20260914000100`); entonces el mensaje usa lo de la página.
+   */
+  | { status: 'registrado'; number: string; placed: PlacedOrder | null }
   /**
    * No se pudo registrar, pero la venta SIGUE. Pasa cuando no hay base
    * conectada, cuando el catálogo todavía no se importó o cuando el servicio
@@ -194,6 +218,27 @@ export type PlaceOrderOutcome =
  * el único fallo que detiene el pedido es el de stock, que es un hecho del
  * negocio y no de la infraestructura.
  */
+/** Lee la respuesta de `place_order` sin confiar en su forma. */
+export function placedFrom(result: Partial<PlaceOrderResult> | null): PlacedOrder | null {
+  if (!result || !Array.isArray(result.lines) || result.lines.length === 0) return null
+  const fxPyg = Number(result.fx_pyg)
+  const totalUsd = Number(result.total_usd)
+  if (!Number.isFinite(fxPyg) || fxPyg <= 0 || !Number.isFinite(totalUsd)) return null
+  return {
+    subtotalUsd: Number(result.subtotal_usd) || 0,
+    discountUsd: Number(result.discount_usd) || 0,
+    totalUsd,
+    fxPyg,
+    lines: result.lines.map((line) => ({
+      sku: String(line.sku ?? ''),
+      name: String(line.name ?? ''),
+      variantLabel: String(line.variant_label ?? ''),
+      qty: Number(line.qty) || 0,
+      subtotalUsd: Number(line.subtotal_usd) || 0,
+    })),
+  }
+}
+
 export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderOutcome> {
   if (!hasSupabaseBrowser) {
     return { status: 'sin-registro', reason: 'sin base configurada' }
@@ -216,9 +261,10 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderOutc
       return { status: 'sin-registro', reason: error.message }
     }
 
-    const number = (data as { order_number?: string } | null)?.order_number
+    const result = data as Partial<PlaceOrderResult> | null
+    const number = result?.order_number
     return number
-      ? { status: 'registrado', number }
+      ? { status: 'registrado', number, placed: placedFrom(result) }
       : { status: 'sin-registro', reason: 'la base no devolvió número de pedido' }
   } catch (e) {
     // Red caída, servicio reiniciando, CORS… nada de esto es asunto del
