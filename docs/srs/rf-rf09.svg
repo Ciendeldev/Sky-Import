@@ -1,53 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1460" height="554" viewBox="0 0 1460 554" font-family="Segoe UI, Arial, sans-serif">
-  <rect width="1460" height="554" fill="#ffffff"/>
-  <defs>
-    <marker id="f-llena" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
-      <path d="M0,0 L10,4 L0,8 z" fill="#2f3a45"/>
-    </marker>
-    <marker id="f-abierta" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
-      <path d="M0,0 L10,4 L0,8" fill="none" stroke="#5b6875" stroke-width="1.4"/>
-    </marker>
-  </defs>
-
-  <text x="30" y="42" font-size="21" font-weight="700" fill="#12181f">RF09 · Validación y aplicación de cupón de descuento</text>
-  <text x="30" y="68" font-size="13.5" fill="#5b6875">Quién aplica un cupón y por qué el listado de cupones nunca sale de la base.</text>
-  <line x1="30" y1="84" x2="1430" y2="84" stroke="#c8d2dc" stroke-width="1.4"/>
-
-  
-  <rect x="30" y="108" width="470" height="394" rx="6" fill="#f7f9fb" stroke="#c8d2dc" stroke-width="1.4"/>
-  <text x="46" y="134" font-size="12.5" font-weight="700" fill="#12181f" letter-spacing="1.2">CASO DE USO — QUIÉN LA USA</text>
-  
-    <g stroke="#3a6ea5" stroke-width="2.2" fill="none">
-      <circle cx="108" cy="170" r="17" fill="#eef4fb"/>
-      <line x1="108" y1="187" x2="108" y2="232"/>
-      <line x1="80" y1="202" x2="136" y2="202"/>
-      <line x1="108" y1="232" x2="86" y2="268"/>
-      <line x1="108" y1="232" x2="130" y2="268"/>
-    </g>
-  <text x="108" y="290" text-anchor="middle" font-size="13" font-weight="700" fill="#1d3a5c">Cliente</text>
-  <text x="108" y="308" text-anchor="middle" font-size="11.5" fill="#5b6875">sin cuenta ni registro</text>
-  
-      <ellipse cx="368" cy="204" rx="118" ry="26" fill="#ffffff" stroke="#3a6ea5" stroke-width="1.8"/>
-      <text x="368" y="209" text-anchor="middle" font-size="12.5" fill="#1d3a5c">Aplicar un cupón</text>
-      <line x1="138" y1="208" x2="248" y2="204" stroke="#5b6875" stroke-width="1.3"/>
-  
-  <rect x="524" y="108" width="906" height="394" rx="6" fill="#ffffff" stroke="#c8d2dc" stroke-width="1.4"/>
-  <text x="540" y="134" font-size="12.5" font-weight="700" fill="#12181f" letter-spacing="1.2">COMPORTAMIENTO — CÓMO RESPONDE EL SISTEMA</text>
-  
-      <rect x="500" y="152" width="168" height="40" rx="4" fill="#ffffff" stroke="#5b6875" stroke-width="1.6"/>
-      <text x="584" y="177" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2f3a45">Cliente</text>
-      <line x1="584" y1="192" x2="584" y2="478" stroke="#9dbad6" stroke-width="1.3" stroke-dasharray="6 5"/>
-      <rect x="762" y="152" width="168" height="40" rx="4" fill="#ffffff" stroke="#5b6875" stroke-width="1.6"/>
-      <text x="846" y="177" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2f3a45">Checkout</text>
-      <line x1="846" y1="192" x2="846" y2="478" stroke="#9dbad6" stroke-width="1.3" stroke-dasharray="6 5"/>
-      <rect x="1024" y="152" width="168" height="40" rx="4" fill="#ffffff" stroke="#5b6875" stroke-width="1.6"/>
-      <text x="1108" y="177" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2f3a45">validate_coupon</text>
-      <line x1="1108" y1="192" x2="1108" y2="478" stroke="#9dbad6" stroke-width="1.3" stroke-dasharray="6 5"/>
-      <rect x="1286" y="152" width="168" height="40" rx="4" fill="#ffffff" stroke="#5b6875" stroke-width="1.6"/>
-      <text x="1370" y="177" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2f3a45">coupons</text>
-      <line x1="1370" y1="192" x2="1370" y2="478" stroke="#9dbad6" stroke-width="1.3" stroke-dasharray="6 5"/>
-  <line x1="584" y1="226" x2="837" y2="226" stroke="#2f3a45" stroke-width="1.5" marker-end="url(#f-llena)"/><text x="715" y="218" text-anchor="middle" font-size="12" fill="#2f3a45">1. escribe el código</text><line x1="846" y1="270" x2="1099" y2="270" stroke="#2f3a45" stroke-width="1.5" marker-end="url(#f-llena)"/><text x="977" y="262" text-anchor="middle" font-size="12" fill="#2f3a45">2. código y subtotal en dólares</text><line x1="1108" y1="314" x2="1361" y2="314" stroke="#2f3a45" stroke-width="1.5" marker-end="url(#f-llena)"/><text x="1239" y="306" text-anchor="middle" font-size="12" fill="#2f3a45">3. busca el código</text><line x1="1370" y1="358" x2="1117" y2="358" stroke="#5b6875" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#f-abierta)"/><text x="1239" y="350" text-anchor="middle" font-size="12" fill="#5b6875">4. tipo, valor, vigencia y límite de usos</text><path d="M1108 392 h38 v22 h-38" fill="none" stroke="#2f3a45" stroke-width="1.5" marker-end="url(#f-llena)"/><text x="1154" y="394" text-anchor="start" font-size="12" fill="#2f3a45">5. comprueba fechas, compra mínima y usos restantes</text><line x1="1108" y1="456" x2="855" y2="456" stroke="#5b6875" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#f-abierta)"/><text x="977" y="448" text-anchor="middle" font-size="12" fill="#5b6875">6. descuento ya calculado, o el motivo del rechazo</text>
-  
-
-  <text x="30" y="534" font-size="12" fill="#7a8794">La función devuelve el importe del descuento, nunca la lista de cupones. Así nadie puede enumerar los códigos vigentes probando desde el navegador.</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="649" viewBox="0 0 760 649" font-family="Arial, sans-serif">
+  <title>RF09 — Validación y aplicación de cupón de descuento</title><desc>Quién aplica un cupón y por qué el listado de cupones nunca sale de la base.</desc>
+  <rect width="760" height="649" fill="#ffffff"/>
+  <defs><marker id="f-llena" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#263847"/></marker><marker id="f-abierta" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7" fill="none" stroke="#455c6e" stroke-width="1.2"/></marker></defs>
+  <rect x="18" y="10" width="74" height="30" rx="5" fill="#14212e"/>
+  <text x="55" y="31" text-anchor="middle" font-size="18" font-weight="700" fill="#ffffff"><tspan x="55" dy="0">RF09</tspan></text>
+  <text x="106" y="31" text-anchor="start" font-size="22" font-weight="700" fill="#14212e"><tspan x="106" dy="0">Validación y aplicación de cupón de descuento</tspan></text>
+  <rect x="18" y="49" width="724" height="178" rx="6" fill="#f5f8fa" stroke="#bac8d3"/><text x="32" y="73" text-anchor="start" font-size="16" font-weight="700" fill="#14212e"><tspan x="32" dy="0">CASO DE USO · ACTOR Y FUNCIÓN</tspan></text><rect x="249" y="83" width="479" height="134" rx="4" fill="#ffffff" stroke="#bac8d3"/><text x="259" y="102" text-anchor="start" font-size="15" font-weight="400" fill="#455c6e"><tspan x="259" dy="0">Sky Import</tspan></text><line x1="148" y1="133" x2="265" y2="129" stroke="#455c6e" stroke-width="1.4"/><g stroke="#376b9d" stroke-width="2" fill="none"><circle cx="122" cy="108" r="10" fill="#edf4fb"/><path d="M122 118 v30 m-23,-18 h46 m-23,18 l-18,23 m18,-23 l18,23"/></g><text x="122" y="191" text-anchor="middle" font-size="16" font-weight="700" fill="#224c71"><tspan x="122" dy="0">Cliente</tspan></text><text x="122" y="211" text-anchor="middle" font-size="15" font-weight="400" fill="#455c6e"><tspan x="122" dy="0">sin cuenta ni registro</tspan></text><ellipse cx="488.5" cy="129" rx="223.5" ry="19" fill="#edf4fb" stroke="#376b9d" stroke-width="1.5"/><text x="488.5" y="134" text-anchor="middle" font-size="16" font-weight="400" fill="#224c71"><tspan x="488.5" dy="0">Aplicar un cupón</tspan></text><rect x="18" y="239" width="724" height="348" rx="6" fill="#ffffff" stroke="#bac8d3"/><text x="32" y="263" text-anchor="start" font-size="16" font-weight="700" fill="#14212e"><tspan x="32" dy="0">SECUENCIA · COMPORTAMIENTO DEL SISTEMA</tspan></text><rect x="24" y="278" width="146" height="44" rx="4" fill="#f5f8fa" stroke="#455c6e"/><text x="97" y="305" text-anchor="middle" font-size="15" font-weight="700" fill="#263847"><tspan x="97" dy="0">Cliente</tspan></text><line x1="97" y1="322" x2="97" y2="575" stroke="#a8bbc9" stroke-width="1.2" stroke-dasharray="5 5"/><rect x="212.66666666666663" y="278" width="146" height="44" rx="4" fill="#f5f8fa" stroke="#455c6e"/><text x="285.66666666666663" y="305" text-anchor="middle" font-size="15" font-weight="700" fill="#263847"><tspan x="285.66666666666663" dy="0">Checkout</tspan></text><line x1="285.66666666666663" y1="322" x2="285.66666666666663" y2="575" stroke="#a8bbc9" stroke-width="1.2" stroke-dasharray="5 5"/><rect x="401.3333333333333" y="278" width="146" height="44" rx="4" fill="#f5f8fa" stroke="#455c6e"/><text x="474.3333333333333" y="305" text-anchor="middle" font-size="15" font-weight="700" fill="#263847"><tspan x="474.3333333333333" dy="0">validate_coupon</tspan></text><line x1="474.3333333333333" y1="322" x2="474.3333333333333" y2="575" stroke="#a8bbc9" stroke-width="1.2" stroke-dasharray="5 5"/><rect x="590" y="278" width="146" height="44" rx="4" fill="#f5f8fa" stroke="#455c6e"/><text x="663" y="305" text-anchor="middle" font-size="15" font-weight="700" fill="#263847"><tspan x="663" dy="0">coupons</tspan></text><line x1="663" y1="322" x2="663" y2="575" stroke="#a8bbc9" stroke-width="1.2" stroke-dasharray="5 5"/><rect x="112.57333333333332" y="328" width="157.51999999999998" height="19" rx="2" fill="#ffffff"/><text x="191.33333333333331" y="342" text-anchor="middle" font-size="16" font-weight="400" fill="#263847"><tspan x="191.33333333333331" dy="0">1. escribe el código</tspan></text><line x1="97" y1="355" x2="285.66666666666663" y2="355" stroke="#263847" stroke-width="1.6" marker-end="url(#f-llena)"/><rect x="257.40000000000003" y="368" width="245.19999999999993" height="19" rx="2" fill="#ffffff"/><text x="380" y="382" text-anchor="middle" font-size="16" font-weight="400" fill="#263847"><tspan x="380" dy="0">2. código y subtotal en dólares</tspan></text><line x1="285.66666666666663" y1="395" x2="474.3333333333333" y2="395" stroke="#263847" stroke-width="1.6" marker-end="url(#f-llena)"/><rect x="496.5466666666666" y="408" width="144.24" height="19" rx="2" fill="#ffffff"/><text x="568.6666666666666" y="422" text-anchor="middle" font-size="16" font-weight="400" fill="#263847"><tspan x="568.6666666666666" dy="0">3. busca el código</tspan></text><line x1="474.3333333333333" y1="435" x2="663" y2="435" stroke="#263847" stroke-width="1.6" marker-end="url(#f-llena)"/><rect x="416.54666666666674" y="448" width="304.23999999999984" height="19" rx="2" fill="#ffffff"/><text x="568.6666666666666" y="462" text-anchor="middle" font-size="16" font-weight="400" fill="#455c6e"><tspan x="568.6666666666666" dy="0">4. tipo, valor, vigencia y límite de usos</tspan></text><line x1="663" y1="475" x2="474.3333333333333" y2="475" stroke="#455c6e" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#f-abierta)"/><rect x="267.01333333333355" y="488" width="414.6399999999996" height="19" rx="2" fill="#ffffff"/><text x="474.3333333333333" y="502" text-anchor="middle" font-size="16" font-weight="400" fill="#263847"><tspan x="474.3333333333333" dy="0">5. comprueba fechas, compra mínima y usos restantes</tspan></text><path d="M474.3333333333333 515 h-30 v12 h30" fill="none" stroke="#263847" stroke-width="1.6" marker-end="url(#f-llena)"/><rect x="186.84000000000015" y="532" width="386.3199999999997" height="19" rx="2" fill="#ffffff"/><text x="380" y="546" text-anchor="middle" font-size="16" font-weight="400" fill="#455c6e"><tspan x="380" dy="0">6. descuento ya calculado, o el motivo del rechazo</tspan></text><line x1="474.3333333333333" y1="559" x2="285.66666666666663" y2="559" stroke="#455c6e" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#f-abierta)"/>
+  <text x="20" y="613" text-anchor="start" font-size="15" font-weight="400" fill="#455c6e"><tspan x="20" dy="0">La tabla no permite lectura pública directa. La función valida el código y devuelve un resultado</tspan><tspan x="20" dy="18">acotado sin publicar la lista de cupones; esto no impide por sí solo probar códigos individualmente.</tspan></text>
+  </svg>

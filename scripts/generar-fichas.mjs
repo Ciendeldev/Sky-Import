@@ -8,7 +8,18 @@
  * se corresponden con las postcondiciones declaradas en el apartado 3.2.
  */
 
-import { ficha } from './fichas-uml.mjs'
+import { createRequire } from 'node:module'
+import { dirname, join } from 'node:path'
+import { ficha, DIR_FICHAS } from './fichas-uml.mjs'
+
+// Usa Sharp del Node empaquetado cuando se ejecuta desde ese runtime;
+// fuera de él conserva la dependencia normal del proyecto.
+let sharp
+try {
+  sharp = createRequire(join(dirname(process.execPath), '..', 'package.json'))('sharp')
+} catch {
+  sharp = (await import('sharp')).default
+}
 
 const FICHAS = [
   {
@@ -21,7 +32,7 @@ const FICHAS = [
     participantes: ['Operador', 'Pantalla de acceso', 'Servidor', 'Autenticación', 'admin_users'],
     mensajes: [
       { de: 0, a: 1, texto: 'escribe usuario y contraseña' },
-      { de: 1, a: 2, texto: 'signIn(usuario, contraseña)' },
+      { de: 1, a: 2, texto: 'signIn(usuario, contraseña) por HTTPS' },
       { de: 2, a: 2, texto: 'traduce el usuario a su correo interno' },
       { de: 2, a: 3, texto: 'verifica la contraseña' },
       { de: 3, a: 2, texto: 'sesión válida y rol del metadato', tipo: 'respuesta' },
@@ -30,7 +41,7 @@ const FICHAS = [
       { de: 2, a: 1, texto: 'entra, o el motivo del rechazo', tipo: 'respuesta' },
     ],
     componentes: null,
-    nota: 'La contraseña nunca llega al servidor de la tienda: viaja al servicio de autenticación y vuelve una sesión. Un acceso retirado se rechaza acá aunque la contraseña siga siendo correcta.',
+    nota: 'Las credenciales pasan por el servidor mediante HTTPS para validarse en Supabase Auth. La aplicación no consulta el hash ni guarda la contraseña en sus tablas. Exige una cuenta vigente en admin_users.',
   },
   {
     id: 'RF02',
@@ -64,11 +75,11 @@ const FICHAS = [
       { de: 0, a: 1, texto: 'elige variante y cantidad' },
       { de: 1, a: 2, texto: 'agrega la línea' },
       { de: 2, a: 2, texto: 'suma el subtotal en dólares' },
-      { de: 2, a: 3, texto: 'guarda el estado' },
-      { de: 2, a: 0, texto: 'contador y subtotal al día', tipo: 'respuesta' },
+      { de: 2, a: 3, texto: 'guarda líneas y copia de la variante' },
+      { de: 2, a: 0, texto: 'contador y subtotal del carrito', tipo: 'respuesta' },
     ],
     componentes: null,
-    nota: 'El carrito vive únicamente en el navegador del cliente: el sistema no guarda carritos ajenos ni necesita que nadie se registre para tener uno.',
+    nota: 'El carrito local guarda cantidades, identificadores y datos de la variante, que pueden conservar un precio anterior. El registro del pedido revalida precios y stock en la base. No exige una cuenta del cliente.',
   },
   {
     id: 'RF10',
@@ -85,10 +96,10 @@ const FICHAS = [
       { de: 2, a: 2, texto: 'bloquea las filas y comprueba existencias' },
       { de: 2, a: 3, texto: 'graba el pedido y sus líneas' },
       { de: 3, a: 2, texto: 'número correlativo asignado', tipo: 'respuesta' },
-      { de: 2, a: 1, texto: 'número de pedido, o la pieza que faltó', tipo: 'respuesta' },
+      { de: 2, a: 1, texto: 'importes grabados, o la pieza que faltó', tipo: 'respuesta' },
     ],
     componentes: ['Checkout', 'Funciones transaccionales', 'Control de existencias'],
-    nota: 'El cliente transmite identificadores y cantidades, nunca importes: los precios se releen del catálogo dentro de la transacción. Si una pieza no alcanza, no se graba nada.',
+    nota: 'La transacción relee precios y stock. Sin existencias no registra ni permite continuar. Un fallo técnico puede llevar al cierre por WhatsApp sin registro interno (RF11 y RNF09).',
   },
   {
     id: 'RF11',
@@ -96,16 +107,16 @@ const FICHAS = [
     resumen: 'Quién cierra la venta y por qué el sistema no envía el mensaje en nombre del cliente.',
     actor: { nombre: 'Cliente', nota: 'sin cuenta ni registro', paleta: 'cliente' },
     casos: ['Generar el mensaje', 'Abrir la conversación'],
-    participantes: ['Cliente', 'Checkout', 'Redactor', 'WhatsApp'],
+    participantes: ['Cliente', 'Checkout', 'Redactor local', 'WhatsApp'],
     mensajes: [
-      { de: 1, a: 2, texto: 'pide el texto del pedido' },
-      { de: 2, a: 2, texto: 'convierte con la tasa grabada en el pedido' },
+      { de: 1, a: 2, texto: 'compone el texto en el navegador' },
+      { de: 2, a: 2, texto: 'usa importes y tasa persistidos si están disponibles' },
       { de: 2, a: 1, texto: 'mensaje y enlace oficial', tipo: 'respuesta' },
       { de: 1, a: 0, texto: 'botón listo para abrir la conversación', tipo: 'respuesta' },
       { de: 0, a: 3, texto: 'el propio cliente abre y envía' },
     ],
     componentes: ['Redactor de mensajes', 'Conversión de moneda'],
-    nota: 'El sistema prepara el texto y el enlace; el envío lo hace la persona. Se usa la dirección oficial de WhatsApp y no el atajo wa.me, porque este último altera los emojis al redirigir.',
+    nota: 'El cliente envía el mensaje: emojis, negritas y una línea por producto, sin ordinales. Sin registro usa los datos disponibles; sin stock se detiene. Presenta PYG; moneda y pago se acuerdan por WhatsApp.',
   },
   {
     id: 'RF17',
@@ -143,7 +154,7 @@ const FICHAS = [
       { de: 1, a: 0, texto: 'resultados, o una salida si no hay ninguno', tipo: 'respuesta' },
     ],
     componentes: null,
-    nota: 'Se normalizan ambos lados de la comparación, no solo lo escrito: nadie teclea las tildes al buscar, y el catálogo sí las lleva.',
+    nota: 'Se normalizan el término y los datos del catálogo: escribir «grafica» o «gráfica» produce la misma comparación, sin distinguir mayúsculas y minúsculas.',
   },
   {
     id: 'RF04',
@@ -191,9 +202,9 @@ const FICHAS = [
       { de: 0, a: 1, texto: 'elige procesador y placa madre' },
       { de: 1, a: 2, texto: 'compara zócalo, memoria, vatiaje y milímetros' },
       { de: 2, a: 1, texto: 'choques encontrados', tipo: 'respuesta' },
-      { de: 1, a: 0, texto: 'aviso en castellano llano, no en jerga', tipo: 'respuesta' },
+      { de: 1, a: 0, texto: 'muestra los avisos de incompatibilidad', tipo: 'respuesta' },
       { de: 0, a: 1, texto: 'pide la prueba de encendido' },
-      { de: 1, a: 0, texto: 'si el armado enciende, o qué le falta', tipo: 'respuesta' },
+      { de: 1, a: 0, texto: 'resultado de la prueba simulada y faltantes', tipo: 'respuesta' },
     ],
     componentes: null,
     nota: 'Solo lectura sobre los datos de compatibilidad del catálogo: verificar un armado no escribe nada en la base.',
@@ -214,7 +225,7 @@ const FICHAS = [
       { de: 2, a: 0, texto: 'importe, sin recargar la página', tipo: 'respuesta' },
     ],
     componentes: ['Conversión de moneda', 'Configuración comercial'],
-    nota: 'El dólar es la única fuente de verdad: no existe ningún precio escrito en guaraníes en los datos. Guaraní y real se derivan siempre de la tasa configurada.',
+    nota: 'Los precios base se expresan en dólares. La presentación en guaraníes y reales utiliza las tasas configuradas; el sistema no cobra ni confirma el pago.',
   },
   {
     id: 'RF09',
@@ -232,25 +243,25 @@ const FICHAS = [
       { de: 2, a: 1, texto: 'descuento ya calculado, o el motivo del rechazo', tipo: 'respuesta' },
     ],
     componentes: null,
-    nota: 'La función devuelve el importe del descuento, nunca la lista de cupones. Así nadie puede enumerar los códigos vigentes probando desde el navegador.',
+    nota: 'La tabla no permite lectura pública directa. La función valida el código y devuelve un resultado acotado sin publicar la lista de cupones; esto no impide por sí solo probar códigos individualmente.',
   },
   {
     id: 'RF12',
     nombre: 'Administración de productos y variantes',
     resumen: 'Quién mantiene el catálogo y qué comprueba la base antes de aceptar la escritura.',
     actor: { nombre: 'Administrador', nota: 'y también el moderador', paleta: 'admin' },
-    casos: ['Dar de alta una pieza', 'Editarla', 'Darla de baja'],
-    participantes: ['Administrador', 'Panel', 'Servidor', 'products'],
+    casos: ['Dar de alta una pieza', 'Editarla', 'Darla de baja', 'Administrar sus variantes'],
+    participantes: ['Administrador', 'Panel', 'Servidor', 'Catálogo SQL'],
     mensajes: [
       { de: 0, a: 1, texto: 'completa la ficha de la pieza' },
-      { de: 1, a: 2, texto: 'saveProduct()' },
+      { de: 1, a: 2, texto: 'saveProduct() o saveVariant()' },
       { de: 2, a: 2, texto: 'comprueba la sesión y el acceso vigente' },
       { de: 2, a: 3, texto: 'inserta o actualiza, sujeto a las políticas de fila' },
       { de: 3, a: 2, texto: 'fila grabada', tipo: 'respuesta' },
       { de: 2, a: 1, texto: 'confirmación y páginas públicas revalidadas', tipo: 'respuesta' },
     ],
     componentes: ['Acciones de servidor', 'Políticas de seguridad por fila'],
-    nota: 'La comprobación de permiso ocurre dos veces: en el servidor y otra vez dentro de la base. Aunque alguien encontrara una ruta sin guardia, Postgres le niega la escritura.',
+    nota: 'El catálogo utiliza products y product_variants. Las acciones comprueban el acceso vigente; las políticas por fila restringen las escrituras en la base a las cuentas autorizadas.',
   },
   {
     id: 'RF13',
@@ -264,10 +275,10 @@ const FICHAS = [
       { de: 1, a: 2, texto: 'setStock(pieza, unidades)' },
       { de: 2, a: 3, texto: 'actualiza units' },
       { de: 3, a: 2, texto: 'valor grabado', tipo: 'respuesta' },
-      { de: 2, a: 1, texto: 'aviso si quedó bajo el mínimo configurado', tipo: 'respuesta' },
+      { de: 2, a: 1, texto: 'confirma el ajuste y revalida el listado', tipo: 'respuesta' },
     ],
     componentes: null,
-    nota: 'No existe ningún campo «agotado» que pueda contradecir al stock: la disponibilidad se deriva siempre de units, y por eso dar de baja un pedido tiene que devolver esas unidades.',
+    nota: 'El listado suma las variantes activas cuando existen; las alertas consultan products.units. La coherencia entre ambos valores está pendiente de comprobación. El ajuste rápido modifica el stock del producto.',
   },
   {
     id: 'RF14',
@@ -285,7 +296,7 @@ const FICHAS = [
       { de: 2, a: 1, texto: 'propagado a toda la tienda, sin desplegar de nuevo', tipo: 'respuesta' },
     ],
     componentes: ['Configuración comercial', 'Conversión de moneda'],
-    nota: 'El rango no es un capricho: acá el guaraní se escribe «7.400» con punto de millar, y un campo numérico se lo come y guarda 7. Ese error dividió por mil todos los precios publicados una vez.',
+    nota: 'El servidor valida los rangos de las tasas. La presentación en moneda local cambia con la configuración; los pedidos ya registrados conservan su tasa histórica.',
   },
   {
     id: 'RF15',
@@ -314,15 +325,16 @@ const FICHAS = [
     participantes: ['Administrador', 'Panel de pedidos', 'Servidor', 'orders'],
     mensajes: [
       { de: 0, a: 1, texto: 'abre el historial' },
-      { de: 1, a: 2, texto: 'listOrders()' },
-      { de: 2, a: 3, texto: 'lee pedidos y líneas, sujeto a las políticas de fila' },
+      { de: 1, a: 2, texto: 'listOrders(200)' },
+      { de: 2, a: 3, texto: 'lee hasta 200 pedidos recientes y sus líneas' },
       { de: 3, a: 2, texto: 'importes y tasa tal como se grabaron', tipo: 'respuesta' },
+      { de: 2, a: 1, texto: 'muestra el historial', tipo: 'respuesta' },
       { de: 0, a: 1, texto: 'cambia el estado o anota algo interno' },
       { de: 1, a: 2, texto: 'setOrderStatus() · setOrderNote()' },
       { de: 2, a: 3, texto: 'actualiza estado y nota' },
     ],
     componentes: null,
-    nota: 'Los importes mostrados son los grabados con el pedido, no los del catálogo de hoy: un pedido de hace un mes tiene que seguir diciendo lo que se le prometió al cliente.',
+    nota: 'El historial muestra hasta 200 pedidos recientes y el tablero hasta 50. Los importes y la tasa conservan sus valores históricos. El límite de visualización no elimina los pedidos anteriores.',
   },
   {
     id: 'RF18',
@@ -340,7 +352,7 @@ const FICHAS = [
       { de: 2, a: 1, texto: 'acceso retirado, o devuelto', tipo: 'respuesta' },
     ],
     componentes: ['Gestión de cuentas', 'Políticas de seguridad por fila'],
-    nota: 'La cuenta no se borra: conserva su identidad y su contraseña. Lo que caduca es el permiso, y la función is_admin() deja de reconocerla, de modo que el token que ya tenga en el navegador tampoco le sirve.',
+    nota: 'La cuenta conserva su identidad para restituir el acceso. Una sesión existente no basta si is_admin() rechaza la cuenta revocada. Conservar la identidad no constituye una bitácora de todas sus operaciones.',
   },
   {
     id: 'RF19',
@@ -400,5 +412,12 @@ const FICHAS = [
   },
 ]
 
-for (const f of FICHAS) console.log('  ' + ficha(f))
-console.log(`\n${FICHAS.length} fichas generadas en docs/srs/`)
+for (const f of FICHAS.sort((a, b) => a.id.localeCompare(b.id))) {
+  const resultado = ficha(f)
+  const png = resultado.archivo.replace(/\.svg$/, '.png')
+  await sharp(join(DIR_FICHAS, resultado.archivo), { density: 216 })
+    .png()
+    .toFile(join(DIR_FICHAS, png))
+  console.log(`  ${resultado.archivo} + ${png}: ${resultado.width}×${resultado.height}, letra ≥${resultado.minFontPx}px`)
+}
+console.log(`\n${FICHAS.length} fichas SVG y PNG generadas en docs/srs/`)

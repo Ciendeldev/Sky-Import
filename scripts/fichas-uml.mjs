@@ -1,178 +1,166 @@
 /**
- * FICHAS UML POR REQUISITO
- *
- * La cátedra pide, para cada función del sistema, las vistas que le apliquen:
- * quién la usa (caso de uso), cómo se comporta (secuencia) y, cuando aporta,
- * de qué partes se sirve (componentes). No todas las funciones necesitan las
- * tres —la autenticación, por ejemplo, no necesita componentes—, así que cada
- * ficha declara solo lo suyo.
- *
- * Se generan a partir de datos y no a mano por una razón práctica: son unas
- * treinta. Dibujadas una por una quedarían desparejas, y corregir el estilo
- * obligaría a rehacerlas todas. Acá se corrige el molde una vez.
- *
- * Cada ficha sale como un SVG en docs/srs/, y `render-diagramas` los descubre
- * solo y los convierte a PNG para el documento.
+ * Fichas UML de los 21 RF, compuestas para una página A4 vertical.
+ * A 480 pt de ancho en Word, la letra mínima de 15 px equivale a 9,47 pt.
+ * La legibilidad depende de estas medidas, no de aumentar la resolución PNG.
  */
-
-import { writeFileSync } from 'node:fs'
+import { writeFileSync, renameSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 
-const DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'docs', 'srs')
-
-// La misma paleta de las figuras generales, para que el documento no parezca
-// escrito por dos manos distintas.
+export const DIR_FICHAS = join(dirname(fileURLToPath(import.meta.url)), '..', 'docs', 'srs')
+const W = 760
+const X = 18
+const PANEL = W - X * 2
 const C = {
-  tinta: '#12181f',
-  texto: '#2f3a45',
-  suave: '#5b6875',
-  tenue: '#7a8794',
-  linea: '#c8d2dc',
-  fondo: '#f7f9fb',
-  cliente: { borde: '#3a6ea5', relleno: '#eef4fb', texto: '#1d3a5c' },
-  admin: { borde: '#b5762f', relleno: '#fdf1e3', texto: '#7a4d12' },
-  moderador: { borde: '#2c7a54', relleno: '#eaf3ee', texto: '#1f4a35' },
-  sistema: { borde: '#5b6875', relleno: '#eef1f4', texto: '#2f3a45' },
+  tinta: '#14212e', texto: '#263847', suave: '#455c6e', linea: '#bac8d3', fondo: '#f5f8fa',
+  cliente: { borde: '#376b9d', relleno: '#edf4fb', texto: '#224c71' },
+  admin: { borde: '#956124', relleno: '#faf1e6', texto: '#704716' },
+  moderador: { borde: '#34734f', relleno: '#edf6ef', texto: '#27543c' },
+}
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+// Estimación conservadora de Arial para envolver rótulos antes de dibujar.
+function medida(texto, size) {
+  return [...texto].reduce((w, c) => w +
+    (/[MW@%]/.test(c) ? 0.92 : /[il.,:;!|']/.test(c) ? 0.29 : c === ' ' ? 0.31 :
+      /[A-ZÁÉÍÓÚÑ0-9]/.test(c) ? 0.65 : 0.54) * size, 0)
 }
 
-const esc = (s) =>
-  String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-
-/** Muñeco de actor, centrado en (x, y) sobre la cabeza. */
-function actor(x, y, paleta) {
-  return `
-    <g stroke="${paleta.borde}" stroke-width="2.2" fill="none">
-      <circle cx="${x}" cy="${y}" r="17" fill="${paleta.relleno}"/>
-      <line x1="${x}" y1="${y + 17}" x2="${x}" y2="${y + 62}"/>
-      <line x1="${x - 28}" y1="${y + 32}" x2="${x + 28}" y2="${y + 32}"/>
-      <line x1="${x}" y1="${y + 62}" x2="${x - 22}" y2="${y + 98}"/>
-      <line x1="${x}" y1="${y + 62}" x2="${x + 22}" y2="${y + 98}"/>
-    </g>`
+function envolver(texto, ancho, size) {
+  const lineas = []
+  let linea = ''
+  for (const palabra of String(texto).split(/\s+/)) {
+    const candidata = linea ? `${linea} ${palabra}` : palabra
+    if (linea && medida(candidata, size) > ancho) {
+      lineas.push(linea)
+      linea = palabra
+    } else linea = candidata
+  }
+  if (linea) lineas.push(linea)
+  return lineas
 }
 
-/** Panel izquierdo: quién usa la función. */
-function panelCasoDeUso(ficha, x, y, ancho, alto) {
-  const p = C[ficha.actor.paleta]
-  const cx = x + 78
-  const ey = y + 96
-  const elipses = ficha.casos
-    .map((texto, i) => {
-      const cy = ey + i * 62
-      return `
-      <ellipse cx="${x + ancho - 132}" cy="${cy}" rx="118" ry="26" fill="#ffffff" stroke="${p.borde}" stroke-width="1.8"/>
-      <text x="${x + ancho - 132}" y="${cy + 5}" text-anchor="middle" font-size="12.5" fill="${p.texto}">${esc(texto)}</text>
-      <line x1="${cx + 30}" y1="${ey + 4}" x2="${x + ancho - 252}" y2="${cy}" stroke="${C.suave}" stroke-width="1.3"/>`
-    })
-    .join('')
-
-  return `
-  <rect x="${x}" y="${y}" width="${ancho}" height="${alto}" rx="6" fill="${C.fondo}" stroke="${C.linea}" stroke-width="1.4"/>
-  <text x="${x + 16}" y="${y + 26}" font-size="12.5" font-weight="700" fill="${C.tinta}" letter-spacing="1.2">CASO DE USO — QUIÉN LA USA</text>
-  ${actor(cx, y + 62, p)}
-  <text x="${cx}" y="${y + 182}" text-anchor="middle" font-size="13" font-weight="700" fill="${p.texto}">${esc(ficha.actor.nombre)}</text>
-  <text x="${cx}" y="${y + 200}" text-anchor="middle" font-size="11.5" fill="${C.suave}">${esc(ficha.actor.nota)}</text>
-  ${elipses}`
+function texto(lineas, x, y, { size = 16, step = 19, anchor = 'start', color = C.texto, weight = 400 } = {}) {
+  if (!Array.isArray(lineas)) lineas = [lineas]
+  return `<text x="${x}" y="${y}" text-anchor="${anchor}" font-size="${size}" font-weight="${weight}" fill="${color}">${lineas.map((l, i) => `<tspan x="${x}" dy="${i ? step : 0}">${esc(l)}</tspan>`).join('')}</text>`
 }
 
-/** Panel derecho: cómo se comporta, como secuencia de mensajes. */
-function panelSecuencia(ficha, x, y, ancho, alto) {
-  const n = ficha.participantes.length
-  const paso = (ancho - 120) / (n - 1)
-  const col = (i) => x + 60 + i * paso
-  const yTop = y + 44
-  const yBase = y + alto - 24
-
-  const cabezas = ficha.participantes
-    .map((nombre, i) => {
-      const w = Math.min(paso - 16, 168)
-      return `
-      <rect x="${col(i) - w / 2}" y="${yTop}" width="${w}" height="40" rx="4" fill="#ffffff" stroke="${C.suave}" stroke-width="1.6"/>
-      <text x="${col(i)}" y="${yTop + 25}" text-anchor="middle" font-size="12.5" font-weight="700" fill="${C.texto}">${esc(nombre)}</text>
-      <line x1="${col(i)}" y1="${yTop + 40}" x2="${col(i)}" y2="${yBase}" stroke="#9dbad6" stroke-width="1.3" stroke-dasharray="6 5"/>`
-    })
-    .join('')
-
-  let my = yTop + 74
-  const mensajes = ficha.mensajes
-    .map((m, i) => {
-      const a = col(m.de)
-      const b = col(m.a)
-      const respuesta = m.tipo === 'respuesta'
-      const trazo = respuesta ? ' stroke-dasharray="6 4"' : ''
-      const marca = respuesta ? 'abierta' : 'llena'
-      const color = respuesta ? C.suave : C.texto
-      let cuerpo
-      if (m.de === m.a) {
-        cuerpo = `<path d="M${a} ${my - 10} h38 v22 h-38" fill="none" stroke="${color}" stroke-width="1.5" marker-end="url(#f-${marca})"/>`
-      } else {
-        const dir = b > a ? -9 : 9
-        cuerpo = `<line x1="${a}" y1="${my}" x2="${b + dir}" y2="${my}" stroke="${color}" stroke-width="1.5"${trazo} marker-end="url(#f-${marca})"/>`
-      }
-      const tx = m.de === m.a ? a + 46 : (a + b) / 2
-      const anclaje = m.de === m.a ? 'start' : 'middle'
-      const etiqueta = `<text x="${tx}" y="${my - 8}" text-anchor="${anclaje}" font-size="12" fill="${color}">${i + 1}. ${esc(m.texto)}</text>`
-      my += m.de === m.a ? 54 : 44
-      return cuerpo + etiqueta
-    })
-    .join('')
-
-  return `
-  <rect x="${x}" y="${y}" width="${ancho}" height="${alto}" rx="6" fill="#ffffff" stroke="${C.linea}" stroke-width="1.4"/>
-  <text x="${x + 16}" y="${y + 26}" font-size="12.5" font-weight="700" fill="${C.tinta}" letter-spacing="1.2">COMPORTAMIENTO — CÓMO RESPONDE EL SISTEMA</text>
-  ${cabezas}
-  ${mensajes}`
+function marco(y, h, titulo, fondo = '#ffffff') {
+  return `<rect x="${X}" y="${y}" width="${PANEL}" height="${h}" rx="6" fill="${fondo}" stroke="${C.linea}"/>` +
+    texto(titulo, X + 14, y + 24, { size: 16, weight: 700, color: C.tinta })
 }
 
-/** Franja inferior opcional: de qué partes se sirve. */
-function panelComponentes(ficha, x, y, ancho) {
-  if (!ficha.componentes) return ''
-  const cajas = ficha.componentes
-    .map((c, i) => {
-      const w = (ancho - 32 - 16 * (ficha.componentes.length - 1)) / ficha.componentes.length
-      const cx = x + 16 + i * (w + 16)
-      return `
-      <rect x="${cx}" y="${y + 40}" width="${w}" height="52" rx="4" fill="#ffffff" stroke="${C.suave}" stroke-width="1.5"/>
-      <rect x="${cx - 5}" y="${y + 50}" width="10" height="8" fill="#ffffff" stroke="${C.suave}" stroke-width="1.2"/>
-      <rect x="${cx - 5}" y="${y + 66}" width="10" height="8" fill="#ffffff" stroke="${C.suave}" stroke-width="1.2"/>
-      <text x="${cx + w / 2}" y="${y + 70}" text-anchor="middle" font-size="12.5" fill="${C.texto}">${esc(c)}</text>`
-    })
-    .join('')
-  return `
-  <rect x="${x}" y="${y}" width="${ancho}" height="108" rx="6" fill="${C.fondo}" stroke="${C.linea}" stroke-width="1.4"/>
-  <text x="${x + 16}" y="${y + 26}" font-size="12.5" font-weight="700" fill="${C.tinta}" letter-spacing="1.2">COMPONENTES QUE INTERVIENEN</text>
-  ${cajas}`
+function casoDeUso(f, y) {
+  const p = C[f.actor.paleta]
+  const h = Math.max(178, 74 + f.casos.length * 45)
+  const ax = X + 104
+  const ay = y + 59
+  const sx = X + 231
+  const sy = y + 34
+  const sw = PANEL - 245
+  const cy = i => y + 80 + i * 45
+  const ecx = sx + sw / 2
+  const rx = sw / 2 - 16
+  let svg = marco(y, h, 'CASO DE USO · ACTOR Y FUNCIÓN', C.fondo)
+  svg += `<rect x="${sx}" y="${sy}" width="${sw}" height="${h - 44}" rx="4" fill="#ffffff" stroke="${C.linea}"/>`
+  svg += texto('Sky Import', sx + 10, sy + 19, { size: 15, color: C.suave })
+  // Las asociaciones quedan detrás de las elipses y no atraviesan rótulos.
+  for (let i = 0; i < f.casos.length; i++)
+    svg += `<line x1="${ax + 26}" y1="${ay + 25}" x2="${ecx - rx}" y2="${cy(i)}" stroke="${C.suave}" stroke-width="1.4"/>`
+  svg += `<g stroke="${p.borde}" stroke-width="2" fill="none"><circle cx="${ax}" cy="${ay}" r="10" fill="${p.relleno}"/><path d="M${ax} ${ay + 10} v30 m-23,-18 h46 m-23,18 l-18,23 m18,-23 l18,23"/></g>`
+  svg += texto(f.actor.nombre, ax, ay + 83, { size: 16, weight: 700, color: p.texto, anchor: 'middle' })
+  svg += texto(envolver(f.actor.nota, 205, 15), ax, ay + 103, { size: 15, anchor: 'middle', color: C.suave, step: 17 })
+  f.casos.forEach((caso, i) => {
+    const lines = envolver(caso, rx * 2 - 26, 16)
+    svg += `<ellipse cx="${ecx}" cy="${cy(i)}" rx="${rx}" ry="19" fill="${p.relleno}" stroke="${p.borde}" stroke-width="1.5"/>`
+    svg += texto(lines, ecx, cy(i) + 5 - (lines.length - 1) * 9, { size: 16, step: 18, anchor: 'middle', color: p.texto })
+  })
+  return { svg, h }
+}
+
+function secuencia(f, y) {
+  const n = f.participantes.length
+  const margen = 79
+  const paso = (PANEL - 2 * margen) / (n - 1)
+  const col = i => X + margen + i * paso
+  const cabeceraY = y + 39
+  let cursor = y + 103
+  const filas = f.mensajes.map((m, i) => {
+    const lines = envolver(`${i + 1}. ${m.texto}`, PANEL - 40, 16)
+    const labelWidth = Math.max(...lines.map(l => medida(l, 16))) + 10
+    const a = col(m.de), b = col(m.a)
+    const target = (a + b) / 2
+    const center = Math.max(X + 20 + labelWidth / 2, Math.min(X + PANEL - 20 - labelWidth / 2, target))
+    const labelY = cursor
+    const arrowY = labelY + (lines.length - 1) * 19 + 13
+    cursor = arrowY + (m.de === m.a ? 31 : 27)
+    return { m, lines, labelWidth, center, labelY, arrowY, a, b }
+  })
+  const h = cursor - y + 1
+  let svg = marco(y, h, 'SECUENCIA · COMPORTAMIENTO DEL SISTEMA')
+  f.participantes.forEach((nombre, i) => {
+    const bw = Math.min(paso - 9, 146)
+    const lines = envolver(nombre, bw - 12, 15)
+    svg += `<rect x="${col(i) - bw / 2}" y="${cabeceraY}" width="${bw}" height="44" rx="4" fill="${C.fondo}" stroke="${C.suave}"/>`
+    svg += texto(lines, col(i), cabeceraY + 27 - (lines.length - 1) * 9, { size: 15, step: 18, weight: 700, anchor: 'middle' })
+    svg += `<line x1="${col(i)}" y1="${cabeceraY + 44}" x2="${col(i)}" y2="${y + h - 12}" stroke="#a8bbc9" stroke-width="1.2" stroke-dasharray="5 5"/>`
+  })
+  for (const r of filas) {
+    const respuesta = r.m.tipo === 'respuesta'
+    const marker = respuesta ? 'abierta' : 'llena'
+    const color = respuesta ? C.suave : C.texto
+    svg += `<rect x="${r.center - r.labelWidth / 2}" y="${r.labelY - 14}" width="${r.labelWidth}" height="${r.lines.length * 19}" rx="2" fill="#ffffff"/>`
+    svg += texto(r.lines, r.center, r.labelY, { size: 16, step: 19, anchor: 'middle', color })
+    if (r.m.de === r.m.a) {
+      const dir = r.a < W / 2 ? 1 : -1
+      svg += `<path d="M${r.a} ${r.arrowY} h${dir * 30} v12 h${-dir * 30}" fill="none" stroke="${color}" stroke-width="1.6" marker-end="url(#f-${marker})"/>`
+    } else {
+      svg += `<line x1="${r.a}" y1="${r.arrowY}" x2="${r.b}" y2="${r.arrowY}" stroke="${color}" stroke-width="1.6"${respuesta ? ' stroke-dasharray="5 4"' : ''} marker-end="url(#f-${marker})"/>`
+    }
+  }
+  return { svg, h }
+}
+
+function componentes(f, y) {
+  if (!f.componentes?.length) return { svg: '', h: 0 }
+  const h = 94
+  const gap = 16
+  const bw = (PANEL - 40 - gap * (f.componentes.length - 1)) / f.componentes.length
+  let svg = marco(y, h, 'COMPONENTES QUE INTERVIENEN', C.fondo)
+  f.componentes.forEach((c, i) => {
+    const x = X + 20 + i * (bw + gap)
+    const lines = envolver(c, bw - 24, 15)
+    svg += `<rect x="${x}" y="${y + 36}" width="${bw}" height="46" rx="4" fill="#ffffff" stroke="${C.suave}"/><rect x="${x - 5}" y="${y + 44}" width="10" height="8" fill="#ffffff" stroke="${C.suave}"/><rect x="${x - 5}" y="${y + 62}" width="10" height="8" fill="#ffffff" stroke="${C.suave}"/>`
+    svg += texto(lines, x + bw / 2, y + 64 - (lines.length - 1) * 9, { size: 15, step: 18, anchor: 'middle' })
+  })
+  return { svg, h }
 }
 
 export function ficha(f) {
-  const W = 1460
-  const altoSec = 120 + f.mensajes.reduce((a, m) => a + (m.de === m.a ? 54 : 44), 0)
-  const altoCu = Math.max(240, 96 + f.casos.length * 62)
-  const cuerpo = Math.max(altoSec, altoCu)
-  const H = 108 + cuerpo + (f.componentes ? 128 : 0) + 52
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Segoe UI, Arial, sans-serif">
+  const title = envolver(f.nombre, W - 127, 22)
+  let cursor = 30 + (title.length - 1) * 26 + 19
+  const uso = casoDeUso(f, cursor)
+  cursor += uso.h + 12
+  const sec = secuencia(f, cursor)
+  cursor += sec.h + 12
+  const comp = componentes(f, cursor)
+  if (comp.h) cursor += comp.h + 12
+  const note = envolver(f.nota, PANEL - 4, 15)
+  const H = cursor + note.length * 18 + 14
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Arial, sans-serif">
+  <title>${esc(f.id + ' — ' + f.nombre)}</title><desc>${esc(f.resumen)}</desc>
   <rect width="${W}" height="${H}" fill="#ffffff"/>
-  <defs>
-    <marker id="f-llena" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
-      <path d="M0,0 L10,4 L0,8 z" fill="${C.texto}"/>
-    </marker>
-    <marker id="f-abierta" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
-      <path d="M0,0 L10,4 L0,8" fill="none" stroke="${C.suave}" stroke-width="1.4"/>
-    </marker>
-  </defs>
-
-  <text x="30" y="42" font-size="21" font-weight="700" fill="${C.tinta}">${esc(f.id)} · ${esc(f.nombre)}</text>
-  <text x="30" y="68" font-size="13.5" fill="${C.suave}">${esc(f.resumen)}</text>
-  <line x1="30" y1="84" x2="${W - 30}" y2="84" stroke="${C.linea}" stroke-width="1.4"/>
-
-  ${panelCasoDeUso(f, 30, 108, 470, cuerpo)}
-  ${panelSecuencia(f, 524, 108, W - 554, cuerpo)}
-  ${panelComponentes(f, 30, 108 + cuerpo + 20, W - 60)}
-
-  <text x="30" y="${H - 20}" font-size="12" fill="${C.tenue}">${esc(f.nota)}</text>
-</svg>
-`
-  writeFileSync(join(DIR, `rf-${f.id.toLowerCase()}.svg`), svg, 'utf8')
-  return `rf-${f.id.toLowerCase()}.svg`
+  <defs><marker id="f-llena" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="${C.texto}"/></marker><marker id="f-abierta" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7" fill="none" stroke="${C.suave}" stroke-width="1.2"/></marker></defs>
+  <rect x="${X}" y="10" width="74" height="30" rx="5" fill="${C.tinta}"/>
+  ${texto(f.id, X + 37, 31, { size: 18, anchor: 'middle', color: '#ffffff', weight: 700 })}
+  ${texto(title, 106, 31, { size: 22, step: 26, weight: 700, color: C.tinta })}
+  ${uso.svg}${sec.svg}${comp.svg}
+  ${texto(note, X + 2, cursor + 14, { size: 15, step: 18, color: C.suave })}
+  </svg>\n`
+  const basename = `rf-${f.id.toLowerCase()}`
+  const destino = join(DIR_FICHAS, `${basename}.svg`)
+  const temporal = destino + '.tmp'
+  writeFileSync(temporal, svg, 'utf8')
+  renameSync(temporal, destino)
+  return { archivo: `${basename}.svg`, width: W, height: H, minFontPx: 15 }
 }
