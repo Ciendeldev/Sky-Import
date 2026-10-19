@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { CON_BASE } from '../../playwright.config'
 
 /**
  * Recorrido completo de compra, de punta a punta, como lo haría un cliente.
@@ -120,8 +121,10 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
    * con lo que la página tenía cargado: es el mismo pedido que va a ver el
    * vendedor en el panel.
    */
-  await context.route('**/rest/v1/rpc/place_order', (route) =>
-    route.fulfill({
+  let registrosInterceptados = 0
+  await context.route('**/rest/v1/rpc/place_order', (route) => {
+    registrosInterceptados++
+    return route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
@@ -144,12 +147,17 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
           },
         ],
       }),
-    }),
-  )
+    })
+  })
 
   // En escritorio WhatsApp se abre en otra pestaña; en teléfono, en la misma,
   // porque ahí `wa.me` lanza la aplicación y una pestaña nueva quedaría vacía.
   const enTelefono = Boolean(test.info().project.use.isMobile)
+
+  // Las tres monedas están renderizadas; CSS deja visible la elegida.
+  const totalGuaranies = page.locator('aside dl > div').filter({ hasText: 'Total de las piezas' }).locator('[data-cur="PYG"]')
+  await expect(totalGuaranies).toHaveText(/^₲ [\d.]+$/)
+  const totalPublicado = (await totalGuaranies.textContent())!.replace('₲', 'Gs.')
 
   const pestañaPromesa = enTelefono ? null : context.waitForEvent('page')
   await page.getByTestId('enviar-pedido').click()
@@ -171,7 +179,14 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
   expect(url.searchParams.get('phone')).toBe(WHATSAPP)
 
   const mensaje = url.searchParams.get('text') ?? ''
-  expect(mensaje).toContain('*Pedido SI-PRUEBA*')
+  if (CON_BASE) {
+    expect(registrosInterceptados).toBe(1)
+    expect(mensaje).toContain('*Pedido SI-PRUEBA*')
+  } else {
+    expect(registrosInterceptados).toBe(0)
+    expect(mensaje).toContain('*Mi pedido*')
+    expect(mensaje).not.toContain('SI-PRUEBA')
+  }
   expect(mensaje).toContain('🛒 2 × *GeForce RTX 5070 12 GB*')
   expect(mensaje).toContain('· SI-VGA-0124 — Gs.')
   expect(mensaje).toContain('📍 ')
@@ -183,9 +198,10 @@ test('el recorrido completo termina en un mensaje de WhatsApp con el pedido arma
   expect(mensaje).toContain('Envío a coordinar, no incluido.')
   expect(mensaje).toContain('👋')
   expect(mensaje).not.toContain('\uFFFD')
-  // 2 × US$ 900 a 7400: el importe que grabó la base, no el de la página.
-  expect(mensaje).toContain('· SI-VGA-0124 — Gs. 13.320.000')
-  expect(mensaje).toContain('*Total: Gs. 13.320.000*')
+  // Con base se usa el importe persistido simulado; sin base, el resumen visible.
+  const totalEsperado = CON_BASE ? 'Gs. 13.320.000' : totalPublicado
+  expect(mensaje).toContain(`· SI-VGA-0124 — ${totalEsperado}`)
+  expect(mensaje).toContain(`*Total: ${totalEsperado}*`)
   // Sin cupón aplicado, esa línea no se imprime.
   expect(mensaje).not.toContain('Cupón (')
 

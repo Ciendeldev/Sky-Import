@@ -6,7 +6,7 @@
 
 ## Contexto de este proyecto
 
-- **Framework:** Next.js 16.3.4 (App Router, React 19.2.8)
+- **Framework:** Next.js 16.3.8 (App Router, React 19.2.8)
 - **Estilos:** Tailwind CSS 4.3.3 con los tokens en `@theme` (`src/app/globals.css`)
 - **Base de componentes:** ninguna. Todo el sistema visual es propio y está
   documentado en `DESIGN.md`.

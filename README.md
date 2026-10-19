@@ -39,14 +39,14 @@ scroll, el carrito y el armado donde estaban.
 
 | Herramienta | Versión | Rol |
 |---|---|---|
-| [Next.js](https://nextjs.org) (App Router) | 16.3.4 | Marco, generación estática de las dos versiones de idioma |
+| [Next.js](https://nextjs.org) (App Router) | 16.3.8 | Marco, generación estática de las dos versiones de idioma |
 | [React](https://react.dev) | 19.2.8 | Interfaz |
 | [TypeScript](https://www.typescriptlang.org) | 5.9.3 | Modo estricto, con `noUncheckedIndexedAccess` |
 | [Tailwind CSS](https://tailwindcss.com) | 4.3.3 | Sistema de estilos con los tokens en `@theme` |
 | [Zustand](https://zustand.docs.pmnd.rs) | 5.0.14 | Carrito y armado, persistidos en `localStorage` |
 | [three.js](https://threejs.org) | 0.185.1 | La pieza de ensamblaje y el fondo de haces, cargados dinámicamente |
 | [ogl](https://github.com/oframe/ogl) | 1.0.11 | El fondo de hilos del primer viewport |
-| [Vitest](https://vitest.dev) | 4.1.10 | Pruebas unitarias |
+| [Vitest](https://vitest.dev) | 4.1.12 | Pruebas unitarias |
 | [Playwright](https://playwright.dev) | 1.62.1 | Pruebas end-to-end |
 | [axe-core](https://github.com/dequelabs/axe-core) | 4.x | Auditoría de accesibilidad |
 | [sharp](https://sharp.pixelplumbing.com) | 0.35 | Generación de la imagen social |
@@ -139,13 +139,17 @@ tokens de renovación, MFA, configuración de proveedores y secretos de Vercel.
 Storage tenía cero objetos. En una recuperación real se necesita una instancia
 Supabase configurada y comprobar nuevamente el inicio de sesión y la web.
 
-El plan Free no incluye copias automáticas administradas. Esta ejecución fue
-manual y local; no se configuró una frecuencia diaria ni una copia externa.
-El titular debe conservar una segunda copia privada fuera de esta PC y repetir
-el respaldo antes de cambios y según la frecuencia diaria prevista por RNF12.
-Una copia externa o una automatización debe verificarse por separado antes de
-declarar cumplido ese objetivo. No restaurar el SQL de prueba directamente
-sobre producción: crea estructuras y roles para una base vacía aislada.
+El 19/10/2026 se activó en Codex «Respaldo diario de Sky Import», diariamente
+a las 09:00 de Paraguay. Requiere esta PC encendida, Codex abierto y Chrome
+conectado a Supabase y al Drive de Ciendel. La tarea valida la restauración
+antes de subir cada ZIP, conserva versiones y avisa si falla. El procedimiento
+está en [ADR 014](docs/adr/014-respaldo-diario-verificado.md).
+
+El destino es una carpeta privada del titular en Google Drive, con acceso
+general Restringido. La primera carga externa está pendiente de que Chrome
+reconozca el permiso de archivos locales; programar la tarea no acredita una
+copia subida. No restaurar el SQL de prueba directamente sobre producción:
+crea estructuras y roles para una base vacía aislada.
 
 ### 3 · La cuenta de administración
 
@@ -492,3 +496,20 @@ Las páginas públicas identifican su URL y sus traducciones; carrito y checkout
 no se indexan. Los errores de consulta del panel se muestran como errores,
 sin simular una base vacía. El importe del tablero corresponde a pedidos no
 cancelados entre los últimos 50 registros y no acredita cobros.
+
+### Dependencias y CI al 19/10/2026
+
+Next.js se actualizó a 16.3.8, Sharp a 0.35.5 y Vitest a 4.1.12.
+`npm audit --omit=dev --audit-level=high` no informa vulnerabilidades.
+La auditoría completa sigue bloqueando CI por
+[GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm):
+`braces` 3.0.3, dependencia transitiva de ESLint, todavía no tiene parche.
+El titular decidió conservar el bloqueo, sin excepciones ni filtros al aviso.
+Revisar el parche cuando esté disponible antes de declarar CI completamente
+correcto. Este estado no equivale al resultado de las pruebas funcionales.
+
+El recorrido de compra verifica el número y el precio persistido cuando hay
+Supabase configurado; sin esa configuración, verifica el mensaje sin número
+y el importe mostrado en pantalla. CI guarda el informe HTML de Playwright
+cuando falla una prueba. El procedimiento de respaldo está en
+[ADR 014](docs/adr/014-respaldo-diario-verificado.md).

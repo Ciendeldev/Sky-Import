@@ -150,7 +150,7 @@ p('Un fallo técnico puede permitir continuar por WhatsApp sin guardar un pedido
 h('Qué demuestran las pruebas')
 p('Las unitarias comprueban reglas y transformaciones. Las de navegador comprueban interacción y accesibilidad automatizada. PostgreSQL aislado comprueba transacciones, concurrencia y políticas. Las pruebas interceptadas del checkout no prueban por sí solas la base publicada. Tampoco una auditoría automática acredita toda la accesibilidad.')
 h('Qué sigue fuera del alcance')
-p('Cobro electrónico, factura fiscal, seguimiento de transporte, cuentas de compradores y bitácora completa de operaciones. Los tiempos de respuesta y la disponibilidad sostenida requieren mediciones específicas. La restauración de datos está probada localmente; faltan copias diarias y externas y una recuperación integral del servicio.')
+p('Cobro electrónico, factura fiscal, seguimiento de transporte, cuentas de compradores y bitácora completa de operaciones. Los tiempos de respuesta y la disponibilidad requieren mediciones. La restauración de datos está probada y la tarea diaria está programada; faltan comprobar la carga externa y la recuperación integral del servicio.')
 
 page('Cerrar la entrega operativa')
 h('Publicación de la revisión')
@@ -160,7 +160,8 @@ p('3. Verificación posterior: 10 pruebas de navegador correctas entre escritori
 p('4. Resultado final de los datos: 37 productos, cero pedidos y cero cuentas temporales de prueba. En futuros cambios, conservar fecha, versión y resultados y repetir el recorrido afectado.')
 h('Respaldo y restauración')
 p('Ejecución del 19/10/2026: copia privada previa a la migración, fuera del repositorio, con SQL de reconstrucción, informe y sumas SHA-256. Se restauraron nueve tablas públicas y los registros de dos tablas de Auth; todos coincidieron. También se reconstruyeron 17 políticas RLS y se aplicó la migración sobre la copia.')
-p('Alcance: no incluye sesiones, tokens de renovación, MFA, configuración de proveedores ni secretos del despliegue. Storage estaba vacío. La prueba no reconstruye todo el servicio Supabase. El plan Free no ofrece copias administradas: el titular debe conservar una copia externa privada y organizar la frecuencia diaria. La ubicación y el procedimiento están en README; nunca adjuntar los datos de Auth al documento académico.')
+p('La tarea diaria de Codex está activa a las 09:00 de Paraguay y requiere PC encendida, Codex abierto y Chrome conectado. La primera carga al Drive privado de Ciendel está pendiente del permiso de archivos de Chrome. Excluye sesiones, tokens, MFA, proveedores y secretos. Storage estaba vacío. No acredita recuperación integral de Supabase. El procedimiento está en README y ADR 014; nunca adjuntar datos de Auth al documento académico.')
+p('CI conserva un bloqueo de seguridad por braces, una dependencia de desarrollo de ESLint sin parche; el titular rechazó exceptuarla. Las dependencias de producción no presentan alertas. Distinguir este control del resultado de las pruebas funcionales y revisar el parche antes del cierre final.')
 h('Antes de imprimir y exponer')
 p('Revisar índice, numeración, figuras y fechas del SRS. Confirmar que la versión demostrada corresponde al documento. Ensayar el recorrido completo y repetir las comprobaciones después de cualquier cambio. Conservar la versión impresa de octubre como antecedente, sin sustituir sus resultados históricos.')
 p('La entrega final queda cerrada cuando la migración y el despliegue estén comprobados, el recorrido de demostración pueda repetirse y los pendientes operativos tengan evidencia o un alcance acordado con el docente.')

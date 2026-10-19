@@ -29,7 +29,7 @@
   "dependencies": {
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.112.4",
-    "next": "^16.3.4",
+    "next": "16.3.8",
     "ogl": "^1.0.11",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -49,12 +49,12 @@
     "axe-core": "^4.12.1",
     "docx": "^9.7.1",
     "eslint": "^9.39.0",
-    "eslint-config-next": "^16.3.4",
+    "eslint-config-next": "16.3.8",
     "lefthook": "^2.1.12",
-    "sharp": "^0.35.4",
+    "sharp": "0.35.5",
     "size-limit": "^13.0.3",
     "tailwindcss": "4.3.3",
     "typescript": "5.9.3",
-    "vitest": "4.1.10"
+    "vitest": "4.1.12"
   }
 }
