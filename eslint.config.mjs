@@ -17,6 +17,9 @@ const config = [
       // devuelve miles de problemas que no son de este árbol.
       '.worktrees/**',
       '.img2threejs/**',
+      // Carpeta de trabajo: evidencias, scripts sueltos y volcados de una
+      // revisión. No es código del proyecto y no se publica.
+      'tmp/**',
     ],
   },
   ...coreWebVitals,

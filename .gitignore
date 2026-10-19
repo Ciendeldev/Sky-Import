@@ -50,3 +50,6 @@ llave.txt
 .transcripcion/
 .e2e-noche.txt
 
+# Carpeta de trabajo de las revisiones: transcripciones, informes y scripts
+# sueltos. Se conserva en el disco, no en el repositorio.
+tmp/
