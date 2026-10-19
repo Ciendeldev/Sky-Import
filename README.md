@@ -115,6 +115,38 @@ de desplegar estas correcciones: devuelve stock al cancelar, impide devolverlo
 dos veces al borrar y serializa el uso de cupones. El detalle y las pruebas
 locales están en [ADR 013](docs/adr/013-integridad-pedidos-y-sesion.md).
 
+El 19/10/2026 se aplicó y registró esa migración en Sky Import
+(`bhlkdinovdhtwxkkujic`). Una prueba transaccional en producción comprobó
+reserva, doble cancelación, reapertura y borrado sin duplicar stock; al terminar
+se revirtió, dejando 37 productos y ningún pedido de prueba.
+
+### Respaldo comprobado el 19/10/2026
+
+Antes de migrar se obtuvo una copia lógica consistente, guardada fuera de Git
+en `%LOCALAPPDATA%\SkyImport\backups\20261019-pre-migracion`, con permisos
+restringidos. Contiene `snapshot.json`, SQL de reconstrucción, la migración,
+un informe `verification.json` y sumas SHA-256. La copia contiene datos de Auth:
+**no adjuntarla al SRS, al repositorio ni a servicios públicos**.
+
+Se restauraron en PostgreSQL aislado las nueve tablas públicas y los registros
+de `auth.users` y `auth.identities`: todos los registros coincidieron. También
+se reconstruyeron restricciones, índices, funciones, triggers y 17 políticas
+RLS. La migración nueva se aplicó correctamente sobre esa copia restaurada.
+
+Esto acredita recuperación de los datos de la aplicación y de los registros
+de cuentas. No equivale a reconstruir todo Supabase: quedan fuera las sesiones,
+tokens de renovación, MFA, configuración de proveedores y secretos de Vercel.
+Storage tenía cero objetos. En una recuperación real se necesita una instancia
+Supabase configurada y comprobar nuevamente el inicio de sesión y la web.
+
+El plan Free no incluye copias automáticas administradas. Esta ejecución fue
+manual y local; no se configuró una frecuencia diaria ni una copia externa.
+El titular debe conservar una segunda copia privada fuera de esta PC y repetir
+el respaldo antes de cambios y según la frecuencia diaria prevista por RNF12.
+Una copia externa o una automatización debe verificarse por separado antes de
+declarar cumplido ese objetivo. No restaurar el SQL de prueba directamente
+sobre producción: crea estructuras y roles para una base vacía aislada.
+
 ### 3 · La cuenta de administración
 
 Agregá `ADMIN_PASSWORD` a `.env.local` con la contraseña que quieras, y corré:

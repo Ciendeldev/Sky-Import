@@ -1119,7 +1119,7 @@ const doc = new Document({
         bullet('Informes estadísticos de ventas por período, categoría y margen.'),
         bullet('Bitácora funcional con autor, fecha, operación y cambios realizados por cada cuenta. La conservación de la identidad de una cuenta retirada no sustituye esta función.'),
         bullet('Consulta paginada de todo el historial de pedidos, más allá del límite de 200 registros de la vista actual.'),
-        p('Como tareas operativas quedan aplicar la migración pendiente y publicar la revisión, verificar el recorrido en ese despliegue y ejecutar una copia de seguridad con prueba de restauración. La guía de operación y exposición acompaña esta revisión. Las metas de rendimiento y disponibilidad requieren mediciones específicas.'),
+        p('El 19/10/2026 se aplicó la migración de integridad y se publicaron las correcciones. Antes del cambio se restauró una copia lógica en PostgreSQL aislado; en producción se comprobó el ciclo de reserva, cancelación, reapertura y borrado dentro de una transacción revertida. La copia diaria y externa todavía requiere organización operativa. Las metas de rendimiento y disponibilidad requieren mediciones específicas.'),
         new Paragraph({ children: [new PageBreak()] }),
 
         // ═══════════════════════════════ 3 REQUISITOS ESPECÍFICOS
@@ -1218,7 +1218,7 @@ const doc = new Document({
             ['RNF09', 'Tolerancia a fallos', 'Un fallo técnico del registro puede permitir continuar por WhatsApp sin persistencia interna. La falta de existencias, un producto no disponible o una variante inválida bloquean el pedido; los datos obligatorios deben ser válidos.', 'Criterio: diferenciar rechazo por stock, error de formulario y fallo técnico. En el último caso, el mensaje se compone con los datos disponibles y queda sujeto a confirmación comercial.', 'Alta'],
             ['RNF10', 'Trazabilidad', 'El checkout que se registra correctamente conserva número, estado, líneas, importes y tasa antes de abrir WhatsApp. Se excluyen la compra directa y la continuación sin registro.', 'Numeración por secuencia de base de datos. El registro persiste aunque no se envíe el mensaje, salvo posterior baja autorizada. No implica una bitácora de todas las acciones administrativas.', 'Alta'],
             ['RNF11', 'Disponibilidad', 'Objetivo: continuidad del servicio durante el horario comercial.', '99,9 % de lunes a sábado, de 08:00 a 20:00. Pendiente de medición mediante monitoreo durante un período definido; no se acredita con una comprobación puntual del sitio.', 'Alta'],
-            ['RNF12', 'Fiabilidad y respaldo', 'Objetivo: una copia de seguridad diaria y capacidad de restaurar la información ante fallos.', 'Plan Free según la revisión del 11/10/2026. No se acredita en esta revisión un respaldo diario administrado. Deben definirse el responsable, el procedimiento y el almacenamiento, y conservar evidencia de ejecución y de una prueba de restauración.', 'Alta'],
+            ['RNF12', 'Fiabilidad y respaldo', 'Objetivo: una copia de seguridad diaria y capacidad de restaurar la información ante fallos.', 'Plan Free, 19/10/2026: copia manual restaurada localmente (datos y RLS). Pendientes: frecuencia diaria, copia externa y recuperación integral de Supabase. Ver Apéndice C.', 'Alta'],
             ['RNF13', 'Mantenibilidad', 'Verificación automatizada del código y documentación de decisiones estructurales.', '19/10/2026: 158 pruebas unitarias, tipos y análisis estático correctos. Navegador y PostgreSQL comprobados por separado; resultados y límites en el Apéndice C.', 'Media-Alta'],
             ['RNF14', 'Privacidad', 'Se solicitan los datos necesarios para coordinar la entrega.', 'Los formularios no exigen documento de identidad, fecha de nacimiento ni datos de pago, y no tienen campos específicos para ellos. Los campos libres se destinan a observaciones del pedido.', 'Alta'],
             ['RNF15', 'Separación de funciones', 'La gestión de cuentas y la baja de pedidos se reservan al moderador. La autorización se comprueba en el servidor y, donde corresponde, en las políticas de base de datos.', 'Criterio: un administrador no puede crear cuentas, restablecer claves ajenas, retirar accesos ni dar de baja pedidos, incluso invocando directamente las operaciones. Verificación histórica diferenciada en el Apéndice C.', 'Alta'],
@@ -1298,7 +1298,7 @@ const doc = new Document({
         p('Incluye encabezado y, si hubo registro, número de pedido; una línea por pieza sin numeración ordinal, código, cantidad y subtotal; descuento cuando corresponde; zona de entrega, total de piezas y datos del cliente. El envío se acuerda en la conversación. Las líneas que no aplican se omiten. Si el registro tuvo éxito, se utilizan sus importes persistidos; ante continuación por fallo técnico se emplean los datos disponibles, sin atribuirles un número de pedido inexistente.'),
 
         h2('4.3 Apéndice C — Resultados de verificación'),
-        p('La revisión 2.3 corresponde al 19/10/2026 y documenta el código local posterior al aval impreso. Las pruebas de navegador distinguen respuestas simuladas del checkout y acceso real a Supabase con cuentas temporales. Las pruebas transaccionales utilizan PostgreSQL local aislado. Estos resultados no sustituyen una comprobación después del despliegue.'),
+        p('La revisión 2.3 corresponde al 19/10/2026 e incluye la publicación posterior al aval impreso. Se distinguen respuestas simuladas del checkout, acceso real a Supabase con cuentas temporales, PostgreSQL local aislado y una prueba transaccional revertida en producción. Después del despliegue se verificaron nuevamente panel, permisos, accesibilidad, disponibilidad y URL canónicas.'),
         tabla(
           ['Verificación y fecha', 'Alcance / Entorno', 'Resultado o estado'],
           [
@@ -1308,14 +1308,14 @@ const doc = new Document({
             ["Navegador local — 19/10/2026", "Escritorio y perfil móvil en Chromium. Checkout interceptado para evitar pedidos comerciales; cuentas temporales reales.", "107 correctas; incluye 2 de cuentas reejecutadas tras ampliar la espera de red. 3 omitidas por condición."],
             ["PostgreSQL aislado — 19/10/2026", "Migraciones, cancelación, reapertura, borrado, variantes, RLS y concurrencia del último uso de cupón.", "11 comprobaciones correctas."],
             ["Web publicada — 19/10/2026", "9 rutas, incluida la redirección del panel al acceso; visita de escritorio.", "HTTP 200 al finalizar; sin errores JS ni imágenes rotas detectadas."],
-            ["Panel publicado — 19/10/2026", "Cuentas temporales y seis pantallas autenticadas; validación de accesibilidad.", "Escritorio correcto. Móvil detectó una tabla sin foco de teclado. Corrección local."],
+            ["Navegador publicado — 19/10/2026", "Panel real y seis pantallas autenticadas, permisos, accesibilidad y URL canónicas. Rechazos comerciales simulados.", "10 pruebas correctas, en escritorio y móvil. Cuentas de prueba eliminadas."],
             ["Volumen de código — 19/10/2026", "Suma de chunks JavaScript de cliente comprimidos; presupuesto de 650 kB.", "630,28 kB gzip. Dentro del presupuesto."],
-            ["Migración publicada — 19/10/2026", "Comprobación de la columna orders.stock_released en la base conectada.", "Ausente. Aplicación de la migración pendiente."],
-            ["Metas operativas pendientes", "Tiempos, carga, propagación, disponibilidad y restauración de respaldos.", "Requieren medición y evidencia específicas."],
+            ["Migración publicada — 19/10/2026", "Versión 20261019141606 registrada; ciclo de stock probado en una transacción revertida en producción.", "Correcto. 37 productos; cero pedidos de prueba restantes."],
+            ["Respaldo — 19/10/2026", "Copia previa al cambio: nueve tablas públicas y dos de Auth, restricciones, funciones y 17 políticas RLS.", "Restauración local correcta y registros idénticos. Copia manual; sin periodicidad ni réplica externa."],
           ],
           [2600, 4426, 2000],
         ),
-        p('La publicación revisada es https://sky-import-jet.vercel.app. El 19/10/2026 estaba accesible, pero no contenía las correcciones preparadas en esta revisión: entre ellas, las URL canónicas por página y el foco de las tablas del panel. La base tampoco tenía stock_released. La entrega operativa requiere aplicar la migración, desplegar y repetir la comprobación del recorrido completo. La versión 2.2 conserva la evidencia histórica del aval impreso.', { spacing: { before: 180, after: 120, line: 276 } }),
+        p('Las correcciones se publicaron en https://sky-import-jet.vercel.app con estado Ready en Vercel y se verificaron en el dominio. La copia previa al cambio se conserva fuera de Git; excluye sesiones, MFA, configuración de proveedores y secretos del despliegue. No acredita recuperación integral de Supabase. Quedan por organizar copias diarias y externas y medir tiempos, carga y disponibilidad. La versión 2.2 conserva la evidencia histórica del aval impreso.', { spacing: { before: 180, after: 120, line: 276 } }),
 
         h2('4.4 Apéndice D — Glosario de negocio'),
         tabla(

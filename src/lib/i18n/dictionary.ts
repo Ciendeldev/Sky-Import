@@ -106,7 +106,7 @@ const es = {
     'Dólar como referencia de la operación, guaraní y real convertidos a tasa fija para comparar del otro lado de la frontera. Español y portugués.',
   'home.benefit4.title': 'La consulta se cierra por WhatsApp',
   'home.benefit4.body':
-    'El carrito arma el mensaje con los modelos, las cantidades y los totales. No hay formularios ni cuentas que crear.',
+    'El carrito arma el mensaje con los modelos, las cantidades y los totales. Completás tus datos de contacto y entrega, sin crear una cuenta.',
 
 
   // ───────────────────────────────────────────────────────────── ensamblaje
@@ -475,7 +475,7 @@ const pt: Record<DictKey, string> = {
     'Dólar como referência da operação, guarani e real convertidos a taxa fixa para comparar do outro lado da fronteira. Espanhol e português.',
   'home.benefit4.title': 'A consulta é fechada pelo WhatsApp',
   'home.benefit4.body':
-    'O carrinho monta a mensagem com os modelos, as quantidades e os totais. Não há formulários nem contas para criar.',
+    'O carrinho monta a mensagem com os modelos, as quantidades e os totais. Você preenche seus dados de contato e entrega, sem criar uma conta.',
 
 
   "assembly.eyebrow": "Engenharia, camada por camada",
