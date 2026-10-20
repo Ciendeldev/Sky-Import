@@ -146,9 +146,10 @@ antes de subir cada ZIP, conserva versiones y avisa si falla. El procedimiento
 está en [ADR 014](docs/adr/014-respaldo-diario-verificado.md).
 
 El destino es una carpeta privada del titular en Google Drive, con acceso
-general Restringido. La primera carga externa está pendiente de que Chrome
-reconozca el permiso de archivos locales; programar la tarea no acredita una
-copia subida. No restaurar el SQL de prueba directamente sobre producción:
+general Restringido. La copia del 19/10/2026 se subió manualmente y se verificó
+descargándola: tamaño y SHA-256 coinciden con el ZIP local. La carga automática
+sigue pendiente de una conexión utilizable del Drive de Ciendel; programar
+la tarea no acredita una copia diaria subida. No restaurar el SQL de prueba directamente sobre producción:
 crea estructuras y roles para una base vacía aislada.
 
 ### 3 · La cuenta de administración
@@ -497,16 +498,17 @@ no se indexan. Los errores de consulta del panel se muestran como errores,
 sin simular una base vacía. El importe del tablero corresponde a pedidos no
 cancelados entre los últimos 50 registros y no acredita cobros.
 
-### Dependencias y CI al 19/10/2026
+### Dependencias y CI al 20/10/2026
 
 Next.js se actualizó a 16.3.8, Sharp a 0.35.5 y Vitest a 4.1.12.
 `npm audit --omit=dev --audit-level=high` no informa vulnerabilidades.
-La auditoría completa sigue bloqueando CI por
-[GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm):
-`braces` 3.0.3, dependencia transitiva de ESLint, todavía no tiene parche.
-El titular decidió conservar el bloqueo, sin excepciones ni filtros al aviso.
-Revisar el parche cuando esté disponible antes de declarar CI completamente
-correcto. Este estado no equivale al resultado de las pruebas funcionales.
+La cadena vulnerable de `braces` se elimina sustituyendo exclusivamente la
+búsqueda de carpetas del plugin de Next por un adaptador de `tinyglobby`.
+La auditoría completa local informa cero vulnerabilidades. Se conserva
+`npm audit --audit-level=high`, sin excepciones ni filtros al aviso.
+Las pruebas de compatibilidad comprueban que el lint continúa detectando
+errores de navegación. Ver [ADR 015](docs/adr/015-glob-eslint-sin-braces.md).
+El resultado remoto se comprueba en GitHub Actions para cada commit.
 
 El recorrido de compra verifica el número y el precio persistido cuando hay
 Supabase configurado; sin esa configuración, verifica el mensaje sin número

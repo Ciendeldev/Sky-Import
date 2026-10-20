@@ -67,3 +67,23 @@ estado de la automatización y los archivos fechados del destino, no solo con
 la existencia de este procedimiento.
 
 Referencia: [automatizaciones de Codex](https://learn.chatgpt.com/docs/automations?surface=app).
+
+## Estado comprobado el 20/10/2026
+
+La copia del 19/10/2026 se subió manualmente al Drive privado de Ciendel,
+se descargó y se cotejó con el ZIP local: 59.451 bytes y SHA-256 idéntico.
+La carpeta y el archivo mantienen acceso Restringido, solo del propietario.
+El comprobante está fuera de Git, junto al respaldo privado.
+
+La automatización diaria está programada, pero la subida automática todavía
+no está acreditada. Chrome había rechazado la carga de archivos locales
+incluso después de revisar su permiso. El 20/10 el plugin de Drive seguía
+identificando una cuenta distinta y no tenía acceso a la carpeta de Ciendel,
+aunque el usuario informó haber cambiado la conexión.
+
+Antes de una nueva captura, verificar que existe una vía de subida utilizable.
+Se admite el plugin de Drive solo si `get_profile` devuelve
+`ciendel.dev@gmail.com`, la carpeta es la autorizada y sus permisos siguen
+restringidos al propietario. Tras subir, verificar tamaño e integridad del
+archivo y registrar el resultado privado. Esta alternativa sigue pendiente
+de una prueba completa; no se presenta como una ejecución exitosa.
